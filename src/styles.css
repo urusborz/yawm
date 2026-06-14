@@ -178,6 +178,48 @@ button {
   box-shadow: 0 42px 90px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
+.admin-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(108, 142, 245, 0.26), transparent 28%),
+    #0f1117;
+}
+
+.admin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 360px);
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background: rgba(26, 29, 39, 0.9);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+.admin-card > span {
+  color: rgba(244, 246, 250, 0.64);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.admin-card h1 {
+  margin: 0;
+  color: #f4f6fa;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.form-error {
+  margin: 0;
+  color: #ff7070;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .status-bar {
   position: absolute;
   inset: 0 0 auto;
@@ -509,6 +551,7 @@ button {
 }
 
 .task-row,
+.bill-row,
 .event-row,
 .menu-row {
   display: flex;
@@ -523,19 +566,40 @@ button {
   text-align: left;
 }
 
-.bill-row {
-  border-top: 1px solid var(--line);
-  border-right: 0;
-  border-bottom: 0;
-  border-left: 0;
-}
-
 .bill-row--paid {
   opacity: 0.58;
 }
 
 .rows > :first-child {
   border-top: 0;
+}
+
+.managed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.managed-row:first-child {
+  border-top: 0;
+}
+
+.managed-row > .task-row,
+.managed-row > .event-row {
+  flex: 1;
+  border-top: 0;
+}
+
+.delete-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 12px;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
 
 .task-check {
@@ -778,6 +842,13 @@ button {
   font-size: 18px;
 }
 
+.note-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .note-card p {
   margin: 0;
   color: var(--ink-2);
@@ -1006,6 +1077,7 @@ button {
     padding: 0;
     min-height: 100dvh;
     background: var(--bg);
+    font-size: 14px;
   }
 
   .app-shell {
@@ -1034,20 +1106,35 @@ button {
   }
 
   .content {
-    padding-top: max(18px, calc(env(safe-area-inset-top) + 10px));
-    padding-right: 14px;
-    padding-bottom: max(132px, calc(env(safe-area-inset-bottom) + 116px));
-    padding-left: 14px;
+    padding-top: max(12px, calc(env(safe-area-inset-top) + 8px));
+    padding-right: 12px;
+    padding-bottom: max(102px, calc(env(safe-area-inset-bottom) + 88px));
+    padding-left: 12px;
   }
 
   .bottom-nav {
     height: auto;
-    min-height: 78px;
-    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    min-height: 64px;
+    padding: 6px 8px max(8px, env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav__item {
+    gap: 1px;
+  }
+
+  .bottom-nav__item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .bottom-nav__item span {
+    font-size: 9px;
   }
 
   .fab {
-    bottom: max(58px, calc(env(safe-area-inset-bottom) + 56px));
+    width: 46px;
+    height: 46px;
+    bottom: max(49px, calc(env(safe-area-inset-bottom) + 44px));
   }
 
   .sheet__panel {
@@ -1058,32 +1145,158 @@ button {
 }
 
 @media (max-width: 430px) {
+  .screen {
+    gap: 10px;
+  }
+
+  .screen-header {
+    align-items: center;
+  }
+
+  .screen-header span {
+    font-size: 12px;
+  }
+
   .screen-header h1 {
-    font-size: 21px;
+    font-size: 19px;
+  }
+
+  .avatar,
+  .avatar-stack span {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .daybar {
+    height: 3px;
   }
 
   .prayer-card {
-    grid-template-columns: minmax(0, 1fr) 84px;
-    min-height: 178px;
-    padding: 18px;
+    grid-template-columns: minmax(0, 1fr) 72px;
+    min-height: 142px;
+    padding: 14px;
+    border-radius: 22px;
+    gap: 8px 10px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+  }
+
+  .prayer-card h2 {
+    margin-top: 5px;
+    font-size: 25px;
+  }
+
+  .prayer-card p,
+  .prayer-card small {
+    font-size: 12px;
+  }
+
+  .prayer-card__countdown strong {
+    font-size: 42px;
+  }
+
+  .prayer-card__countdown span {
+    font-size: 18px;
   }
 
   .progress-ring {
-    width: 82px;
-    height: 82px;
+    width: 70px;
+    height: 70px;
+  }
+
+  .prayer-dots {
+    gap: 7px;
+  }
+
+  .prayer-dots span {
+    width: 7px;
+    height: 7px;
   }
 
   .stats-grid {
-    gap: 8px;
+    gap: 7px;
   }
 
   .stat-tile {
-    min-height: 100px;
-    padding: 12px;
+    min-height: 78px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+
+  .stat-tile__icon svg {
+    width: 17px;
+    height: 17px;
   }
 
   .stat-tile strong {
-    font-size: 23px;
+    margin-top: 7px;
+    font-size: 20px;
+  }
+
+  .stat-tile span {
+    font-size: 10px;
+  }
+
+  .panel {
+    padding: 13px;
+    border-radius: 18px;
+  }
+
+  .panel__header {
+    margin-bottom: 8px;
+  }
+
+  .panel__header h2,
+  .sheet h2 {
+    font-size: 18px;
+  }
+
+  .total {
+    font-size: 31px;
+  }
+
+  .task-row,
+  .bill-row,
+  .event-row,
+  .menu-row {
+    min-height: 42px;
+    padding: 7px 0;
+    gap: 10px;
+  }
+
+  .task-title,
+  .bill-row strong,
+  .event-row strong,
+  .setup-row strong,
+  .menu-row strong {
+    font-size: 14px;
+  }
+
+  .bill-row b {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .date-badge {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .checkin,
+  .primary-button,
+  .mode-toggle {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .field {
+    min-height: 44px;
+    border-radius: 14px;
   }
 
   .type-grid {

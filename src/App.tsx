@@ -1,6 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 import {
-  Bell,
   BookOpen,
   CalendarDays,
   Check,
@@ -18,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  Trash2,
   UserRound,
   UsersRound,
   X,
@@ -26,13 +26,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { currentUser, habitSummary, initialBills, initialEvents, initialNotes, initialTasks, prayerTimes } from './data/mock';
 import { dayProgress, daysUntil, formatShortDate, formatTime, formatToday, getGreeting } from './lib/dates';
 import { getNextPrayer } from './lib/prayer-times';
-import { isSupabaseConfigured, supabase } from './lib/supabase';
 import type { Bill, FamilyEvent, Note, Scope, Task } from './types';
 
 type View = 'me' | 'family' | 'tasks' | 'notes' | 'calendar' | 'prayer' | 'settings';
 type QuickAddType = 'task' | 'event' | 'bill' | 'note';
 
 const themeNames = ['slate', 'emerald', 'rose', 'midnight'] as const;
+const ADMIN_PASSWORD_KEY = 'yawm-admin-password';
+const ADMIN_SESSION_KEY = 'yawm-admin-session';
 
 function money(value: number) {
   return new Intl.NumberFormat('de-AT', { style: 'currency', currency: 'EUR' }).format(value);
@@ -53,6 +54,68 @@ function usePersistentState<T>(key: string, fallback: T) {
   }, [key, value]);
 
   return [value, setValue] as const;
+}
+
+function encodePassword(value: string) {
+  return window.btoa(unescape(encodeURIComponent(value)));
+}
+
+function AdminGate({ children }: { children: ReactNode }) {
+  const [hasAdmin, setHasAdmin] = useState(() => Boolean(window.localStorage.getItem(ADMIN_PASSWORD_KEY)));
+  const [isUnlocked, setIsUnlocked] = useState(() => window.localStorage.getItem(ADMIN_SESSION_KEY) === 'true');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    if (password.trim().length < 4) {
+      setError('Mindestens 4 Zeichen.');
+      return;
+    }
+
+    if (!hasAdmin) {
+      window.localStorage.setItem(ADMIN_PASSWORD_KEY, encodePassword(password));
+      window.localStorage.setItem(ADMIN_SESSION_KEY, 'true');
+      setHasAdmin(true);
+      setIsUnlocked(true);
+      return;
+    }
+
+    if (window.localStorage.getItem(ADMIN_PASSWORD_KEY) === encodePassword(password)) {
+      window.localStorage.setItem(ADMIN_SESSION_KEY, 'true');
+      setIsUnlocked(true);
+      return;
+    }
+
+    setError('Passwort stimmt nicht.');
+  }
+
+  if (isUnlocked) return <>{children}</>;
+
+  return (
+    <div className="admin-screen" data-theme="slate" data-mode="dark">
+      <form className="admin-card" onSubmit={submit}>
+        <div className="brand-mark">Y</div>
+        <span>Yawm Admin</span>
+        <h1>{hasAdmin ? 'Einloggen' : 'Admin anlegen'}</h1>
+        <input
+          className="field"
+          type="password"
+          value={password}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            setError('');
+          }}
+          placeholder={hasAdmin ? 'Admin-Passwort' : 'Neues Passwort'}
+        />
+        {error ? <p className="form-error">{error}</p> : null}
+        <button className="primary-button" type="submit">
+          <ShieldCheck size={18} />
+          {hasAdmin ? 'Entsperren' : 'Admin speichern'}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 function StatTile({ icon, value, label, locked }: { icon: ReactNode; value: ReactNode; label: string; locked?: boolean }) {
@@ -470,7 +533,7 @@ function FamilyDashboard({
   );
 }
 
-function TasksView({ tasks, onToggleTask, onCreateTask }: { tasks: Task[]; onToggleTask: (id: string) => void; onCreateTask: (title: string, scope: Scope, dueAt?: string) => void }) {
+function TasksView({ tasks, onToggleTask, onCreateTask, onDeleteTask }: { tasks: Task[]; onToggleTask: (id: string) => void; onCreateTask: (title: string, scope: Scope, dueAt?: string) => void; onDeleteTask: (id: string) => void }) {
   const [title, setTitle] = useState('');
   const [scope, setScope] = useState<Scope>('private');
 
@@ -496,7 +559,14 @@ function TasksView({ tasks, onToggleTask, onCreateTask }: { tasks: Task[]; onTog
       </form>
       <section className="panel">
         <div className="rows">
-          {tasks.map((task) => <TaskRow key={task.id} task={task} onToggle={onToggleTask} />)}
+          {tasks.map((task) => (
+            <div className="managed-row" key={task.id}>
+              <TaskRow task={task} onToggle={onToggleTask} />
+              <button className="delete-button" type="button" onClick={() => onDeleteTask(task.id)} title="Aufgabe loeschen">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
         </div>
       </section>
     </motion.div>
@@ -526,7 +596,12 @@ function NotesView({ notes, setNotes }: { notes: Note[]; setNotes: (notes: Note[
       <div className="note-grid">
         {notes.map((note) => (
           <article className="note-card" key={note.id}>
-            <span>{note.scope === 'private' ? 'Privat' : 'Geteilt'}</span>
+            <div className="note-card__header">
+              <span>{note.scope === 'private' ? 'Privat' : 'Geteilt'}</span>
+              <button className="delete-button" type="button" onClick={() => setNotes(notes.filter((item) => item.id !== note.id))} title="Notiz loeschen">
+                <Trash2 size={16} />
+              </button>
+            </div>
             <h2>{note.title}</h2>
             <p>{note.content}</p>
           </article>
@@ -536,17 +611,7 @@ function NotesView({ notes, setNotes }: { notes: Note[]; setNotes: (notes: Note[
   );
 }
 
-function SettingsView({ setView, mode, setMode, theme, setTheme, onReset }: { setView: (view: View) => void; mode: 'dark' | 'light'; setMode: (mode: 'dark' | 'light') => void; theme: string; setTheme: (theme: (typeof themeNames)[number]) => void; onReset: () => void }) {
-  const [email, setEmail] = useState('');
-  const [authStatus, setAuthStatus] = useState('');
-
-  async function signIn(event: FormEvent) {
-    event.preventDefault();
-    if (!supabase || !email.trim()) return;
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin } });
-    setAuthStatus(error ? error.message : 'Magic-Link wurde versendet.');
-  }
-
+function SettingsView({ setView, mode, setMode, theme, setTheme, onReset, onLogout }: { setView: (view: View) => void; mode: 'dark' | 'light'; setMode: (mode: 'dark' | 'light') => void; theme: string; setTheme: (theme: (typeof themeNames)[number]) => void; onReset: () => void; onLogout: () => void }) {
   return (
     <motion.div className="screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <header className="simple-header">
@@ -557,17 +622,10 @@ function SettingsView({ setView, mode, setMode, theme, setTheme, onReset }: { se
         <div className="setup-row">
           <ShieldCheck size={22} />
           <div>
-            <strong>{isSupabaseConfigured ? 'Supabase verbunden' : 'Lokaler Modus'}</strong>
-            <span>{isSupabaseConfigured ? 'Auth kann spaeter aktiviert werden.' : 'Daten werden auf diesem Geraet gespeichert.'}</span>
+            <strong>Lokaler Admin-Modus</strong>
+            <span>Daten bleiben vorerst auf diesem Geraet. Supabase bleibt aus.</span>
           </div>
         </div>
-        {isSupabaseConfigured ? (
-          <form className="auth-form" onSubmit={signIn}>
-            <input className="field" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="E-Mail" />
-            <button className="primary-button" type="submit"><Bell size={18} />Magic-Link</button>
-            {authStatus ? <p>{authStatus}</p> : null}
-          </form>
-        ) : null}
       </section>
       <section className="panel">
         <div className="theme-grid theme-grid--wide">
@@ -583,6 +641,7 @@ function SettingsView({ setView, mode, setMode, theme, setTheme, onReset }: { se
       <section className="panel">
         <button className="menu-row" type="button" onClick={() => setView('prayer')}><Sun size={20} /><span>Gebetszeiten</span></button>
         <button className="menu-row" type="button" onClick={() => setView('notes')}><NotebookPen size={20} /><span>Notizen</span></button>
+        <button className="menu-row" type="button" onClick={onLogout}><Lock size={20} /><span>Admin sperren</span></button>
         <button className="menu-row danger-row" type="button" onClick={onReset}><X size={20} /><span>Lokale Daten zuruecksetzen</span></button>
       </section>
     </motion.div>
@@ -626,6 +685,10 @@ export default function App() {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, done: !task.done } : task)));
   }
 
+  function deleteTask(id: string) {
+    setTasks((current) => current.filter((task) => task.id !== id));
+  }
+
   function toggleBill(id: string) {
     setBills((current) => current.map((bill) => (bill.id === id ? { ...bill, status: bill.status === 'paid' ? 'open' : 'paid' } : bill)));
   }
@@ -644,7 +707,13 @@ export default function App() {
     setCheckinDone(false);
   }
 
+  function logoutAdmin() {
+    window.localStorage.removeItem(ADMIN_SESSION_KEY);
+    window.location.reload();
+  }
+
   return (
+    <AdminGate>
     <div className="app" data-theme={theme} data-mode={mode}>
       <div className="app-shell">
         <aside className="desktop-rail">
@@ -662,7 +731,7 @@ export default function App() {
             <AnimatePresence mode="wait">
               {view === 'me' ? <MeDashboard key="me" now={now} tasks={tasks} onToggleTask={toggleTask} checkinDone={checkinDone} onOpenCheckin={() => setCheckinOpen(true)} onOpenPrayer={() => setView('prayer')} /> : null}
               {view === 'family' ? <FamilyDashboard key="family" tasks={tasks} bills={bills} events={events} onToggleTask={toggleTask} onToggleBill={toggleBill} onOpenAdd={openAdd} /> : null}
-              {view === 'tasks' ? <TasksView key="tasks" tasks={tasks} onToggleTask={toggleTask} onCreateTask={createTask} /> : null}
+              {view === 'tasks' ? <TasksView key="tasks" tasks={tasks} onToggleTask={toggleTask} onCreateTask={createTask} onDeleteTask={deleteTask} /> : null}
               {view === 'notes' ? <NotesView key="notes" notes={notes} setNotes={setNotes} /> : null}
               {view === 'calendar' ? (
                 <GenericListView key="calendar" title="Kalender" icon={<CalendarDays size={25} />}>
@@ -670,9 +739,14 @@ export default function App() {
                     <button className="inline-action inline-action--top" type="button" onClick={() => openAdd('event')}><Plus size={17} />Termin</button>
                     <div className="rows">
                       {events.map((event) => (
-                        <div className="event-row" key={event.id}>
-                          <div className="date-badge"><strong>{new Date(event.startsAt).getDate()}</strong><span>Jun</span></div>
-                          <div><strong>{event.title}</strong><span>{formatTime(event.startsAt)}{event.location ? ` - ${event.location}` : ''}</span></div>
+                        <div className="managed-row" key={event.id}>
+                          <div className="event-row">
+                            <div className="date-badge"><strong>{new Date(event.startsAt).getDate()}</strong><span>Jun</span></div>
+                            <div><strong>{event.title}</strong><span>{formatTime(event.startsAt)}{event.location ? ` - ${event.location}` : ''}</span></div>
+                          </div>
+                          <button className="delete-button" type="button" onClick={() => setEvents((current) => current.filter((item) => item.id !== event.id))} title="Termin loeschen">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -689,7 +763,7 @@ export default function App() {
                   </section>
                 </GenericListView>
               ) : null}
-              {view === 'settings' ? <SettingsView key="settings" setView={setView} mode={mode} setMode={setMode} theme={theme} setTheme={setTheme} onReset={resetLocalData} /> : null}
+              {view === 'settings' ? <SettingsView key="settings" setView={setView} mode={mode} setMode={setMode} theme={theme} setTheme={setTheme} onReset={resetLocalData} onLogout={logoutAdmin} /> : null}
             </AnimatePresence>
           </div>
           <button className="fab" type="button" onClick={() => openAdd('task')} title="Hinzufuegen"><Plus size={26} /></button>
@@ -717,5 +791,6 @@ export default function App() {
         </aside>
       </div>
     </div>
+    </AdminGate>
   );
 }
