@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<!-- saved from url=(0320)https://50ef52ec-7e3c-44a3-8017-d7995edac432.claudeusercontent.com/v1/design/projects/50ef52ec-7e3c-44a3-8017-d7995edac432/serve/Yawm%20Dashboard-print.dc.html?t=9e119f3a1c502913b584dd57a154f4c5dcfdcfe7cf397c9e545e57e8f4352bbb.54f0804a-e228-4cf4-8e41-9c428924aeac.94622786-17f0-451f-84f2-47a76df5fa0c.1781479083&direct=1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
+    .sc-placeholder{background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.5);
+      border-radius:2px;box-sizing:border-box;overflow:hidden}
+    @keyframes sc-shine{0%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes sc-veil-pulse{0%,100%{opacity:.4}50%{opacity:1}}
+    html.sc-dc-streaming .sc-placeholder,
+    html.sc-dc-streaming .sc-interp.sc-missing{position:relative;
+      background:color-mix(in srgb,currentColor 5%,transparent);
+      border-color:transparent}
+    html.sc-dc-streaming .sc-placeholder::before,
+    html.sc-dc-streaming .sc-interp.sc-missing::before{content:'';
+      position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(90deg,rgba(217,119,87,0) 25%,rgba(247,225,211,.95) 37%,rgba(217,119,87,0) 63%);
+      background-size:400% 100%;animation:sc-shine .73s ease infinite}
+    html.sc-dc-streaming::after{content:'';position:fixed;inset:0;
+      z-index:2147483646;pointer-events:none;
+      box-shadow:inset 0 0 90px rgba(217,119,87,.16),inset 0 0 22px rgba(217,119,87,.1);
+      animation:sc-veil-pulse 1.36s ease-in-out infinite}
+    .sc-placeholder-error{padding:4px 8px;font:11px/1.4 ui-monospace,monospace;
+      color:rgba(0,0,0,.7);word-break:break-word}
+    .sc-interp.sc-missing{display:inline-block;width:2em;height:1em;overflow:hidden;
+      vertical-align:text-bottom;background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.5);
+      border-radius:2px;box-sizing:border-box;color:transparent;
+      user-select:none}
+    .sc-interp.sc-unresolved{font-family:ui-monospace,monospace;font-size:.85em;
+      color:rgba(0,0,0,.5);background:rgba(0,0,0,.05);border-radius:3px;
+      padding:0 3px}
+    .sc-host.sc-has-error{position:relative}
+    .sc-logic-error{position:absolute;top:8px;left:8px;z-index:2147483647;max-width:60ch;
+      padding:6px 10px;background:#b00020;color:#fff;font:12px/1.4 ui-monospace,monospace;
+      border-radius:4px;white-space:pre-wrap;pointer-events:none}
+    /* Mirrors PRINT_BASELINE_CSS in apps/web deck-stage-export.ts — keep both
+       in sync until dc-runtime regains a build step. */
+    @media print {
+      @page { margin: 0.5cm; }
+      html, body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      section, article, figure, table { break-inside: avoid; }
+      *, *::before, *::after {
+        animation-delay: -99s !important; animation-duration: .001s !important;
+        animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+        animation-play-state: running !important; transition-duration: 0s !important;
+      }
+    }
+  </style><style>@media print {
+  @page { margin: 0.5cm; }
+  html, body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  section, article, figure, table { break-inside: avoid; }
+  *, *::before, *::after {
+    animation-delay: -99s !important; animation-duration: .001s !important;
+    animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+    animation-play-state: running !important; transition-duration: 0s !important;
+  }
+}</style>
+<style data-omelette-injected="">html,body{background:transparent}</style><script data-omelette-injected="">(()=>{var j=["https://claude.ai","https://preview.claude.ai"];var x=true;var S=30000;var f=3000;document.addEventListener("DOMContentLoaded",()=>{const H=window.Babel;const G="om-src-id";if(H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[G])){H.registerPlugin(G,({types:Y})=>({visitor:{JSXOpeningElement(U,Q){const J=U.node;if(J.name&&J.name.type==="JSXMemberExpression")return;for(let V=0;V<J.attributes.length;V++){const L=J.attributes[V];if(L.type==="JSXAttribute"&&L.name&&L.name.name==="data-om-id")return}const W=Q.file&&Q.file.opts&&Q.file.opts.filename||"?";const Z=J.loc&&J.loc.start;const z=`jsx:${W}:${J.start??0}:${Z?Z.line:0}:${Z?Z.column+1:0}`;J.attributes.push(Y.jsxAttribute(Y.jsxIdentifier("data-om-id"),Y.stringLiteral(z)))}}}))}const k="om-text-extract";let A=false;if(x&&H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[k])){const Y=window.React;if(Y&&Y.useSyncExternalStore&&Y.createElement){A=true;const U={};const Q=new Set;let J=0;window.__omTextO=U;window.__omTextSet=(z)=>{for(const V in z){const L=z[V];if(L==null)delete U[V];else U[V]=L}J++;Q.forEach((V)=>V())};const W=(z)=>{Q.add(z);return()=>Q.delete(z)};const Z=()=>J;window.__OmT=function z(V){Y.useSyncExternalStore(W,Z,Z);return Y.createElement("span",{"data-om-text":V.i,className:"__om-t"},V.i in U?U[V.i]:V.children)};H.registerPlugin(k,({types:z})=>{const V={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const L={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const _=($,C)=>z.logicalExpression("??",z.memberExpression(z.logicalExpression("||",z.memberExpression(z.identifier("window"),z.identifier("__omTextO")),z.objectExpression([])),z.stringLiteral($),true),C);const E=($)=>$.file&&$.file.opts&&$.file.opts.filename||"?";const B=($)=>$.file&&$.file.code||"";const b=($,C)=>{const X=(F)=>F&&F.start!=null&&F.end!=null&&(F.type==="StringLiteral"||F.type==="TemplateLiteral"&&F.expressions.length===0)?[F.start,F.end]:null;const N=X(C);if(N)return N;if(C&&C.type==="Identifier"){const F=$.scope.getBinding(C.name);if(F&&F.constant&&F.path.node.type==="VariableDeclarator"){return X(F.path.node.init)}}return null};const M=($,C,X)=>{const N=$.node;let F=false;const w=(K,q)=>{F=true;return z.jsxElement(z.jsxOpeningElement(z.jsxIdentifier("__OmT"),[z.jsxAttribute(z.jsxIdentifier("i"),z.stringLiteral(K))],false),z.jsxClosingElement(z.jsxIdentifier("__OmT")),[q],false)};const D=N.children.map((K)=>{if(K.type==="JSXText"){if(K.start==null||K.end==null)return K;const q=X.slice(K.start,K.end);const R=q.length-q.trimStart().length;const m=q.length-q.trimEnd().length;if(R+m>=q.length)return K;return w(`txt:${C}:${K.start+R}:${K.end-m}`,K)}if(K.type==="JSXExpressionContainer"){const q=b($,K.expression);if(q)return w(`str:${C}:${q[0]}:${q[1]}`,K)}return K});if(F)N.children=D};return{visitor:{JSXOpeningElement($,C){const X=$.node;const N=E(C);const F={};for(let w=0;w<X.attributes.length;w++){const D=X.attributes[w];if(D.type!=="JSXAttribute"||!D.name)continue;const K=D.name.name;if(!L[K])continue;if(!D.value||D.value.type!=="StringLiteral")continue;if(D.value.start==null||D.value.end==null)continue;const q=`txt:${N}:${D.value.start}:${D.value.end}`;F[K]=q;D.value=z.jsxExpressionContainer(_(q,z.stringLiteral(D.value.value)))}if(Object.keys(F).length){X.attributes.push(z.jsxAttribute(z.jsxIdentifier("data-om-text-attrs"),z.stringLiteral(JSON.stringify(F))))}},JSXElement($,C){const X=$.node.openingElement;const N=X&&X.name&&X.name.name;if(N==="__OmT")return;if(typeof N==="string"&&V[N])return;M($,E(C),B(C))},JSXFragment($,C){M($,E(C),B(C))}}}})}}const u=A?["transform-react-jsx-source",G,k]:["transform-react-jsx-source",G];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((Y,U)=>{const Q=Y.getAttribute("data-plugins")||"";const J=u.filter((W)=>Q.indexOf(W)<0);if(J.length){Y.setAttribute("data-plugins",Q?`${Q},${J.join(",")}`:J.join(","))}if(!Y.hasAttribute("data-filename")){Y.setAttribute("data-filename",Y.getAttribute("src")||`inline-${U}`)}})});var y=window.parent;if(y&&y!==window){const H=(Q,J)=>{try{y.postMessage({__omelette_log:true,type:Q,data:J},"*")}catch{}};["log","warn","error"].forEach((Q)=>{const J=console[Q];console[Q]=(...W)=>{const Z=W.map((z)=>{try{return typeof z==="object"?JSON.stringify(z):String(z)}catch{try{return String(z)}catch{return"[unstringifiable]"}}}).join(" ");H(Q,Z);J.apply(console,W)}});window.addEventListener("error",(Q)=>{const J=Q.target;if(J&&J!==window&&J.tagName){const W=J.src||J.href||"";H("resource_error",`${J.tagName} failed to load: ${W}`)}else{H("error",`${Q.message||"Unknown error"} at ${Q.filename||"?"}:${Q.lineno||0}:${Q.colno||0}`)}},true);window.addEventListener("unhandledrejection",(Q)=>{const J=Q.reason;const W=J instanceof Error?`${J.message} ${J.stack}`:String(J);H("error",`Unhandled rejection: ${W}`)});const G=()=>{try{y.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(document.readyState==="complete")G();else window.addEventListener("load",G);if(window.ResizeObserver)new ResizeObserver(G).observe(document.documentElement);const k={};let A=0;window.claude={complete(Q){return new Promise((J,W)=>{if(!j.length){W(new Error("claude.complete: no parent origin"));return}const Z=`c${++A}`;const z=()=>setTimeout(()=>{delete k[Z];W(new Error(`claude.complete: no data for ${S/1000}s`))},S);const V=z();k[Z]={resolve:J,reject:W,text:"",t:V,arm:z};try{for(const L of j){y.postMessage({__om_api:true,id:Z,body:Q},L)}}catch(L){clearTimeout(V);delete k[Z];W(L)}})}};const u={};let Y=0;window.omelette={writeFile:(Q,J)=>new Promise((W,Z)=>{if(!j.length){W();return}const z=`f${++Y}`;const V=setTimeout(()=>{delete u[z];W()},f);u[z]={resolve:W,reject:Z,t:V};try{for(const L of j){y.postMessage({__om_file:true,id:z,op:"write",path:Q,content:J},L)}}catch{clearTimeout(V);delete u[z];W()}})};const U=(Q)=>{try{return JSON.stringify(Q)}catch{return JSON.stringify(String(Q))}};window.addEventListener("message",(Q)=>{if(j.indexOf(Q.origin)<0)return;if(Q.source!==y)return;const J=Q.data;if(!J)return;if(J.type==="omelette-preview-refresh"){if(typeof J.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(J.token))return;const z=Math.max(1,Math.floor((J.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+J.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+z;return}if(J.__om_file_r){const z=u[J.id];if(!z)return;clearTimeout(z.t);delete u[J.id];if(J.ok)z.resolve();else z.reject(new Error(J.error||"write failed"));return}if(J.__om_api_r){const z=k[J.id];if(!z)return;if(J.error!=null){clearTimeout(z.t);delete k[J.id];z.reject(new Error(J.error));return}if(J.chunk!=null){clearTimeout(z.t);z.t=z.arm();z.text+=J.chunk;return}if(J.done){clearTimeout(z.t);delete k[J.id];z.resolve(J.text!=null?J.text:z.text);return}return}if(!J.__om_eval)return;const W=J;const Z=(z)=>{Q.source.postMessage({...z,__om_eval_r:1,id:W.id},Q.origin)};try{const z=(0,eval)(W.code);if(z&&typeof z.then==="function"){z.then((V)=>Z({ok:1,v:U(V)}),(V)=>Z({ok:0,e:String(V)}))}else{Z({ok:1,v:U(z)})}}catch(z){Z({ok:0,e:String(z)})}})}})();
+</script>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./Yawm Dashboard-print.dc_files/support.js.Download"></script><style>x-dc{display:none!important}</style><script src="./Yawm Dashboard-print.dc_files/react.production.min.js.Download" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script><script src="./Yawm Dashboard-print.dc_files/react-dom.production.min.js.Download" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+<script src="./Yawm Dashboard-print.dc_files/babel.min.js.Download" crossorigin="anonymous"></script><style>html,body{height:100%;margin:0}#dc-root,#dc-root>.sc-host{height:100%}</style><link rel="preconnect" href="https://fonts.googleapis.com/" data-dc-tpl="1"><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" data-dc-tpl="2"><link href="./Yawm Dashboard-print.dc_files/css2" rel="stylesheet" data-dc-tpl="3"><style data-dc-tpl="4">
+  body { margin:0; font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  /* Theme palettes — the only thing that genuinely can't be inline (attribute-driven crossfade) */
+  [data-mode="dark"]{ --ink:#F4F6FA; --ink-2:rgba(244,246,250,.62); --ink-3:rgba(244,246,250,.40); --line:rgba(255,255,255,.08); --on-accent:#fff; --danger:#FF7070; --success:#34C77B; --shadow:none; }
+  [data-mode="light"]{ --ink:#14161D; --ink-2:rgba(20,22,29,.58); --ink-3:rgba(20,22,29,.42); --line:rgba(0,0,0,.07); --on-accent:#fff; --danger:#E5484D; --success:#16A34A; --shadow:0 2px 16px rgba(0,0,0,.07); }
+
+  [data-theme="slate"][data-mode="dark"]{ --bg:#0F1117; --surface:#1A1D27; --glass:rgba(26,29,39,.66); --accent:#6C8EF5; --accent-2:#A78BFA; --grad:linear-gradient(135deg,#6C8EF5,#A78BFA); }
+  [data-theme="slate"][data-mode="light"]{ --bg:#F4F6FB; --surface:#FFFFFF; --glass:rgba(255,255,255,.82); --accent:#4F6FE8; --accent-2:#7C5CDB; --grad:linear-gradient(135deg,#4F6FE8,#7C5CDB); }
+
+  [data-theme="amber"][data-mode="dark"]{ --bg:#120E08; --surface:#1E1710; --glass:rgba(30,23,16,.66); --accent:#D4A853; --accent-2:#C87941; --grad:linear-gradient(135deg,#D4A853,#C87941); }
+  [data-theme="amber"][data-mode="light"]{ --bg:#FDFAF3; --surface:#FFFFFF; --glass:rgba(255,255,255,.82); --accent:#B8860B; --accent-2:#A0522D; --grad:linear-gradient(135deg,#B8860B,#A0522D); }
+
+  [data-theme="emerald"][data-mode="dark"]{ --bg:#08110E; --surface:#111D17; --glass:rgba(17,29,23,.66); --accent:#34C77B; --accent-2:#5EEAD4; --grad:linear-gradient(135deg,#34C77B,#5EEAD4); }
+  [data-theme="emerald"][data-mode="light"]{ --bg:#F2FBF6; --surface:#FFFFFF; --glass:rgba(255,255,255,.82); --accent:#16A34A; --accent-2:#0D9488; --grad:linear-gradient(135deg,#16A34A,#0D9488); }
+
+  [data-theme="rose"][data-mode="dark"]{ --bg:#110B10; --surface:#1C1219; --glass:rgba(28,18,25,.66); --accent:#F472B6; --accent-2:#C084FC; --grad:linear-gradient(135deg,#F472B6,#C084FC); }
+  [data-theme="rose"][data-mode="light"]{ --bg:#FDF4F9; --surface:#FFFFFF; --glass:rgba(255,255,255,.82); --accent:#DB2777; --accent-2:#9333EA; --grad:linear-gradient(135deg,#DB2777,#9333EA); }
+
+  [data-theme="midnight"][data-mode="dark"]{ --bg:#050B18; --surface:#0D1A2E; --glass:rgba(13,26,46,.66); --accent:#38BDF8; --accent-2:#34D399; --grad:linear-gradient(135deg,#38BDF8,#34D399); }
+  [data-theme="midnight"][data-mode="light"]{ --bg:#F0F7FF; --surface:#FFFFFF; --glass:rgba(255,255,255,.82); --accent:#0284C7; --accent-2:#059669; --grad:linear-gradient(135deg,#0284C7,#059669); }
+
+  [data-theme]{ transition:background-color .45s ease; }
+  [data-theme] *{ transition:background-color .45s ease, border-color .45s ease, color .45s ease, box-shadow .45s ease, fill .45s ease, stroke .45s ease; }
+  @keyframes yawmFadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+</style><style>*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}</style></head>
+<body>
+<div id="dc-root"><div class="sc-host" data-sc-name="Yawm Dashboard-print"><div data-dc-tpl="5" style="min-height: 100vh; background: radial-gradient(circle at 20% 0%, rgb(48, 51, 59), rgb(34, 35, 41) 60%) rgb(38, 40, 46); padding: 40px 32px 64px; box-sizing: border-box; font-family: Inter, system-ui;">
+
+  <div data-dc-tpl="6" style="max-width: 1120px; margin: 0px auto;">
+    
+    <div data-dc-tpl="7" style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+      <div data-dc-tpl="8">
+        <div data-dc-tpl="9" style="display: flex; align-items: center; gap: 12px;">
+          <div data-dc-tpl="10" style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgb(108, 142, 245), rgb(167, 139, 250)); display: flex; align-items: center; justify-content: center; color: rgb(255, 255, 255); font-family: &quot;Noto Naskh Arabic&quot;; font-size: 19px;">ي</div>
+          <h1 data-dc-tpl="11" style="margin: 0px; font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 26px; color: rgb(255, 255, 255); letter-spacing: -0.01em;">Yawm <span data-dc-tpl="12" style="color: rgba(255, 255, 255, 0.4); font-weight: 600;">— Familien-Dashboard</span></h1>
+        </div>
+        <p data-dc-tpl="13" style="margin: 8px 0px 0px; color: rgba(255, 255, 255, 0.5); font-size: 14px; max-width: 540px;">Persönliche PWA für Ibragim &amp; Madina. Tippe die Aufgaben, starte das Check-in, öffne „+“ — und wechsle unten das Theme.</p>
+      </div>
+      
+      <div data-dc-tpl="14" style="display: flex; align-items: center; gap: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 16px; border-radius: 16px;">
+        <span data-dc-tpl="15" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.4); font-weight: 600;">Theme</span>
+        <div data-dc-tpl="16" style="display: flex; gap: 12px;">
+          
+            <div data-dc-tpl="18" title="Slate" style="width: 32px; height: 32px; border-radius: 50%; background: rgb(108, 142, 245); cursor: pointer; border: 2px solid rgb(255, 255, 255); box-shadow: rgb(108, 142, 245) 0px 0px 0px 2px; transform: scale(1.08); transition: transform 0.2s, box-shadow 0.2s;"></div>
+          
+            <div data-dc-tpl="18" title="Amber" style="width: 32px; height: 32px; border-radius: 50%; background: rgb(212, 168, 83); cursor: pointer; border: 2px solid transparent; box-shadow: none; transform: none; transition: transform 0.2s, box-shadow 0.2s;"></div>
+          
+            <div data-dc-tpl="18" title="Emerald" style="width: 32px; height: 32px; border-radius: 50%; background: rgb(52, 199, 123); cursor: pointer; border: 2px solid transparent; box-shadow: none; transform: none; transition: transform 0.2s, box-shadow 0.2s;"></div>
+          
+            <div data-dc-tpl="18" title="Rose" style="width: 32px; height: 32px; border-radius: 50%; background: rgb(244, 114, 182); cursor: pointer; border: 2px solid transparent; box-shadow: none; transform: none; transition: transform 0.2s, box-shadow 0.2s;"></div>
+          
+            <div data-dc-tpl="18" title="Midnight" style="width: 32px; height: 32px; border-radius: 50%; background: rgb(56, 189, 248); cursor: pointer; border: 2px solid transparent; box-shadow: none; transform: none; transition: transform 0.2s, box-shadow 0.2s;"></div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+    <div data-dc-tpl="19" style="display: flex; gap: 48px; flex-wrap: wrap; justify-content: center;">
+
+      
+      <div data-dc-tpl="20" style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div data-dc-tpl="21" style="display: flex; align-items: center; gap: 10px;">
+          <span data-dc-tpl="22" style="color: rgba(255, 255, 255, 0.78); font-size: 13px; font-weight: 600;">Persönliches Dashboard</span>
+          <div data-dc-tpl="23" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 4px 10px; font-size: 11px; color: rgba(255, 255, 255, 0.6); font-weight: 600;">
+            <span data-dc-tpl="24" style="color: rgb(255, 255, 255);">Dunkel</span><span data-dc-tpl="25" style="opacity: 0.3;">/</span><span data-dc-tpl="26" style="opacity: 0.45;">Hell</span>
+          </div>
+        </div>
+        <div class="sc-host-x" data-dc-tpl="27" style="display: contents;"><div style="width: 402px; height: 874px; border-radius: 48px; overflow: hidden; position: relative; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.18) 0px 40px 80px, rgba(0, 0, 0, 0.12) 0px 0px 0px 1px; font-family: -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased;"><div style="position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; border-radius: 24px; background: rgb(0, 0, 0); z-index: 50;"></div><div style="position: absolute; top: 0px; left: 0px; right: 0px; z-index: 10;"><div style="display: flex; gap: 154px; align-items: center; justify-content: center; padding: 21px 24px 19px; box-sizing: border-box; position: relative; z-index: 20; width: 100%;"><div style="flex: 1 1 0%; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 1.5px;"><span style="font-family: -apple-system, &quot;SF Pro&quot;, system-ui; font-weight: 590; font-size: 17px; line-height: 22px; color: rgb(255, 255, 255);">9:41</span></div><div style="flex: 1 1 0%; height: 22px; display: flex; align-items: center; justify-content: center; gap: 7px; padding-top: 1px; padding-right: 1px;"><svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#fff"></rect><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#fff"></rect><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#fff"></rect><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#fff"></rect></svg><svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#fff"></path><path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#fff"></path><circle cx="8.5" cy="10.5" r="1.5" fill="#fff"></circle></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity="0.35" fill="none"></rect><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"></rect><path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#fff" fill-opacity="0.4"></path></svg></div></div></div><div style="height: 100%; display: flex; flex-direction: column;"><div style="flex: 1 1 0%; overflow: auto;">
+          <div data-dc-tpl="28" data-theme="slate" data-mode="dark" style="position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--bg,#0F1117); color: var(--ink,#F4F6FA);">
+            <div data-dc-tpl="29" style="flex: 1 1 0%; overflow: auto; padding: 58px 16px 14px; display: flex; flex-direction: column; gap: 18px;">
+
+              
+              <div data-dc-tpl="30">
+                <div data-dc-tpl="31" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                  <div data-dc-tpl="32">
+                    <div data-dc-tpl="33" style="font-size: 13px; color: var(--ink-2,rgba(244,246,250,.62));"><span class="sc-interp">Montag, 15. Juni</span></div>
+                    <div data-dc-tpl="34" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 22px; margin-top: 3px; color: var(--ink,#F4F6FA);"><span class="sc-interp">Guten Morgen, Ibragim</span></div>
+                  </div>
+                  <div data-dc-tpl="35" style="width: 46px; height: 46px; border-radius: 50%; background: rgb(108, 142, 245); color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 16px; flex-shrink: 0; box-shadow: rgba(108, 142, 245, 0.4) 0px 4px 12px;">IB</div>
+                </div>
+                <div data-dc-tpl="36" style="height: 4px; border-radius: 99px; background: var(--line,rgba(255,255,255,.08)); margin-top: 14px; overflow: hidden;">
+                  <div data-dc-tpl="37" style="height: 100%; width: 1.66667%; background: var(--accent,#6C8EF5); border-radius: 99px;"></div>
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="38" style="position: relative; border-radius: 28px; padding: 20px 22px; background: var(--grad,linear-gradient(135deg,#6C8EF5,#A78BFA)); color: rgb(255, 255, 255); overflow: hidden; min-height: 188px; box-shadow: rgba(0, 0, 0, 0.22) 0px 16px 36px;">
+                <div data-dc-tpl="39" style="position: absolute; inset: 0px; background: radial-gradient(120% 90% at 100% -10%, rgba(255, 255, 255, 0.22), transparent 55%); pointer-events: none;"></div>
+                <div data-dc-tpl="40" style="position: relative; display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div data-dc-tpl="41">
+                    <div data-dc-tpl="42" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.62); font-weight: 600;">Nächstes Gebet</div>
+                    <div data-dc-tpl="43" style="display: flex; align-items: baseline; gap: 11px; margin-top: 7px;">
+                      <div data-dc-tpl="44" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 30px; line-height: 1;"><span class="sc-interp">Fajr</span></div>
+                      <div data-dc-tpl="45" dir="rtl" style="font-family: &quot;Noto Naskh Arabic&quot;; font-size: 22px; color: rgba(255, 255, 255, 0.8); line-height: 1;"><span class="sc-interp">الفجر</span></div>
+                    </div>
+                  </div>
+                  <div data-dc-tpl="46" style="text-align: right; font-family: &quot;DM Sans&quot;; font-weight: 600; font-size: 15px; color: rgba(255, 255, 255, 0.88); display: flex; align-items: center; gap: 5px;">
+                    <svg data-dc-tpl="47" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle data-dc-tpl="48" cx="12" cy="12" r="9"></circle><path data-dc-tpl="49" d="M12 7v5l3 2"></path></svg>
+                    <span class="sc-interp">03:18</span>
+                  </div>
+                </div>
+                <div data-dc-tpl="50" style="position: relative; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px;">
+                  <div data-dc-tpl="51">
+                    <div data-dc-tpl="52" style="display: flex; align-items: baseline;">
+                      <div data-dc-tpl="53" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 62px; line-height: 0.88; letter-spacing: -0.03em;"><span class="sc-interp">02:54</span></div>
+                      <div data-dc-tpl="54" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 22px; color: rgba(255, 255, 255, 0.65); margin-left: 5px;"><span class="sc-interp">:00</span></div>
+                    </div>
+                    <div data-dc-tpl="55" style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-top: 7px;">bis zum Gebet</div>
+                  </div>
+                  <svg data-dc-tpl="56" width="86" height="86" viewBox="0 0 92 92" style="flex-shrink: 0;">
+                    <circle data-dc-tpl="57" cx="46" cy="46" r="40" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="7"></circle>
+                    <circle data-dc-tpl="58" cx="46" cy="46" r="40" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="rotate(-90 46 46)" style="stroke-dasharray: 251.3; stroke-dashoffset: 156.165; transition: stroke-dashoffset 1s linear;"></circle>
+                    <g data-dc-tpl="59" transform="translate(46 46)" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+                      <path data-dc-tpl="60" d="M5 -3 a8 8 0 1 0 0 6 a6.5 6.5 0 0 1 0 -6 Z" fill="#fff" stroke="none"></path>
+                    </g>
+                  </svg>
+                </div>
+                <div data-dc-tpl="61" style="position: relative; display: flex; gap: 9px; align-items: center; margin-top: 14px;">
+                  
+                    <div data-dc-tpl="63" style="width: 9px; height: 9px; border-radius: 50%; box-sizing: border-box; border: 2px solid rgb(255, 255, 255); background: transparent;"></div>
+                  
+                    <div data-dc-tpl="63" style="width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.32);"></div>
+                  
+                    <div data-dc-tpl="63" style="width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.32);"></div>
+                  
+                    <div data-dc-tpl="63" style="width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.32);"></div>
+                  
+                    <div data-dc-tpl="63" style="width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.32);"></div>
+                  
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="64" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div data-dc-tpl="65" style="background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(20px); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 13px; box-shadow: var(--shadow,none);">
+                  <div data-dc-tpl="66" style="display: flex; align-items: center; justify-content: space-between;">
+                    <svg data-dc-tpl="67" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#6C8EF5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="68" d="M12 2c1.5 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.2.4-2 1-3 .3 1 1 1.5 1.5 1.5C11 7 10 5 12 2Z"></path></svg>
+                    <svg data-dc-tpl="69" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3,rgba(244,246,250,.4))" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="70" x="4" y="11" width="16" height="10" rx="2"></rect><path data-dc-tpl="71" d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                  </div>
+                  <div data-dc-tpl="72" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 24px; margin-top: 8px; color: var(--ink,#F4F6FA);">23</div>
+                  <div data-dc-tpl="73" style="font-size: 11px; color: var(--ink-2,rgba(244,246,250,.62)); margin-top: 1px;">Tage clean</div>
+                </div>
+                <div data-dc-tpl="74" style="background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(20px); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 13px; box-shadow: var(--shadow,none);">
+                  <svg data-dc-tpl="75" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2,#A78BFA)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="76" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path data-dc-tpl="77" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+                  <div data-dc-tpl="78" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 24px; margin-top: 8px; color: var(--ink,#F4F6FA);">45<span data-dc-tpl="79" style="font-size: 13px; font-weight: 600; color: var(--ink-2,rgba(244,246,250,.62));"> min</span></div>
+                  <div data-dc-tpl="80" style="font-size: 11px; color: var(--ink-2,rgba(244,246,250,.62)); margin-top: 1px;">Quran heute</div>
+                </div>
+                <div data-dc-tpl="81" style="background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(20px); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 13px; box-shadow: var(--shadow,none);">
+                  <svg data-dc-tpl="82" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success,#34C77B)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="83" d="M9 11l3 3L22 4"></path><path data-dc-tpl="84" d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                  <div data-dc-tpl="85" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 24px; margin-top: 8px; color: var(--ink,#F4F6FA);"><span class="sc-interp">2</span></div>
+                  <div data-dc-tpl="86" style="font-size: 11px; color: var(--ink-2,rgba(244,246,250,.62)); margin-top: 1px;">offene Tasks</div>
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="87">
+                <div data-dc-tpl="88" style="display: flex; align-items: center; gap: 9px; margin-bottom: 11px;">
+                  <div data-dc-tpl="89" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 20px; color: var(--ink,#F4F6FA);">Heute</div>
+                  <div data-dc-tpl="90" style="background: var(--accent,#6C8EF5); color: var(--on-accent,#fff); font-size: 12px; font-weight: 700; border-radius: 99px; min-width: 22px; height: 22px; padding: 0px 7px; display: flex; align-items: center; justify-content: center;"><span class="sc-interp">2</span></div>
+                </div>
+                <div data-dc-tpl="91" style="background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(20px); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 20px; box-shadow: var(--shadow,none); overflow: hidden;">
+                  
+                    <div data-dc-tpl="93" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(255,255,255,.08));">
+                      <div data-dc-tpl="94" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid var(--ink-3,rgba(244,246,250,.4));">
+                        
+                      </div>
+                      <span data-dc-tpl="98" style="flex: 1 1 0%; font-size: 15px; color: var(--ink,#F4F6FA);"><span class="sc-interp">Quran lesen — 30 Min</span></span>
+                      <span data-dc-tpl="99" style="margin-left: auto; font-family: &quot;DM Sans&quot;; font-size: 13px; font-weight: 600; color: var(--ink-3,rgba(244,246,250,.4));"><span class="sc-interp"></span></span>
+                    </div>
+                  
+                    <div data-dc-tpl="93" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(255,255,255,.08));">
+                      <div data-dc-tpl="94" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid var(--ink-3,rgba(244,246,250,.4));">
+                        
+                      </div>
+                      <span data-dc-tpl="98" style="flex: 1 1 0%; font-size: 15px; color: var(--ink,#F4F6FA);"><span class="sc-interp">Madina anrufen</span></span>
+                      <span data-dc-tpl="99" style="margin-left: auto; font-family: &quot;DM Sans&quot;; font-size: 13px; font-weight: 600; color: var(--ink-3,rgba(244,246,250,.4));"><span class="sc-interp">18:00</span></span>
+                    </div>
+                  
+                    <div data-dc-tpl="93" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(255,255,255,.08));">
+                      <div data-dc-tpl="94" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--accent,#6C8EF5); border: 2px solid var(--accent,#6C8EF5); color: var(--on-accent,#fff);">
+                        
+                          <svg data-dc-tpl="96" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="97" d="M20 6 9 17l-5-5"></path></svg>
+                        
+                      </div>
+                      <span data-dc-tpl="98" style="flex: 1 1 0%; font-size: 15px; text-decoration: line-through; color: var(--ink-3,rgba(244,246,250,.4));"><span class="sc-interp">Strom-Rechnung prüfen</span></span>
+                      <span data-dc-tpl="99" style="margin-left: auto; font-family: &quot;DM Sans&quot;; font-size: 13px; font-weight: 600; color: var(--ink-3,rgba(244,246,250,.4));"><span class="sc-interp"></span></span>
+                    </div>
+                  
+                  <div data-dc-tpl="100" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--accent,#6C8EF5); cursor: pointer;">+ 2 weitere Aufgaben</div>
+                </div>
+              </div>
+
+              
+              
+                <div data-dc-tpl="102" style="display: flex; align-items: center; gap: 14px; background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(20px); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 20px; padding: 15px 16px; box-shadow: var(--shadow,none);">
+                  <div data-dc-tpl="103" style="flex: 1 1 0%;">
+                    <div data-dc-tpl="104" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3,rgba(244,246,250,.4)); font-weight: 600;">Daily Check-in</div>
+                    <div data-dc-tpl="105" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 16px; margin-top: 3px; color: var(--ink,#F4F6FA);">Wie geht es dir heute?</div>
+                  </div>
+                  <div data-dc-tpl="106" style="background: var(--accent,#6C8EF5); color: var(--on-accent,#fff); font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 14px; padding: 11px 16px; border-radius: 13px; cursor: pointer; white-space: nowrap;">Starten</div>
+                </div>
+              
+              
+
+            </div>
+
+            
+            <div data-dc-tpl="115" style="flex-shrink: 0; position: relative; z-index: 30; display: flex; align-items: flex-end; justify-content: space-around; padding: 9px 14px 24px; background: var(--glass,rgba(26,29,39,.66)); backdrop-filter: blur(24px); border-top: 1px solid var(--line,rgba(255,255,255,.08));">
+              <div data-dc-tpl="116" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--accent,#6C8EF5); flex: 1 1 0%;">
+                <svg data-dc-tpl="117" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="118" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path data-dc-tpl="119" d="M9 22V12h6v10"></path></svg>
+                <span data-dc-tpl="120" style="font-size: 10px; font-weight: 600;">Heute</span>
+              </div>
+              <div data-dc-tpl="121" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(244,246,250,.4)); flex: 1 1 0%;">
+                <svg data-dc-tpl="122" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="123" x="3" y="4" width="18" height="18" rx="2"></rect><path data-dc-tpl="124" d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                <span data-dc-tpl="125" style="font-size: 10px; font-weight: 500;">Kalender</span>
+              </div>
+              <div data-dc-tpl="126" style="flex: 1 1 0%; display: flex; justify-content: center;">
+                <div data-dc-tpl="127" style="width: 52px; height: 52px; border-radius: 50%; background: var(--accent,#6C8EF5); color: var(--on-accent,#fff); display: flex; align-items: center; justify-content: center; margin-top: -20px; cursor: pointer; box-shadow: rgba(0, 0, 0, 0.28) 0px 8px 20px;">
+                  <svg data-dc-tpl="128" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path data-dc-tpl="129" d="M12 5v14M5 12h14"></path></svg>
+                </div>
+              </div>
+              <div data-dc-tpl="130" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(244,246,250,.4)); flex: 1 1 0%;">
+                <svg data-dc-tpl="131" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="132" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"></path></svg>
+                <span data-dc-tpl="133" style="font-size: 10px; font-weight: 500;">Familie</span>
+              </div>
+              <div data-dc-tpl="134" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(244,246,250,.4)); flex: 1 1 0%;">
+                <svg data-dc-tpl="135" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="136" x="3" y="3" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="137" x="14" y="3" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="138" x="3" y="14" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="139" x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+                <span data-dc-tpl="140" style="font-size: 10px; font-weight: 500;">Mehr</span>
+              </div>
+            </div>
+
+            
+            <div data-dc-tpl="141" style="position: absolute; inset: 0px; z-index: 60; display: flex; align-items: flex-end; pointer-events: none;">
+              <div data-dc-tpl="142" style="position: absolute; inset: 0px; background: rgba(0, 0, 0, 0.45); opacity: 0; transition: opacity 0.3s; cursor: pointer;"></div>
+              <div data-dc-tpl="143" style="position: relative; width: 100%; box-sizing: border-box; background: var(--surface,#1A1D27); border-top-left-radius: 26px; border-top-right-radius: 26px; padding: 14px 16px 40px; box-shadow: rgba(0, 0, 0, 0.32) 0px -12px 44px; transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);">
+                <div data-dc-tpl="144" style="width: 38px; height: 4px; border-radius: 99px; background: var(--ink-3,rgba(244,246,250,.4)); margin: 0px auto 16px;"></div>
+                <div data-dc-tpl="145" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <div data-dc-tpl="146" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 20px; color: var(--ink,#F4F6FA);">Schnell hinzufügen</div>
+                  <div data-dc-tpl="147" style="width: 30px; height: 30px; border-radius: 50%; background: var(--line,rgba(255,255,255,.08)); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-2,rgba(244,246,250,.62));">
+                    <svg data-dc-tpl="148" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path data-dc-tpl="149" d="M18 6 6 18M6 6l12 12"></path></svg>
+                  </div>
+                </div>
+                <div data-dc-tpl="150" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div data-dc-tpl="151" style="background: var(--bg,#0F1117); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="152" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(108, 142, 245, 0.18); display: flex; align-items: center; justify-content: center; color: var(--accent,#6C8EF5);"><svg data-dc-tpl="153" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="154" d="M9 11l3 3L22 4"></path><path data-dc-tpl="155" d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+                    <span data-dc-tpl="156" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#F4F6FA);">Aufgabe</span>
+                  </div>
+                  <div data-dc-tpl="157" style="background: var(--bg,#0F1117); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="158" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(167, 139, 250, 0.18); display: flex; align-items: center; justify-content: center; color: var(--accent-2,#A78BFA);"><svg data-dc-tpl="159" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="160" x="3" y="4" width="18" height="18" rx="2"></rect><path data-dc-tpl="161" d="M16 2v4M8 2v4M3 10h18"></path></svg></div>
+                    <span data-dc-tpl="162" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#F4F6FA);">Termin</span>
+                  </div>
+                  <div data-dc-tpl="163" style="background: var(--bg,#0F1117); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="164" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(52, 199, 123, 0.18); display: flex; align-items: center; justify-content: center; color: var(--success,#34C77B);"><svg data-dc-tpl="165" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="166" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path data-dc-tpl="167" d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg></div>
+                    <span data-dc-tpl="168" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#F4F6FA);">Notiz</span>
+                  </div>
+                  <div data-dc-tpl="169" style="background: var(--bg,#0F1117); border: 1px solid var(--line,rgba(255,255,255,.08)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="170" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 112, 112, 0.16); display: flex; align-items: center; justify-content: center; color: var(--danger,#FF7070);"><svg data-dc-tpl="171" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="172" x="2" y="6" width="20" height="12" rx="2"></rect><circle data-dc-tpl="173" cx="12" cy="12" r="2.2"></circle><path data-dc-tpl="174" d="M6 12h.01M18 12h.01"></path></svg></div>
+                    <span data-dc-tpl="175" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#F4F6FA);">Rechnung</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div></div><div style="position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 60; height: 34px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px; pointer-events: none;"><div style="width: 139px; height: 5px; border-radius: 100px; background: rgba(255, 255, 255, 0.7);"></div></div></div></div>
+      </div>
+
+      
+      <div data-dc-tpl="176" style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div data-dc-tpl="177" style="display: flex; align-items: center; gap: 10px;">
+          <span data-dc-tpl="178" style="color: rgba(255, 255, 255, 0.78); font-size: 13px; font-weight: 600;">Familien-Dashboard</span>
+          <div data-dc-tpl="179" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 4px 10px; font-size: 11px; color: rgba(255, 255, 255, 0.6); font-weight: 600;">
+            <span data-dc-tpl="180" style="opacity: 0.45;">Dunkel</span><span data-dc-tpl="181" style="opacity: 0.3;">/</span><span data-dc-tpl="182" style="color: rgb(255, 255, 255);">Hell</span>
+          </div>
+        </div>
+        <div class="sc-host-x" data-dc-tpl="183" style="display: contents;"><div style="width: 402px; height: 874px; border-radius: 48px; overflow: hidden; position: relative; background: rgb(242, 242, 247); box-shadow: rgba(0, 0, 0, 0.18) 0px 40px 80px, rgba(0, 0, 0, 0.12) 0px 0px 0px 1px; font-family: -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased;"><div style="position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; border-radius: 24px; background: rgb(0, 0, 0); z-index: 50;"></div><div style="position: absolute; top: 0px; left: 0px; right: 0px; z-index: 10;"><div style="display: flex; gap: 154px; align-items: center; justify-content: center; padding: 21px 24px 19px; box-sizing: border-box; position: relative; z-index: 20; width: 100%;"><div style="flex: 1 1 0%; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 1.5px;"><span style="font-family: -apple-system, &quot;SF Pro&quot;, system-ui; font-weight: 590; font-size: 17px; line-height: 22px; color: rgb(0, 0, 0);">9:41</span></div><div style="flex: 1 1 0%; height: 22px; display: flex; align-items: center; justify-content: center; gap: 7px; padding-top: 1px; padding-right: 1px;"><svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#000"></rect><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#000"></rect><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#000"></rect><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#000"></rect></svg><svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#000"></path><path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#000"></path><circle cx="8.5" cy="10.5" r="1.5" fill="#000"></circle></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#000" stroke-opacity="0.35" fill="none"></rect><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"></rect><path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#000" fill-opacity="0.4"></path></svg></div></div></div><div style="height: 100%; display: flex; flex-direction: column;"><div style="flex: 1 1 0%; overflow: auto;">
+          <div data-dc-tpl="184" data-theme="slate" data-mode="light" style="position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--bg,#F4F6FB); color: var(--ink,#14161D);">
+            <div data-dc-tpl="185" style="flex: 1 1 0%; overflow: auto; padding: 58px 16px 14px; display: flex; flex-direction: column; gap: 18px;">
+
+              
+              <div data-dc-tpl="186" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                <div data-dc-tpl="187">
+                  <div data-dc-tpl="188" style="font-size: 13px; color: var(--ink-2,rgba(20,22,29,.58));">Gemeinsam</div>
+                  <div data-dc-tpl="189" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 26px; margin-top: 2px; color: var(--ink,#14161D);">Familie</div>
+                </div>
+                <div data-dc-tpl="190" style="display: flex;">
+                  <div data-dc-tpl="191" style="width: 42px; height: 42px; border-radius: 50%; background: rgb(108, 142, 245); color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; border: 2.5px solid var(--bg,#F4F6FB);">IB</div>
+                  <div data-dc-tpl="192" style="width: 42px; height: 42px; border-radius: 50%; background: rgb(244, 114, 182); color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; border: 2.5px solid var(--bg,#F4F6FB); margin-left: -14px;">MA</div>
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="193" style="background: var(--surface,#fff); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 26px; padding: 20px; box-shadow: var(--shadow,0 2px 16px rgba(0,0,0,.07));">
+                <div data-dc-tpl="194" style="display: flex; align-items: center; justify-content: space-between;">
+                  <div data-dc-tpl="195" style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3,rgba(20,22,29,.42)); font-weight: 600;">Offene Rechnungen</div>
+                  <div data-dc-tpl="196" style="background: rgba(229, 72, 77, 0.14); color: var(--danger,#E5484D); font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px;">1 fällig heute</div>
+                </div>
+                <div data-dc-tpl="197" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 38px; margin-top: 8px; letter-spacing: -0.02em; color: var(--ink,#14161D);">€ 847,50</div>
+                <div data-dc-tpl="198" style="font-size: 13px; color: var(--ink-2,rgba(20,22,29,.58)); margin-top: 2px;">3 Rechnungen · nächste fällig in 2 Tagen</div>
+
+                <div data-dc-tpl="199" style="display: flex; flex-direction: column; gap: 2px; margin-top: 16px;">
+                  <div data-dc-tpl="200" style="display: flex; align-items: center; gap: 12px; padding: 11px 0px; border-top: 1px solid var(--line,rgba(0,0,0,.07));">
+                    <div data-dc-tpl="201" style="width: 36px; height: 36px; border-radius: 11px; background: rgba(212, 168, 83, 0.16); display: flex; align-items: center; justify-content: center; color: rgb(201, 138, 30); flex-shrink: 0;"><svg data-dc-tpl="202" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="203" d="M13 2 3 14h9l-1 8 10-12h-9z"></path></svg></div>
+                    <div data-dc-tpl="204" style="flex: 1 1 0%;"><div data-dc-tpl="205" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Strom</div><div data-dc-tpl="206" style="font-size: 12px; color: var(--danger,#E5484D); font-weight: 600;">fällig 16.06.</div></div>
+                    <div data-dc-tpl="207" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 16px; color: var(--ink,#14161D);">€ 180,00</div>
+                  </div>
+                  <div data-dc-tpl="208" style="display: flex; align-items: center; gap: 12px; padding: 11px 0px; border-top: 1px solid var(--line,rgba(0,0,0,.07));">
+                    <div data-dc-tpl="209" style="width: 36px; height: 36px; border-radius: 11px; background: rgba(108, 142, 245, 0.16); display: flex; align-items: center; justify-content: center; color: var(--accent,#4F6FE8); flex-shrink: 0;"><svg data-dc-tpl="210" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="211" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path data-dc-tpl="212" d="M9 22V12h6v10"></path></svg></div>
+                    <div data-dc-tpl="213" style="flex: 1 1 0%;"><div data-dc-tpl="214" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Miete</div><div data-dc-tpl="215" style="font-size: 12px; color: var(--ink-3,rgba(20,22,29,.42));">fällig 01.07.</div></div>
+                    <div data-dc-tpl="216" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 16px; color: var(--ink,#14161D);">€ 620,00</div>
+                  </div>
+                  <div data-dc-tpl="217" style="display: flex; align-items: center; gap: 12px; padding: 11px 0px; border-top: 1px solid var(--line,rgba(0,0,0,.07));">
+                    <div data-dc-tpl="218" style="width: 36px; height: 36px; border-radius: 11px; background: rgba(13, 148, 136, 0.14); display: flex; align-items: center; justify-content: center; color: rgb(13, 148, 136); flex-shrink: 0;"><svg data-dc-tpl="219" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="220" d="M5 13a10 10 0 0 1 14 0"></path><path data-dc-tpl="221" d="M8.5 16.5a5 5 0 0 1 7 0"></path><path data-dc-tpl="222" d="M2 8.82a15 15 0 0 1 20 0"></path><path data-dc-tpl="223" d="M12 20h.01"></path></svg></div>
+                    <div data-dc-tpl="224" style="flex: 1 1 0%;"><div data-dc-tpl="225" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Internet</div><div data-dc-tpl="226" style="font-size: 12px; color: var(--ink-3,rgba(20,22,29,.42));">fällig 20.06.</div></div>
+                    <div data-dc-tpl="227" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 16px; color: var(--ink,#14161D);">€ 47,50</div>
+                  </div>
+                </div>
+                <div data-dc-tpl="228" style="display: flex; gap: 10px; margin-top: 16px;">
+                  <div data-dc-tpl="229" style="flex: 1 1 0%; text-align: center; background: var(--accent,#4F6FE8); color: var(--on-accent,#fff); font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 14px; padding: 11px; border-radius: 13px; cursor: pointer;">+ Rechnung</div>
+                  <div data-dc-tpl="230" style="flex: 1 1 0%; text-align: center; background: transparent; color: var(--accent,#4F6FE8); border: 1.5px solid var(--accent,#4F6FE8); font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 14px; padding: 11px; border-radius: 13px; cursor: pointer;">Alle anzeigen</div>
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="231">
+                <div data-dc-tpl="232" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px;">
+                  <div data-dc-tpl="233" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 20px; color: var(--ink,#14161D);">Termine</div>
+                  <span data-dc-tpl="234" style="font-size: 13px; font-weight: 600; color: var(--accent,#4F6FE8); cursor: pointer;">Alle</span>
+                </div>
+                <div data-dc-tpl="235" style="background: var(--surface,#fff); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 20px; box-shadow: var(--shadow,0 2px 16px rgba(0,0,0,.07)); overflow: hidden;">
+                  <div data-dc-tpl="236" style="display: flex; align-items: center; gap: 13px; padding: 13px 16px; border-bottom: 1px solid var(--line,rgba(0,0,0,.07));">
+                    <div data-dc-tpl="237" style="width: 46px; height: 46px; border-radius: 13px; background: var(--grad,linear-gradient(135deg,#4F6FE8,#7C5CDB)); color: rgb(255, 255, 255); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;"><span data-dc-tpl="238" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 17px; line-height: 1;">16</span><span data-dc-tpl="239" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;">Jun</span></div>
+                    <div data-dc-tpl="240" style="flex: 1 1 0%;"><div data-dc-tpl="241" style="display: flex; align-items: center; gap: 6px;"><svg data-dc-tpl="242" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle data-dc-tpl="243" cx="12" cy="12" r="9"></circle><path data-dc-tpl="244" d="M9 13a3 3 0 0 0 6 0"></path><path data-dc-tpl="245" d="M9 9h.01M15 9h.01"></path></svg><span data-dc-tpl="246" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Impftermin Yusuf</span></div><div data-dc-tpl="247" style="font-size: 12px; color: var(--ink-2,rgba(20,22,29,.58)); margin-top: 2px;">14:30 · Kinderarzt Dr. Wagner</div></div>
+                  </div>
+                  <div data-dc-tpl="248" style="display: flex; align-items: center; gap: 13px; padding: 13px 16px; border-bottom: 1px solid var(--line,rgba(0,0,0,.07));">
+                    <div data-dc-tpl="249" style="width: 46px; height: 46px; border-radius: 13px; background: var(--grad,linear-gradient(135deg,#4F6FE8,#7C5CDB)); color: rgb(255, 255, 255); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;"><span data-dc-tpl="250" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 17px; line-height: 1;">18</span><span data-dc-tpl="251" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;">Jun</span></div>
+                    <div data-dc-tpl="252" style="flex: 1 1 0%;"><div data-dc-tpl="253" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Elternabend</div><div data-dc-tpl="254" style="font-size: 12px; color: var(--ink-2,rgba(20,22,29,.58)); margin-top: 2px;">18:00 · Kindergarten Spatzennest</div></div>
+                  </div>
+                  <div data-dc-tpl="255" style="display: flex; align-items: center; gap: 13px; padding: 13px 16px;">
+                    <div data-dc-tpl="256" style="width: 46px; height: 46px; border-radius: 13px; background: var(--grad,linear-gradient(135deg,#4F6FE8,#7C5CDB)); color: rgb(255, 255, 255); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;"><span data-dc-tpl="257" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 17px; line-height: 1;">22</span><span data-dc-tpl="258" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;">Jun</span></div>
+                    <div data-dc-tpl="259" style="flex: 1 1 0%;"><div data-dc-tpl="260" style="font-weight: 600; font-size: 15px; color: var(--ink,#14161D);">Zahnarzt Madina</div><div data-dc-tpl="261" style="font-size: 12px; color: var(--ink-2,rgba(20,22,29,.58)); margin-top: 2px;">09:15 · Praxis Dr. Berger</div></div>
+                  </div>
+                </div>
+              </div>
+
+              
+              <div data-dc-tpl="262">
+                <div data-dc-tpl="263" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 20px; color: var(--ink,#14161D); margin-bottom: 11px;">Geteilte Aufgaben</div>
+                <div data-dc-tpl="264" style="background: var(--surface,#fff); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 20px; box-shadow: var(--shadow,0 2px 16px rgba(0,0,0,.07)); overflow: hidden;">
+                  
+                    <div data-dc-tpl="266" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(0,0,0,.07));">
+                      <div data-dc-tpl="267" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid var(--ink-3,rgba(244,246,250,.4));">
+                        
+                      </div>
+                      <span data-dc-tpl="271" style="flex: 1 1 0%; font-size: 15px; color: var(--ink,#F4F6FA);"><span class="sc-interp">Windeln &amp; Milch besorgen</span></span>
+                      <div data-dc-tpl="272" style="flex-shrink: 0; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 11px; color: rgb(255, 255, 255); background: rgb(244, 114, 182); border-radius: 99px; padding: 3px 9px;"><span class="sc-interp">MA</span></div>
+                    </div>
+                  
+                    <div data-dc-tpl="266" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(0,0,0,.07));">
+                      <div data-dc-tpl="267" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid var(--ink-3,rgba(244,246,250,.4));">
+                        
+                      </div>
+                      <span data-dc-tpl="271" style="flex: 1 1 0%; font-size: 15px; color: var(--ink,#F4F6FA);"><span class="sc-interp">Kita-Beitrag überweisen</span></span>
+                      <div data-dc-tpl="272" style="flex-shrink: 0; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 11px; color: rgb(255, 255, 255); background: rgb(108, 142, 245); border-radius: 99px; padding: 3px 9px;"><span class="sc-interp">IB</span></div>
+                    </div>
+                  
+                    <div data-dc-tpl="266" style="display: flex; align-items: center; gap: 13px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--line,rgba(0,0,0,.07));">
+                      <div data-dc-tpl="267" style="width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--accent,#6C8EF5); border: 2px solid var(--accent,#6C8EF5); color: var(--on-accent,#fff);">
+                        
+                          <svg data-dc-tpl="269" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="270" d="M20 6 9 17l-5-5"></path></svg>
+                        
+                      </div>
+                      <span data-dc-tpl="271" style="flex: 1 1 0%; font-size: 15px; text-decoration: line-through; color: var(--ink-3,rgba(244,246,250,.4));"><span class="sc-interp">Auto anmelden</span></span>
+                      <div data-dc-tpl="272" style="flex-shrink: 0; font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 11px; color: rgb(255, 255, 255); background: rgb(52, 199, 123); border-radius: 99px; padding: 3px 9px;"><span class="sc-interp">Fam</span></div>
+                    </div>
+                  
+                  <div data-dc-tpl="273" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--accent,#4F6FE8); cursor: pointer;">+ Aufgabe für die Familie</div>
+                </div>
+              </div>
+
+            </div>
+
+            
+            <div data-dc-tpl="274" style="flex-shrink: 0; position: relative; z-index: 30; display: flex; align-items: flex-end; justify-content: space-around; padding: 9px 14px 24px; background: var(--glass,rgba(255,255,255,.82)); backdrop-filter: blur(24px); border-top: 1px solid var(--line,rgba(0,0,0,.07));">
+              <div data-dc-tpl="275" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(20,22,29,.42)); flex: 1 1 0%;">
+                <svg data-dc-tpl="276" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="277" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path data-dc-tpl="278" d="M9 22V12h6v10"></path></svg>
+                <span data-dc-tpl="279" style="font-size: 10px; font-weight: 500;">Heute</span>
+              </div>
+              <div data-dc-tpl="280" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(20,22,29,.42)); flex: 1 1 0%;">
+                <svg data-dc-tpl="281" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="282" x="3" y="4" width="18" height="18" rx="2"></rect><path data-dc-tpl="283" d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                <span data-dc-tpl="284" style="font-size: 10px; font-weight: 500;">Kalender</span>
+              </div>
+              <div data-dc-tpl="285" style="flex: 1 1 0%; display: flex; justify-content: center;">
+                <div data-dc-tpl="286" style="width: 52px; height: 52px; border-radius: 50%; background: var(--accent,#4F6FE8); color: var(--on-accent,#fff); display: flex; align-items: center; justify-content: center; margin-top: -20px; cursor: pointer; box-shadow: rgba(0, 0, 0, 0.18) 0px 8px 20px;">
+                  <svg data-dc-tpl="287" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path data-dc-tpl="288" d="M12 5v14M5 12h14"></path></svg>
+                </div>
+              </div>
+              <div data-dc-tpl="289" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--accent,#4F6FE8); flex: 1 1 0%;">
+                <svg data-dc-tpl="290" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="291" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"></path></svg>
+                <span data-dc-tpl="292" style="font-size: 10px; font-weight: 600;">Familie</span>
+              </div>
+              <div data-dc-tpl="293" style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-3,rgba(20,22,29,.42)); flex: 1 1 0%;">
+                <svg data-dc-tpl="294" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="295" x="3" y="3" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="296" x="14" y="3" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="297" x="3" y="14" width="7" height="7" rx="1.5"></rect><rect data-dc-tpl="298" x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+                <span data-dc-tpl="299" style="font-size: 10px; font-weight: 500;">Mehr</span>
+              </div>
+            </div>
+
+            
+            <div data-dc-tpl="300" style="position: absolute; inset: 0px; z-index: 60; display: flex; align-items: flex-end; pointer-events: none;">
+              <div data-dc-tpl="301" style="position: absolute; inset: 0px; background: rgba(0, 0, 0, 0.45); opacity: 0; transition: opacity 0.3s; cursor: pointer;"></div>
+              <div data-dc-tpl="302" style="position: relative; width: 100%; box-sizing: border-box; background: var(--surface,#1A1D27); border-top-left-radius: 26px; border-top-right-radius: 26px; padding: 14px 16px 40px; box-shadow: rgba(0, 0, 0, 0.32) 0px -12px 44px; transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);">
+                <div data-dc-tpl="303" style="width: 38px; height: 4px; border-radius: 99px; background: var(--ink-3,rgba(20,22,29,.42)); margin: 0px auto 16px;"></div>
+                <div data-dc-tpl="304" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <div data-dc-tpl="305" style="font-family: &quot;DM Sans&quot;; font-weight: 800; font-size: 20px; color: var(--ink,#14161D);">Schnell hinzufügen</div>
+                  <div data-dc-tpl="306" style="width: 30px; height: 30px; border-radius: 50%; background: var(--line,rgba(0,0,0,.07)); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-2,rgba(20,22,29,.58));">
+                    <svg data-dc-tpl="307" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path data-dc-tpl="308" d="M18 6 6 18M6 6l12 12"></path></svg>
+                  </div>
+                </div>
+                <div data-dc-tpl="309" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div data-dc-tpl="310" style="background: var(--bg,#F4F6FB); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="311" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(79, 111, 232, 0.14); display: flex; align-items: center; justify-content: center; color: var(--accent,#4F6FE8);"><svg data-dc-tpl="312" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="313" d="M9 11l3 3L22 4"></path><path data-dc-tpl="314" d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+                    <span data-dc-tpl="315" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#14161D);">Aufgabe</span>
+                  </div>
+                  <div data-dc-tpl="316" style="background: var(--bg,#F4F6FB); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="317" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(124, 92, 219, 0.14); display: flex; align-items: center; justify-content: center; color: var(--accent-2,#7C5CDB);"><svg data-dc-tpl="318" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="319" x="3" y="4" width="18" height="18" rx="2"></rect><path data-dc-tpl="320" d="M16 2v4M8 2v4M3 10h18"></path></svg></div>
+                    <span data-dc-tpl="321" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#14161D);">Termin</span>
+                  </div>
+                  <div data-dc-tpl="322" style="background: var(--bg,#F4F6FB); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="323" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(22, 163, 74, 0.14); display: flex; align-items: center; justify-content: center; color: var(--success,#16A34A);"><svg data-dc-tpl="324" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-dc-tpl="325" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path data-dc-tpl="326" d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg></div>
+                    <span data-dc-tpl="327" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#14161D);">Notiz</span>
+                  </div>
+                  <div data-dc-tpl="328" style="background: var(--bg,#F4F6FB); border: 1px solid var(--line,rgba(0,0,0,.07)); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer;">
+                    <div data-dc-tpl="329" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(229, 72, 77, 0.12); display: flex; align-items: center; justify-content: center; color: var(--danger,#E5484D);"><svg data-dc-tpl="330" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect data-dc-tpl="331" x="2" y="6" width="20" height="12" rx="2"></rect><circle data-dc-tpl="332" cx="12" cy="12" r="2.2"></circle><path data-dc-tpl="333" d="M6 12h.01M18 12h.01"></path></svg></div>
+                    <span data-dc-tpl="334" style="font-family: &quot;DM Sans&quot;; font-weight: 700; font-size: 15px; color: var(--ink,#14161D);">Rechnung</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div></div><div style="position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 60; height: 34px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px; pointer-events: none;"><div style="width: 139px; height: 5px; border-radius: 100px; background: rgba(0, 0, 0, 0.25);"></div></div></div></div>
+      </div>
+
+    </div>
+  </div></div></div></div>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = {
+    now: new Date(),
+    theme: 'slate',
+    modeP1: 'dark',
+    modeP2: 'light',
+    drawerOpen: null,
+    checkinDone: false,
+    personalTasks: [
+      { id: 1, title: 'Quran lesen — 30 Min', time: '', done: false },
+      { id: 2, title: 'Madina anrufen', time: '18:00', done: false },
+      { id: 3, title: 'Strom-Rechnung prüfen', time: '', done: true },
+    ],
+    sharedTasks: [
+      { id: 's1', title: 'Windeln & Milch besorgen', who: 'MA', done: false },
+      { id: 's2', title: 'Kita-Beitrag überweisen', who: 'IB', done: false },
+      { id: 's3', title: 'Auto anmelden', who: 'Fam', done: true },
+    ],
+  };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState({ now: new Date() }), 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this._t);
+  }
+
+  PRAYERS = [
+    { name: 'Fajr', arabic: 'الفجر', t: '03:18' },
+    { name: 'Dhuhr', arabic: 'الظهر', t: '13:01' },
+    { name: 'Asr', arabic: 'العصر', t: '17:18' },
+    { name: 'Maghrib', arabic: 'المغرب', t: '20:54' },
+    { name: 'Isha', arabic: 'العشاء', t: '22:38' },
+  ];
+
+  _toMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+
+  _prayerInfo(now) {
+    const nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+    const list = this.PRAYERS;
+    let nextIdx = list.findIndex(p => this._toMin(p.t) > nowMin);
+    let tomorrow = false;
+    if (nextIdx === -1) { nextIdx = 0; tomorrow = true; }
+    const next = list[nextIdx];
+    // previous boundary
+    let prevMin;
+    if (nextIdx === 0) prevMin = this._toMin(list[list.length - 1].t) - 24 * 60; // Isha yesterday
+    else prevMin = this._toMin(list[nextIdx - 1].t);
+    let nextMin = this._toMin(next.t) + (tomorrow ? 24 * 60 : 0);
+    const total = nextMin - prevMin;
+    const elapsed = nowMin - prevMin;
+    const progress = Math.max(0, Math.min(1, elapsed / total));
+    const remainSec = Math.max(0, Math.round((nextMin - nowMin) * 60));
+    const h = Math.floor(remainSec / 3600);
+    const m = Math.floor((remainSec % 3600) / 60);
+    const s = remainSec % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return {
+      name: next.name,
+      arabic: next.arabic,
+      time: next.t,
+      big: `${pad(h)}:${pad(m)}`,
+      sec: `:${pad(s)}`,
+      progress,
+      nextIdx,
+      ringStyle: { strokeDasharray: 251.3, strokeDashoffset: 251.3 * (1 - progress), transition: 'stroke-dashoffset 1s linear' },
+    };
+  }
+
+  renderVals() {
+    const { now, theme, modeP1, modeP2, drawerOpen, checkinDone, personalTasks, sharedTasks } = this.state;
+    const cd = this._prayerInfo(now);
+
+    // header
+    const hr = now.getHours();
+    const greeting = (hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Guten Tag' : 'Guten Abend') + ', Ibragim';
+    const dateStr = new Intl.DateTimeFormat('de-AT', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+    const dayPct = ((hr * 60 + now.getMinutes()) / 1440) * 100;
+    const dayBarStyle = { height: '100%', width: `${dayPct}%`, background: 'var(--accent,#6C8EF5)', borderRadius: '99px' };
+
+    // prayer dots
+    const prayerDots = this.PRAYERS.map((p, i) => {
+      const passed = this._toMin(p.t) <= (hr * 60 + now.getMinutes());
+      let style;
+      if (i === cd.nextIdx) style = { width: '9px', height: '9px', borderRadius: '50%', boxSizing: 'border-box', border: '2px solid #fff', background: 'transparent' };
+      else if (passed) style = { width: '9px', height: '9px', borderRadius: '50%', background: '#fff' };
+      else style = { width: '9px', height: '9px', borderRadius: '50%', background: 'rgba(255,255,255,.32)' };
+      return { style };
+    });
+
+    // theme swatches
+    const SW = [
+      { key: 'slate', name: 'Slate', color: '#6C8EF5' },
+      { key: 'amber', name: 'Amber', color: '#D4A853' },
+      { key: 'emerald', name: 'Emerald', color: '#34C77B' },
+      { key: 'rose', name: 'Rose', color: '#F472B6' },
+      { key: 'midnight', name: 'Midnight', color: '#38BDF8' },
+    ];
+    const swatches = SW.map(s => ({
+      name: s.name,
+      onClick: () => this.setState({ theme: s.key }),
+      style: {
+        width: '32px', height: '32px', borderRadius: '50%', background: s.color, cursor: 'pointer',
+        border: theme === s.key ? '2px solid #fff' : '2px solid transparent',
+        boxShadow: theme === s.key ? `0 0 0 2px ${s.color}` : 'none',
+        transform: theme === s.key ? 'scale(1.08)' : 'none',
+        transition: 'transform .2s ease, box-shadow .2s ease',
+      },
+    }));
+
+    // task style builder
+    const taskBox = done => done
+      ? { width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent,#6C8EF5)', border: '2px solid var(--accent,#6C8EF5)', color: 'var(--on-accent,#fff)' }
+      : { width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '2px solid var(--ink-3,rgba(244,246,250,.4))' };
+    const taskTitle = done => done
+      ? { flex: 1, fontSize: '15px', textDecoration: 'line-through', color: 'var(--ink-3,rgba(244,246,250,.4))' }
+      : { flex: 1, fontSize: '15px', color: 'var(--ink,#F4F6FA)' };
+
+    const toggleP = id => this.setState(st => ({ personalTasks: st.personalTasks.map(t => t.id === id ? { ...t, done: !t.done } : t) }));
+    const pTasks = personalTasks.map(t => ({
+      title: t.title, time: t.time, done: t.done,
+      boxStyle: taskBox(t.done), titleStyle: taskTitle(t.done),
+      onClick: () => toggleP(t.id),
+    }));
+    const openTasksCount = personalTasks.filter(t => !t.done).length;
+
+    const MEMBER = { IB: '#6C8EF5', MA: '#F472B6', Fam: '#34C77B' };
+    const toggleS = id => this.setState(st => ({ sharedTasks: st.sharedTasks.map(t => t.id === id ? { ...t, done: !t.done } : t) }));
+    const sTasks = sharedTasks.map(t => ({
+      title: t.title, who: t.who, done: t.done,
+      boxStyle: taskBox(t.done), titleStyle: taskTitle(t.done),
+      chipStyle: { flexShrink: 0, fontFamily: "'DM Sans'", fontWeight: 700, fontSize: '11px', color: '#fff', background: MEMBER[t.who] || '#888', borderRadius: '99px', padding: '3px 9px' },
+      onClick: () => toggleS(t.id),
+    }));
+
+    // drawer styles
+    const overlay = open => ({ position: 'absolute', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end', pointerEvents: open ? 'auto' : 'none' });
+    const backdrop = open => ({ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.45)', opacity: open ? 1 : 0, transition: 'opacity .3s ease', cursor: 'pointer' });
+    const panel = open => ({ position: 'relative', width: '100%', boxSizing: 'border-box', background: 'var(--surface,#1A1D27)', borderTopLeftRadius: '26px', borderTopRightRadius: '26px', padding: '14px 16px 40px', boxShadow: '0 -12px 44px rgba(0,0,0,.32)', transform: open ? 'translateY(0)' : 'translateY(110%)', transition: 'transform .4s cubic-bezier(.32,.72,0,1)' });
+
+    const p1Open = drawerOpen === 'p1';
+    const p2Open = drawerOpen === 'p2';
+
+    const segActive = { color: '#fff' };
+    const segOff = { opacity: .45 };
+
+    return {
+      theme, modeP1, modeP2,
+      p1Dark: modeP1 === 'dark', p2Dark: modeP2 === 'dark',
+      toggleModeP1: () => this.setState(st => ({ modeP1: st.modeP1 === 'dark' ? 'light' : 'dark' })),
+      toggleModeP2: () => this.setState(st => ({ modeP2: st.modeP2 === 'dark' ? 'light' : 'dark' })),
+      p1MoonStyle: modeP1 === 'dark' ? segActive : segOff,
+      p1SunStyle: modeP1 === 'light' ? segActive : segOff,
+      p2MoonStyle: modeP2 === 'dark' ? segActive : segOff,
+      p2SunStyle: modeP2 === 'light' ? segActive : segOff,
+      swatches,
+      greeting, dateStr, dayBarStyle,
+      cd, prayerDots,
+      personalTasks: pTasks, openTasksCount,
+      sharedTasks: sTasks,
+      checkinDone, checkinOpen: !checkinDone,
+      doCheckin: () => this.setState({ checkinDone: true }),
+      resetCheckin: () => this.setState({ checkinDone: false }),
+      openP1: () => this.setState({ drawerOpen: 'p1' }),
+      openP2: () => this.setState({ drawerOpen: 'p2' }),
+      closeDrawer: () => this.setState({ drawerOpen: null }),
+      p1OverlayStyle: overlay(p1Open), p1BackdropStyle: backdrop(p1Open), p1PanelStyle: panel(p1Open),
+      p2OverlayStyle: overlay(p2Open), p2BackdropStyle: backdrop(p2Open), p2PanelStyle: panel(p2Open),
+    };
+  }
+}
+</script>
+<script>
+(async () => {
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  @page { margin: 0.5cm; }\n  html, body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }\n  section, article, figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+
+
+</body></html>

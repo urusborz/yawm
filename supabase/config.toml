@@ -1,0 +1,10 @@
+project_id = "yawm"
+
+[functions.import-prayer-times]
+verify_jwt = true
+
+[functions.prayer-push-dispatcher]
+verify_jwt = false
+
+[functions.reminder-dispatcher]
+verify_jwt = false
