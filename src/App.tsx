@@ -23,21 +23,14 @@ import {
   X,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  currentUser,
-  habitSummary,
-  initialBills,
-  initialEvents,
-  initialNotes,
-  initialTasks,
-  prayerTimes,
-} from './data/mock';
+import { currentUser, habitSummary, initialBills, initialEvents, initialNotes, initialTasks, prayerTimes } from './data/mock';
 import { dayProgress, daysUntil, formatShortDate, formatTime, formatToday, getGreeting } from './lib/dates';
 import { getNextPrayer } from './lib/prayer-times';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import type { Bill, FamilyEvent, Note, Scope, Task } from './types';
 
 type View = 'me' | 'family' | 'tasks' | 'notes' | 'calendar' | 'prayer' | 'settings';
+type QuickAddType = 'task' | 'event' | 'bill' | 'note';
 
 const themeNames = ['slate', 'emerald', 'rose', 'midnight'] as const;
 
@@ -45,17 +38,24 @@ function money(value: number) {
   return new Intl.NumberFormat('de-AT', { style: 'currency', currency: 'EUR' }).format(value);
 }
 
-function StatTile({
-  icon,
-  value,
-  label,
-  locked,
-}: {
-  icon: ReactNode;
-  value: React.ReactNode;
-  label: string;
-  locked?: boolean;
-}) {
+function usePersistentState<T>(key: string, fallback: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const stored = window.localStorage.getItem(key);
+      return stored ? (JSON.parse(stored) as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+
+function StatTile({ icon, value, label, locked }: { icon: ReactNode; value: ReactNode; label: string; locked?: boolean }) {
   return (
     <div className="stat-tile">
       <div className="stat-tile__icon">
@@ -109,21 +109,76 @@ function BottomNav({ view, setView }: { view: View; setView: (view: View) => voi
 
 function QuickAdd({
   open,
+  initialType,
   onClose,
   onCreateTask,
+  onCreateBill,
+  onCreateEvent,
+  onCreateNote,
 }: {
   open: boolean;
+  initialType: QuickAddType;
   onClose: () => void;
-  onCreateTask: (title: string, scope: Scope) => void;
+  onCreateTask: (title: string, scope: Scope, dueAt?: string) => void;
+  onCreateBill: (bill: Omit<Bill, 'id' | 'status'>) => void;
+  onCreateEvent: (event: Omit<FamilyEvent, 'id'>) => void;
+  onCreateNote: (note: Omit<Note, 'id' | 'createdAt'>) => void;
 }) {
+  const [type, setType] = useState<QuickAddType>(initialType);
   const [title, setTitle] = useState('');
   const [scope, setScope] = useState<Scope>('private');
+  const [dueAt, setDueAt] = useState('');
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState('18:00');
+  const [location, setLocation] = useState('');
+  const [content, setContent] = useState('');
+
+  useEffect(() => {
+    if (open) setType(initialType);
+  }, [initialType, open]);
+
+  function reset() {
+    setTitle('');
+    setScope('private');
+    setDueAt('');
+    setAmount('');
+    setDate(new Date().toISOString().slice(0, 10));
+    setTime('18:00');
+    setLocation('');
+    setContent('');
+  }
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (!title.trim()) return;
-    onCreateTask(title.trim(), scope);
-    setTitle('');
+    if (!title.trim() && type !== 'note') return;
+
+    if (type === 'task') onCreateTask(title.trim(), scope, dueAt || undefined);
+    if (type === 'bill') {
+      onCreateBill({
+        title: title.trim(),
+        amount: Number(amount.replace(',', '.')) || 0,
+        dueDate: date,
+        category: 'Haushalt',
+      });
+    }
+    if (type === 'event') {
+      onCreateEvent({
+        title: title.trim(),
+        startsAt: `${date}T${time}:00+02:00`,
+        location: location.trim() || undefined,
+        scope,
+      });
+    }
+    if (type === 'note') {
+      onCreateNote({
+        title: title.trim() || 'Schnelle Notiz',
+        content: content.trim(),
+        scope,
+      });
+    }
+
+    reset();
     onClose();
   }
 
@@ -147,24 +202,39 @@ function QuickAdd({
                 <X size={18} />
               </button>
             </div>
-            <input
-              className="field"
-              data-testid="quick-task-title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Aufgabe"
-            />
-            <div className="segmented">
-              <button className={scope === 'private' ? 'active' : ''} type="button" onClick={() => setScope('private')}>
-                Privat
-              </button>
-              <button className={scope === 'shared' ? 'active' : ''} type="button" onClick={() => setScope('shared')}>
-                Geteilt
-              </button>
+            <div className="type-grid">
+              {(['task', 'event', 'bill', 'note'] as QuickAddType[]).map((item) => (
+                <button className={type === item ? 'active' : ''} key={item} type="button" onClick={() => setType(item)}>
+                  {item === 'task' ? 'Aufgabe' : item === 'event' ? 'Termin' : item === 'bill' ? 'Rechnung' : 'Notiz'}
+                </button>
+              ))}
             </div>
+            <input className="field" data-testid="quick-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={type === 'note' ? 'Titel optional' : 'Titel'} />
+            {type === 'note' ? (
+              <textarea className="field field--textarea" value={content} onChange={(event) => setContent(event.target.value)} placeholder="Notiz" />
+            ) : null}
+            {type === 'task' ? <input className="field" type="time" value={dueAt} onChange={(event) => setDueAt(event.target.value)} /> : null}
+            {type === 'event' || type === 'bill' ? (
+              <div className="form-grid">
+                <input className="field" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+                {type === 'event' ? <input className="field" type="time" value={time} onChange={(event) => setTime(event.target.value)} /> : null}
+                {type === 'bill' ? <input className="field" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="Betrag" /> : null}
+              </div>
+            ) : null}
+            {type === 'event' ? <input className="field" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Ort" /> : null}
+            {type === 'task' || type === 'event' || type === 'note' ? (
+              <div className="segmented">
+                <button className={scope === 'private' ? 'active' : ''} type="button" onClick={() => setScope('private')}>
+                  Privat
+                </button>
+                <button className={scope === 'shared' ? 'active' : ''} type="button" onClick={() => setScope('shared')}>
+                  Geteilt
+                </button>
+              </div>
+            ) : null}
             <button className="primary-button" type="submit">
               <Plus size={18} />
-              Hinzufuegen
+              Speichern
             </button>
           </motion.form>
         </motion.div>
@@ -173,13 +243,59 @@ function QuickAdd({
   );
 }
 
-function PrayerCard({ now }: { now: Date }) {
+function CheckinSheet({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: () => void }) {
+  const [mood, setMood] = useState('7');
+  const [goal, setGoal] = useState('');
+  const [gratitude, setGratitude] = useState('');
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    window.localStorage.setItem(
+      'yawm-checkin-today',
+      JSON.stringify({ mood, goal, gratitude, savedAt: new Date().toISOString() })
+    );
+    onSave();
+    onClose();
+  }
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div className="sheet" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <button className="sheet__backdrop" type="button" onClick={onClose} aria-label="Schliessen" />
+          <motion.form className="sheet__panel" onSubmit={submit} initial={{ y: 80 }} animate={{ y: 0 }} exit={{ y: 80 }}>
+            <div className="sheet__handle" />
+            <div className="sheet__header">
+              <h2>Daily Check-in</h2>
+              <button className="icon-button" type="button" onClick={onClose} title="Schliessen">
+                <X size={18} />
+              </button>
+            </div>
+            <label className="range-row">
+              <span>Stimmung</span>
+              <strong>{mood}/10</strong>
+              <input type="range" min="1" max="10" value={mood} onChange={(event) => setMood(event.target.value)} />
+            </label>
+            <input className="field" value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="Hauptziel heute" />
+            <textarea className="field field--textarea" value={gratitude} onChange={(event) => setGratitude(event.target.value)} placeholder="Wofuer bist du dankbar?" />
+            <button className="primary-button" type="submit">
+              <ShieldCheck size={18} />
+              Check-in speichern
+            </button>
+          </motion.form>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
+function PrayerCard({ now, onOpen }: { now: Date; onOpen: () => void }) {
   const nextPrayer = useMemo(() => getNextPrayer(prayerTimes, now), [now]);
   const dash = 251.3 * (1 - nextPrayer.progress);
 
   return (
-    <section className="prayer-card">
-      <div>
+    <button className="prayer-card" type="button" onClick={onOpen}>
+      <div className="prayer-card__header">
         <span className="eyebrow">Naechstes Gebet</span>
         <h2>{nextPrayer.next.name}</h2>
         <p>{nextPrayer.next.time} Uhr</p>
@@ -200,7 +316,7 @@ function PrayerCard({ now }: { now: Date }) {
           <span className={index === nextPrayer.index ? 'active' : ''} key={prayer.name} title={`${prayer.name} ${prayer.time}`} />
         ))}
       </div>
-    </section>
+    </button>
   );
 }
 
@@ -209,13 +325,15 @@ function MeDashboard({
   tasks,
   onToggleTask,
   checkinDone,
-  setCheckinDone,
+  onOpenCheckin,
+  onOpenPrayer,
 }: {
   now: Date;
   tasks: Task[];
   onToggleTask: (id: string) => void;
   checkinDone: boolean;
-  setCheckinDone: (value: boolean) => void;
+  onOpenCheckin: () => void;
+  onOpenPrayer: () => void;
 }) {
   const privateTasks = tasks.filter((task) => task.scope === 'private');
   const openTasks = privateTasks.filter((task) => !task.done);
@@ -232,15 +350,12 @@ function MeDashboard({
       <div className="daybar">
         <span style={{ width: `${dayProgress(now)}%` }} />
       </div>
-
-      <PrayerCard now={now} />
-
+      <PrayerCard now={now} onOpen={onOpenPrayer} />
       <section className="stats-grid">
         <StatTile icon={<Flame size={20} />} value={habitSummary.cleanDays} label="Tage clean" locked />
         <StatTile icon={<BookOpen size={20} />} value={<>{habitSummary.quranMinutesToday} min</>} label="Quran heute" locked />
         <StatTile icon={<ClipboardCheck size={20} />} value={openTasks.length} label="offene Tasks" />
       </section>
-
       <section className="panel">
         <div className="panel__header">
           <h2>Top-Aufgaben</h2>
@@ -252,10 +367,9 @@ function MeDashboard({
           ))}
         </div>
       </section>
-
-      <button className={checkinDone ? 'checkin checkin--done' : 'checkin'} type="button" onClick={() => setCheckinDone(!checkinDone)}>
+      <button className={checkinDone ? 'checkin checkin--done' : 'checkin'} type="button" onClick={onOpenCheckin}>
         <Sparkles size={21} />
-        <span>{checkinDone ? 'Check-in erledigt' : 'Daily Check-in'}</span>
+        <span>{checkinDone ? 'Check-in ansehen' : 'Daily Check-in'}</span>
         <ShieldCheck size={18} />
       </button>
     </motion.div>
@@ -267,16 +381,21 @@ function FamilyDashboard({
   bills,
   events,
   onToggleTask,
+  onToggleBill,
+  onOpenAdd,
 }: {
   tasks: Task[];
   bills: Bill[];
   events: FamilyEvent[];
   onToggleTask: (id: string) => void;
+  onToggleBill: (id: string) => void;
+  onOpenAdd: (type: QuickAddType) => void;
 }) {
   const sharedTasks = tasks.filter((task) => task.scope === 'shared');
   const openBills = bills.filter((bill) => bill.status === 'open');
   const billTotal = openBills.reduce((sum, bill) => sum + bill.amount, 0);
-  const nextDue = Math.min(...openBills.map((bill) => daysUntil(bill.dueDate)));
+  const dueValues = openBills.map((bill) => daysUntil(bill.dueDate));
+  const nextDue = dueValues.length ? Math.min(...dueValues) : 0;
 
   return (
     <motion.div className="screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -290,55 +409,56 @@ function FamilyDashboard({
           <span>{currentUser.spouseInitials}</span>
         </div>
       </header>
-
       <section className="panel panel--accent">
         <div className="panel__header">
           <h2>Offene Rechnungen</h2>
-          <span>{nextDue <= 0 ? 'faellig' : `in ${nextDue} Tagen`}</span>
+          <button type="button" onClick={() => onOpenAdd('bill')}>{nextDue <= 0 ? 'faellig' : `in ${nextDue} Tagen`}</button>
         </div>
         <strong className="total">{money(billTotal)}</strong>
         <p>{openBills.length} Rechnungen offen</p>
         <div className="rows rows--compact">
-          {openBills.map((bill) => (
-            <div className="bill-row" key={bill.id}>
+          {bills.map((bill) => (
+            <button className={bill.status === 'paid' ? 'bill-row bill-row--paid' : 'bill-row'} key={bill.id} type="button" onClick={() => onToggleBill(bill.id)}>
               <CircleDollarSign size={20} />
               <div>
                 <strong>{bill.title}</strong>
-                <span>{formatShortDate(bill.dueDate)} · {bill.category}</span>
+                <span>{formatShortDate(bill.dueDate)} - {bill.category}</span>
               </div>
-              <b>{money(bill.amount)}</b>
-            </div>
+              <b>{bill.status === 'paid' ? 'bezahlt' : money(bill.amount)}</b>
+            </button>
           ))}
         </div>
+        <button className="inline-action" type="button" onClick={() => onOpenAdd('bill')}>
+          <Plus size={17} />
+          Rechnung
+        </button>
       </section>
-
       <section className="panel">
         <div className="panel__header">
           <h2>Termine</h2>
-          <span>{events.filter((event) => event.scope === 'shared').length}</span>
+          <button type="button" onClick={() => onOpenAdd('event')}>{events.filter((event) => event.scope === 'shared').length}</button>
         </div>
         <div className="rows">
           {events
             .filter((event) => event.scope === 'shared')
             .map((event) => (
-              <div className="event-row" key={event.id}>
+              <button className="event-row" key={event.id} type="button" onClick={() => onOpenAdd('event')}>
                 <div className="date-badge">
                   <strong>{new Date(event.startsAt).getDate()}</strong>
                   <span>Jun</span>
                 </div>
                 <div>
                   <strong>{event.title}</strong>
-                  <span>{formatTime(event.startsAt)}{event.location ? ` · ${event.location}` : ''}</span>
+                  <span>{formatTime(event.startsAt)}{event.location ? ` - ${event.location}` : ''}</span>
                 </div>
-              </div>
+              </button>
             ))}
         </div>
       </section>
-
       <section className="panel">
         <div className="panel__header">
           <h2>Geteilte Aufgaben</h2>
-          <span>{sharedTasks.filter((task) => !task.done).length} offen</span>
+          <button type="button" onClick={() => onOpenAdd('task')}>{sharedTasks.filter((task) => !task.done).length} offen</button>
         </div>
         <div className="rows">
           {sharedTasks.map((task) => (
@@ -350,7 +470,7 @@ function FamilyDashboard({
   );
 }
 
-function TasksView({ tasks, onToggleTask, onCreateTask }: { tasks: Task[]; onToggleTask: (id: string) => void; onCreateTask: (title: string, scope: Scope) => void }) {
+function TasksView({ tasks, onToggleTask, onCreateTask }: { tasks: Task[]; onToggleTask: (id: string) => void; onCreateTask: (title: string, scope: Scope, dueAt?: string) => void }) {
   const [title, setTitle] = useState('');
   const [scope, setScope] = useState<Scope>('private');
 
@@ -368,27 +488,15 @@ function TasksView({ tasks, onToggleTask, onCreateTask }: { tasks: Task[]; onTog
         <ClipboardCheck size={25} />
       </header>
       <form className="compose" onSubmit={submit}>
-        <input
-          className="field"
-          data-testid="task-title-input"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Neue Aufgabe"
-        />
+        <input className="field" data-testid="task-title-input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Neue Aufgabe" />
         <div className="segmented">
-          <button className={scope === 'private' ? 'active' : ''} type="button" onClick={() => setScope('private')}>
-            Privat
-          </button>
-          <button className={scope === 'shared' ? 'active' : ''} type="button" onClick={() => setScope('shared')}>
-            Geteilt
-          </button>
+          <button className={scope === 'private' ? 'active' : ''} type="button" onClick={() => setScope('private')}>Privat</button>
+          <button className={scope === 'shared' ? 'active' : ''} type="button" onClick={() => setScope('shared')}>Geteilt</button>
         </div>
       </form>
       <section className="panel">
         <div className="rows">
-          {tasks.map((task) => (
-            <TaskRow key={task.id} task={task} onToggle={onToggleTask} />
-          ))}
+          {tasks.map((task) => <TaskRow key={task.id} task={task} onToggle={onToggleTask} />)}
         </div>
       </section>
     </motion.div>
@@ -401,16 +509,7 @@ function NotesView({ notes, setNotes }: { notes: Note[]; setNotes: (notes: Note[
   function addNote(event: FormEvent) {
     event.preventDefault();
     if (!content.trim()) return;
-    setNotes([
-      {
-        id: crypto.randomUUID(),
-        title: 'Schnelle Notiz',
-        content: content.trim(),
-        createdAt: new Date().toISOString(),
-        scope: 'private',
-      },
-      ...notes,
-    ]);
+    setNotes([{ id: crypto.randomUUID(), title: 'Schnelle Notiz', content: content.trim(), createdAt: new Date().toISOString(), scope: 'private' }, ...notes]);
     setContent('');
   }
 
@@ -422,10 +521,7 @@ function NotesView({ notes, setNotes }: { notes: Note[]; setNotes: (notes: Note[
       </header>
       <form className="compose" onSubmit={addNote}>
         <textarea className="field field--textarea" value={content} onChange={(event) => setContent(event.target.value)} placeholder="Gedanke festhalten" />
-        <button className="primary-button" type="submit">
-          <Plus size={18} />
-          Speichern
-        </button>
+        <button className="primary-button" type="submit"><Plus size={18} />Speichern</button>
       </form>
       <div className="note-grid">
         {notes.map((note) => (
@@ -440,17 +536,14 @@ function NotesView({ notes, setNotes }: { notes: Note[]; setNotes: (notes: Note[
   );
 }
 
-function SettingsView({ setView }: { setView: (view: View) => void }) {
+function SettingsView({ setView, mode, setMode, theme, setTheme, onReset }: { setView: (view: View) => void; mode: 'dark' | 'light'; setMode: (mode: 'dark' | 'light') => void; theme: string; setTheme: (theme: (typeof themeNames)[number]) => void; onReset: () => void }) {
   const [email, setEmail] = useState('');
   const [authStatus, setAuthStatus] = useState('');
 
   async function signIn(event: FormEvent) {
     event.preventDefault();
     if (!supabase || !email.trim()) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: window.location.origin },
-    });
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin } });
     setAuthStatus(error ? error.message : 'Magic-Link wurde versendet.');
   }
 
@@ -464,30 +557,33 @@ function SettingsView({ setView }: { setView: (view: View) => void }) {
         <div className="setup-row">
           <ShieldCheck size={22} />
           <div>
-            <strong>{isSupabaseConfigured ? 'Supabase verbunden' : 'Lokaler Entwurf'}</strong>
-            <span>{isSupabaseConfigured ? 'Auth und Datenbank koennen genutzt werden.' : '.env.local fehlt noch.'}</span>
+            <strong>{isSupabaseConfigured ? 'Supabase verbunden' : 'Lokaler Modus'}</strong>
+            <span>{isSupabaseConfigured ? 'Auth kann spaeter aktiviert werden.' : 'Daten werden auf diesem Geraet gespeichert.'}</span>
           </div>
         </div>
         {isSupabaseConfigured ? (
           <form className="auth-form" onSubmit={signIn}>
             <input className="field" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="E-Mail" />
-            <button className="primary-button" type="submit">
-              <Bell size={18} />
-              Magic-Link
-            </button>
+            <button className="primary-button" type="submit"><Bell size={18} />Magic-Link</button>
             {authStatus ? <p>{authStatus}</p> : null}
           </form>
         ) : null}
       </section>
       <section className="panel">
-        <button className="menu-row" type="button" onClick={() => setView('prayer')}>
-          <Sun size={20} />
-          <span>Gebetszeiten</span>
+        <div className="theme-grid theme-grid--wide">
+          {themeNames.map((name) => (
+            <button className={theme === name ? 'theme-dot active' : 'theme-dot'} data-dot={name} key={name} type="button" onClick={() => setTheme(name)} title={name} />
+          ))}
+        </div>
+        <button className="menu-row" type="button" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
+          {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+          <span>{mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}</span>
         </button>
-        <button className="menu-row" type="button" onClick={() => setView('notes')}>
-          <NotebookPen size={20} />
-          <span>Notizen</span>
-        </button>
+      </section>
+      <section className="panel">
+        <button className="menu-row" type="button" onClick={() => setView('prayer')}><Sun size={20} /><span>Gebetszeiten</span></button>
+        <button className="menu-row" type="button" onClick={() => setView('notes')}><NotebookPen size={20} /><span>Notizen</span></button>
+        <button className="menu-row danger-row" type="button" onClick={onReset}><X size={20} /><span>Lokale Daten zuruecksetzen</span></button>
       </section>
     </motion.div>
   );
@@ -496,10 +592,7 @@ function SettingsView({ setView }: { setView: (view: View) => void }) {
 function GenericListView({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
     <motion.div className="screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <header className="simple-header">
-        <h1>{title}</h1>
-        {icon}
-      </header>
+      <header className="simple-header"><h1>{title}</h1>{icon}</header>
       {children}
     </motion.div>
   );
@@ -507,35 +600,48 @@ function GenericListView({ title, icon, children }: { title: string; icon: React
 
 export default function App() {
   const [now, setNow] = useState(new Date());
-  const [view, setView] = useState<View>('me');
-  const [theme, setTheme] = useState<(typeof themeNames)[number]>('slate');
-  const [mode, setMode] = useState<'dark' | 'light'>('dark');
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [view, setView] = usePersistentState<View>('yawm-view', 'me');
+  const [theme, setTheme] = usePersistentState<(typeof themeNames)[number]>('yawm-theme', 'slate');
+  const [mode, setMode] = usePersistentState<'dark' | 'light'>('yawm-mode', 'dark');
+  const [tasks, setTasks] = usePersistentState<Task[]>('yawm-tasks', initialTasks);
+  const [bills, setBills] = usePersistentState<Bill[]>('yawm-bills', initialBills);
+  const [events, setEvents] = usePersistentState<FamilyEvent[]>('yawm-events', initialEvents);
+  const [notes, setNotes] = usePersistentState<Note[]>('yawm-notes', initialNotes);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [checkinDone, setCheckinDone] = useState(habitSummary.checkinDone);
+  const [quickAddType, setQuickAddType] = useState<QuickAddType>('task');
+  const [checkinOpen, setCheckinOpen] = useState(false);
+  const [checkinDone, setCheckinDone] = usePersistentState('yawm-checkin-done', habitSummary.checkinDone);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(interval);
   }, []);
 
+  function openAdd(type: QuickAddType) {
+    setQuickAddType(type);
+    setQuickAddOpen(true);
+  }
+
   function toggleTask(id: string) {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, done: !task.done } : task)));
   }
 
-  function createTask(title: string, scope: Scope) {
-    setTasks((current) => [
-      {
-        id: crypto.randomUUID(),
-        title,
-        scope,
-        done: false,
-        ownerInitials: currentUser.initials,
-        priority: 'normal',
-      },
-      ...current,
-    ]);
+  function toggleBill(id: string) {
+    setBills((current) => current.map((bill) => (bill.id === id ? { ...bill, status: bill.status === 'paid' ? 'open' : 'paid' } : bill)));
+  }
+
+  function createTask(title: string, scope: Scope, dueAt?: string) {
+    setTasks((current) => [{ id: crypto.randomUUID(), title, scope, dueAt, done: false, ownerInitials: currentUser.initials, priority: 'normal' }, ...current]);
+  }
+
+  function resetLocalData() {
+    if (!window.confirm('Lokale Yawm-Daten auf diesem Geraet zuruecksetzen?')) return;
+    ['yawm-tasks', 'yawm-bills', 'yawm-events', 'yawm-notes', 'yawm-checkin-done', 'yawm-checkin-today'].forEach((key) => window.localStorage.removeItem(key));
+    setTasks(initialTasks);
+    setBills(initialBills);
+    setEvents(initialEvents);
+    setNotes(initialNotes);
+    setCheckinDone(false);
   }
 
   return (
@@ -543,60 +649,30 @@ export default function App() {
       <div className="app-shell">
         <aside className="desktop-rail">
           <div className="brand-mark">Y</div>
-          <button className={view === 'me' ? 'rail-button active' : 'rail-button'} data-testid="rail-me" type="button" onClick={() => setView('me')} title="Ich">
-            <UserRound size={21} />
-          </button>
-          <button className={view === 'family' ? 'rail-button active' : 'rail-button'} data-testid="rail-family" type="button" onClick={() => setView('family')} title="Familie">
-            <UsersRound size={21} />
-          </button>
-          <button className={view === 'tasks' ? 'rail-button active' : 'rail-button'} data-testid="rail-tasks" type="button" onClick={() => setView('tasks')} title="Tasks">
-            <ClipboardCheck size={21} />
-          </button>
-          <button className={view === 'settings' ? 'rail-button active' : 'rail-button'} data-testid="rail-settings" type="button" onClick={() => setView('settings')} title="Mehr">
-            <Settings size={21} />
-          </button>
+          <button className={view === 'me' ? 'rail-button active' : 'rail-button'} data-testid="rail-me" type="button" onClick={() => setView('me')} title="Ich"><UserRound size={21} /></button>
+          <button className={view === 'family' ? 'rail-button active' : 'rail-button'} data-testid="rail-family" type="button" onClick={() => setView('family')} title="Familie"><UsersRound size={21} /></button>
+          <button className={view === 'tasks' ? 'rail-button active' : 'rail-button'} data-testid="rail-tasks" type="button" onClick={() => setView('tasks')} title="Tasks"><ClipboardCheck size={21} /></button>
+          <button className={view === 'settings' ? 'rail-button active' : 'rail-button'} data-testid="rail-settings" type="button" onClick={() => setView('settings')} title="Mehr"><Settings size={21} /></button>
         </aside>
 
         <main className="phone-frame">
-          <div className="status-bar">
-            <span>{new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit' }).format(now)}</span>
-            <div>
-              <Moon size={14} />
-              <span>100%</span>
-            </div>
-          </div>
+          <div className="status-bar"><span>{new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit' }).format(now)}</span><div><Moon size={14} /><span>100%</span></div></div>
           <div className="notch" />
           <div className="content">
             <AnimatePresence mode="wait">
-              {view === 'me' ? (
-                <MeDashboard
-                  key="me"
-                  now={now}
-                  tasks={tasks}
-                  onToggleTask={toggleTask}
-                  checkinDone={checkinDone}
-                  setCheckinDone={setCheckinDone}
-                />
-              ) : null}
-              {view === 'family' ? (
-                <FamilyDashboard key="family" tasks={tasks} bills={initialBills} events={initialEvents} onToggleTask={toggleTask} />
-              ) : null}
+              {view === 'me' ? <MeDashboard key="me" now={now} tasks={tasks} onToggleTask={toggleTask} checkinDone={checkinDone} onOpenCheckin={() => setCheckinOpen(true)} onOpenPrayer={() => setView('prayer')} /> : null}
+              {view === 'family' ? <FamilyDashboard key="family" tasks={tasks} bills={bills} events={events} onToggleTask={toggleTask} onToggleBill={toggleBill} onOpenAdd={openAdd} /> : null}
               {view === 'tasks' ? <TasksView key="tasks" tasks={tasks} onToggleTask={toggleTask} onCreateTask={createTask} /> : null}
               {view === 'notes' ? <NotesView key="notes" notes={notes} setNotes={setNotes} /> : null}
               {view === 'calendar' ? (
                 <GenericListView key="calendar" title="Kalender" icon={<CalendarDays size={25} />}>
                   <section className="panel">
+                    <button className="inline-action inline-action--top" type="button" onClick={() => openAdd('event')}><Plus size={17} />Termin</button>
                     <div className="rows">
-                      {initialEvents.map((event) => (
+                      {events.map((event) => (
                         <div className="event-row" key={event.id}>
-                          <div className="date-badge">
-                            <strong>{new Date(event.startsAt).getDate()}</strong>
-                            <span>Jun</span>
-                          </div>
-                          <div>
-                            <strong>{event.title}</strong>
-                            <span>{formatTime(event.startsAt)}{event.location ? ` · ${event.location}` : ''}</span>
-                          </div>
+                          <div className="date-badge"><strong>{new Date(event.startsAt).getDate()}</strong><span>Jun</span></div>
+                          <div><strong>{event.title}</strong><span>{formatTime(event.startsAt)}{event.location ? ` - ${event.location}` : ''}</span></div>
                         </div>
                       ))}
                     </div>
@@ -605,57 +681,39 @@ export default function App() {
               ) : null}
               {view === 'prayer' ? (
                 <GenericListView key="prayer" title="Gebetszeiten" icon={<Sun size={25} />}>
-                  <PrayerCard now={now} />
+                  <PrayerCard now={now} onOpen={() => undefined} />
                   <section className="panel">
                     <div className="rows">
-                      {prayerTimes.map((prayer) => (
-                        <div className="menu-row" key={prayer.name}>
-                          <Sun size={18} />
-                          <span>{prayer.name}</span>
-                          <strong>{prayer.time}</strong>
-                        </div>
-                      ))}
+                      {prayerTimes.map((prayer) => <div className="menu-row" key={prayer.name}><Sun size={18} /><span>{prayer.name}</span><strong>{prayer.time}</strong></div>)}
                     </div>
                   </section>
                 </GenericListView>
               ) : null}
-              {view === 'settings' ? <SettingsView key="settings" setView={setView} /> : null}
+              {view === 'settings' ? <SettingsView key="settings" setView={setView} mode={mode} setMode={setMode} theme={theme} setTheme={setTheme} onReset={resetLocalData} /> : null}
             </AnimatePresence>
           </div>
-          <button className="fab" type="button" onClick={() => setQuickAddOpen(true)} title="Hinzufuegen">
-            <Plus size={26} />
-          </button>
+          <button className="fab" type="button" onClick={() => openAdd('task')} title="Hinzufuegen"><Plus size={26} /></button>
           <BottomNav view={view} setView={setView} />
-          <QuickAdd open={quickAddOpen} onClose={() => setQuickAddOpen(false)} onCreateTask={createTask} />
+          <QuickAdd
+            open={quickAddOpen}
+            initialType={quickAddType}
+            onClose={() => setQuickAddOpen(false)}
+            onCreateTask={createTask}
+            onCreateBill={(bill) => setBills((current) => [{ ...bill, id: crypto.randomUUID(), status: 'open' }, ...current])}
+            onCreateEvent={(event) => setEvents((current) => [{ ...event, id: crypto.randomUUID() }, ...current])}
+            onCreateNote={(note) => setNotes((current) => [{ ...note, id: crypto.randomUUID(), createdAt: new Date().toISOString() }, ...current])}
+          />
+          <CheckinSheet open={checkinOpen} onClose={() => setCheckinOpen(false)} onSave={() => setCheckinDone(true)} />
           <div className="home-indicator" />
         </main>
 
         <aside className="control-panel">
-          <div>
-            <span>Yawm</span>
-            <h1>v0 Fundament</h1>
-          </div>
+          <div><span>Yawm</span><h1>v0 App</h1></div>
           <div className="theme-grid">
-            {themeNames.map((name) => (
-              <button
-                className={theme === name ? 'theme-dot active' : 'theme-dot'}
-                data-dot={name}
-                key={name}
-                type="button"
-                onClick={() => setTheme(name)}
-                title={name}
-              />
-            ))}
+            {themeNames.map((name) => <button className={theme === name ? 'theme-dot active' : 'theme-dot'} data-dot={name} key={name} type="button" onClick={() => setTheme(name)} title={name} />)}
           </div>
-          <button className="mode-toggle" type="button" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
-            {mode === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-            {mode === 'dark' ? 'Dunkel' : 'Hell'}
-          </button>
-          <div className="setup-list">
-            <span><Check size={14} /> PWA Shell</span>
-            <span><Check size={14} /> RLS Migration</span>
-            <span><Check size={14} /> Supabase Adapter</span>
-          </div>
+          <button className="mode-toggle" type="button" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>{mode === 'dark' ? <Moon size={18} /> : <Sun size={18} />}{mode === 'dark' ? 'Dunkel' : 'Hell'}</button>
+          <div className="setup-list"><span><Check size={14} /> Lokale Persistenz</span><span><Check size={14} /> Mobile Shell</span><span><Check size={14} /> Supabase vorbereitet</span></div>
         </aside>
       </div>
     </div>
