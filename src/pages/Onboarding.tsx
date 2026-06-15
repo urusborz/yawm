@@ -4,6 +4,7 @@ import { Home, LogIn, Users } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import * as db from '../lib/db';
 import { supabase } from '../lib/supabase';
+import { errMsg } from '../lib/format';
 
 export default function Onboarding({ user, onReady }: { user: User; onReady: () => void }) {
   const [tab, setTab] = useState<'create' | 'join'>('create');
@@ -24,7 +25,7 @@ export default function Onboarding({ user, onReady }: { user: User; onReady: () 
       }
       onReady();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Konnte nicht abgeschlossen werden.');
+      setError(errMsg(e, 'Konnte nicht abgeschlossen werden.'));
       setBusy(false);
     }
   }

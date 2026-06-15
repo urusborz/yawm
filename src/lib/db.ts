@@ -208,13 +208,17 @@ export async function loadHousehold(householdId: string): Promise<Household> {
 
 export async function createHousehold(name: string, userId: string): Promise<Household> {
   const c = client();
-  const { data: hh, error } = await c.from('households').insert({ name: name.trim() || 'Familie' }).select('id').single();
+  // Generate the id client-side so we never need to SELECT the new row back
+  // before the membership exists (the households SELECT policy is
+  // is_household_member(id), which would otherwise filter the RETURNING row out).
+  const id = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const { error } = await c.from('households').insert({ id, name: name.trim() || 'Familie' });
   if (error) throw error;
   const { error: memberError } = await c
     .from('household_members')
-    .insert({ household_id: hh.id, user_id: userId, role: 'owner' });
+    .insert({ household_id: id, user_id: userId, role: 'owner' });
   if (memberError) throw memberError;
-  return loadHousehold(hh.id);
+  return loadHousehold(id);
 }
 
 export async function joinHouseholdByCode(code: string): Promise<Household> {

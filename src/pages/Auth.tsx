@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, ShieldCheck, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import * as db from '../lib/db';
+import { errMsg } from '../lib/format';
 
 type Mode = 'signin' | 'signup' | 'magic';
 
@@ -39,7 +40,7 @@ export default function Auth() {
         if (e) throw e;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Etwas ist schiefgelaufen.');
+      setError(errMsg(e, 'Etwas ist schiefgelaufen.'));
     } finally {
       setBusy(false);
     }

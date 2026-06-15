@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import * as db from './lib/db';
-import { initials } from './lib/format';
+import { errMsg, initials } from './lib/format';
 import { daysBetween, viennaDate } from './lib/dates';
 import type {
   Bill,
@@ -210,7 +210,7 @@ export function DataProvider({
   );
 
   const fail = useCallback((error: unknown, fallback: string) => {
-    setSyncState(error instanceof Error ? error.message : fallback);
+    setSyncState(errMsg(error, fallback));
   }, []);
 
   const refresh = useCallback(async () => {

@@ -16,3 +16,16 @@ export function initials(name?: string | null) {
 export function pluralize(count: number, one: string, many: string) {
   return count === 1 ? one : many;
 }
+
+/** Extracts a human message from Error, Supabase PostgrestError/AuthError, or anything. */
+export function errMsg(e: unknown, fallback: string) {
+  if (!e) return fallback;
+  if (e instanceof Error) return e.message;
+  if (typeof e === 'object') {
+    const o = e as Record<string, unknown>;
+    const msg = (o.message || o.error_description || o.error || o.hint || o.details) as string | undefined;
+    if (msg) return msg;
+  }
+  if (typeof e === 'string') return e;
+  return fallback;
+}
