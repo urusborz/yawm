@@ -11,6 +11,7 @@ Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschacht
 - v4.1 PWA-Fix: Bottom-Tabbar ist nun absolut am Viewport-Bottom verankert, Content erhält eigenen Unterrand-Puffer.
 - v4.2 PWA-Fix: Mobile Bottom-Tabbar ist nun `position: fixed` am echten Display-/Viewport-Bottom; Desktop nutzt weiter absolute Position im App-Rahmen.
 - v4.3 PWA-Fix: BottomNav wurde aus dem `.viewport` herausgezogen und ist nun direktes App-Kind; `.app` ist mobil ein fixed Fullscreen-Root, damit iOS die Leiste nicht am inneren Container verankert.
+- v4.4 PWA-Fix: Tabbar ignoriert unten bewusst `env(safe-area-inset-bottom)`, nutzt feste sichtbare Höhe und liegt optisch bündig am Displayrand. Ursache war nicht `position`, sondern großer iOS-Safe-Area-Puffer innerhalb der Leiste.
 - v4.1 PWA-Fix: Supabase Auth nutzt explizit `localStorage` mit stabilem Storage-Key, damit Login in der Home-Screen-App persistiert.
 - v4.1 PWA-Fix: Manifest hat `id`, `scope`, PWA-Start-URL und Display-Override; Service-Worker-Cache wurde gebumpt.
 - v4.1 UI-Fix: dekorativer Kreis unten rechts in der großen Heute-Kachel entfernt.
