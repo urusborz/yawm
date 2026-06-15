@@ -8,6 +8,10 @@ Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschacht
 - v4 Entwurf: Mehr-Tab enthält einen Status-Hub mit offenen Aufgaben, Rechnungen und privaten Signalen.
 - v4 Entwurf: Check-in wurde ritualhafter mit schneller Stimmungswahl vor den Detail-Slidern.
 - v4 Entwurf: Designsystem hat lebendigere, aber einheitliche Farbflächen für Hero, Timeline, Quick Actions, Familien-Übersicht, Panels und Mood-Chips.
+- v4.1 PWA-Fix: Bottom-Tabbar ist nun absolut am Viewport-Bottom verankert, Content erhält eigenen Unterrand-Puffer.
+- v4.1 PWA-Fix: Supabase Auth nutzt explizit `localStorage` mit stabilem Storage-Key, damit Login in der Home-Screen-App persistiert.
+- v4.1 PWA-Fix: Manifest hat `id`, `scope`, PWA-Start-URL und Display-Override; Service-Worker-Cache wurde gebumpt.
+- v4.1 UI-Fix: dekorativer Kreis unten rechts in der großen Heute-Kachel entfernt.
 - v3.1: Heute-Kachel im Ich-Dashboard zeigt statt Prozent-Ring nun eine Live-Uhr mit Sekunden, um iOS-SVG-Fokusrahmen zu vermeiden.
 - v3.1: Einstellungen im Mehr-Tab nutzt dieselbe Listenzeile wie alle anderen Mehr-Einträge.
 - Familien-Dashboard: Geteilte Aufgaben und Familien-Termine öffnen nun eigene Bottom-Sheets statt den globalen Misch-QuickAdd zu verwenden.

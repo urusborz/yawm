@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yawm-v0';
+const CACHE_NAME = 'yawm-v4-pwa-shell';
 const APP_SHELL = ['/', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {
