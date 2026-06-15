@@ -157,6 +157,25 @@ export function Pill({ children, tone = 'soft' }: { children: ReactNode; tone?: 
   return <span className={`pill pill--${tone}`}>{children}</span>;
 }
 
+/** Height-animated disclosure. Children are collapsed (and unmounted) when closed. */
+export function Collapsible({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <AnimatePresence initial={false}>
+      {open ? (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          style={{ overflow: 'hidden' }}
+        >
+          {children}
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 export function Avatar({ text, tone }: { text: string; tone?: string }) {
   return <span className="avatar" style={tone ? { background: tone } : undefined}>{text}</span>;
 }

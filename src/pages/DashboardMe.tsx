@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, ChevronRight, Flame, ClipboardCheck, Sparkles, Target } from 'lucide-react';
+import { BookOpen, CalendarClock, ChevronRight, ClipboardCheck, Flame, Sparkles, Target } from 'lucide-react';
 import { Screen, Ring } from '../components/ui';
 import { PrayerCard } from '../components/PrayerCard';
 import { TaskRow } from '../components/TaskRow';
@@ -12,14 +12,18 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
   const data = useData();
   const today = viennaDate();
 
-  const privateOpen = data.tasks.filter((t) => t.scope === 'private' && !t.done);
-  const topTasks = data.tasks.filter((t) => t.scope === 'private').slice(0, 4);
+  const privateTasks = data.tasks.filter((t) => t.scope === 'private');
+  const privateOpen = privateTasks.filter((t) => !t.done);
+  const topTasks = [...privateTasks].sort((a, b) => Number(a.done) - Number(b.done)).slice(0, 4);
   const quranToday = data.quran.filter((q) => q.date === today).reduce((s, q) => s + q.minutes, 0);
   const cleanDays = data.sobrietySettings?.cleanStartDate ? Math.max(0, daysBetween(data.sobrietySettings.cleanStartDate, today)) : null;
   const todaysEvents = data.events
     .filter((e) => viennaDate(new Date(e.startsAt)) === today)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const habitsToday = data.habits.slice(0, 3);
+  const completedPrivate = privateTasks.filter((t) => t.done).length;
+  const taskProgress = privateTasks.length ? completedPrivate / privateTasks.length : 0;
+  const nextEvent = todaysEvents[0];
 
   return (
     <Screen>
@@ -33,25 +37,37 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
 
       <div className="daybar"><motion.span initial={{ width: 0 }} animate={{ width: `${dayProgress(now)}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} /></div>
 
-      <PrayerCard prayerDay={data.prayerToday} now={now} isFallback={data.prayerIsFallback} onOpen={() => setView('prayer')} />
-
-      <section className="stats-grid">
-        <button className="stat-tile" type="button" onClick={() => setView('clean')}>
-          <div className="stat-tile__icon"><Flame size={20} /></div>
-          <strong>{cleanDays === null ? '–' : cleanDays}</strong>
-          <span>Tage clean</span>
-        </button>
-        <button className="stat-tile" type="button" onClick={() => setView('quran')}>
-          <div className="stat-tile__icon"><BookOpen size={20} /></div>
-          <strong>{quranToday}<small> min</small></strong>
-          <span>Quran heute</span>
-        </button>
-        <button className="stat-tile" type="button" onClick={() => setView('tasks')}>
-          <div className="stat-tile__icon"><ClipboardCheck size={20} /></div>
-          <strong>{privateOpen.length}</strong>
-          <span>offene Tasks</span>
-        </button>
+      <section className="today-card">
+        <div className="today-card__top">
+          <div>
+            <span className="eyebrow">Heute</span>
+            <h2>{privateOpen[0]?.title || (nextEvent ? nextEvent.title : 'Ruhig starten')}</h2>
+            <p>{nextEvent ? `${formatTime(nextEvent.startsAt)} · ${nextEvent.location || 'Termin'}` : `${privateOpen.length} offene private Aufgaben`}</p>
+          </div>
+          <Ring progress={taskProgress} size={66} stroke={6} color="var(--accent)" track="var(--surface-2)">
+            <span className="today-card__ring">{Math.round(taskProgress * 100)}%</span>
+          </Ring>
+        </div>
+        <div className="today-metrics">
+          <button type="button" onClick={() => setView('tasks')}>
+            <ClipboardCheck size={16} />
+            <strong>{privateOpen.length}</strong>
+            <span>offen</span>
+          </button>
+          <button type="button" onClick={() => setView('quran')}>
+            <BookOpen size={16} />
+            <strong>{quranToday}</strong>
+            <span>Quran min</span>
+          </button>
+          <button type="button" onClick={() => setView('clean')}>
+            <Flame size={16} />
+            <strong>{cleanDays === null ? '-' : cleanDays}</strong>
+            <span>clean</span>
+          </button>
+        </div>
       </section>
+
+      <PrayerCard prayerDay={data.prayerToday} now={now} isFallback={data.prayerIsFallback} onOpen={() => setView('prayer')} />
 
       {habitsToday.length ? (
         <section className="panel">
@@ -82,20 +98,18 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
         </div>
       </section>
 
-      {todaysEvents.length ? (
-        <section className="panel">
-          <div className="panel__header"><h2>Heute</h2><button type="button" onClick={() => setView('calendar')}>Kalender</button></div>
-          <div className="rows">
-            {todaysEvents.map((e) => (
-              <div className="event-row" key={e.id}>
-                <span className="time-badge">{formatTime(e.startsAt)}</span>
-                <div><strong>{e.title}</strong>{e.location ? <span>{e.location}</span> : null}</div>
-                {e.scope === 'shared' ? <span className="owner-chip">{data.initialsOf(e.ownerId)}</span> : null}
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <section className="panel">
+        <div className="panel__header"><h2><CalendarClock size={17} /> Heute</h2><button type="button" onClick={() => setView('calendar')}>Kalender</button></div>
+        <div className="rows">
+          {todaysEvents.length ? todaysEvents.map((e) => (
+            <div className="event-row" key={e.id}>
+              <span className="time-badge">{formatTime(e.startsAt)}</span>
+              <div><strong>{e.title}</strong>{e.location ? <span>{e.location}</span> : null}</div>
+              {e.scope === 'shared' ? <span className="owner-chip">{data.initialsOf(e.ownerId)}</span> : null}
+            </div>
+          )) : <p className="muted">Keine Termine heute.</p>}
+        </div>
+      </section>
 
       <button className={data.checkinToday ? 'checkin checkin--done' : 'checkin'} type="button" onClick={() => setView('checkin')}>
         {data.checkinToday ? <Target size={20} /> : <Sparkles size={20} />}

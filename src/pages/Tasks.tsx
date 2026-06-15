@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ClipboardCheck, Plus, Save } from 'lucide-react';
-import { Screen, SimpleHeader, Segmented, EmptyState, Sheet } from '../components/ui';
+import { ClipboardCheck, Filter, Plus, Save, SlidersHorizontal } from 'lucide-react';
+import { Screen, SimpleHeader, Segmented, EmptyState, Sheet, Collapsible } from '../components/ui';
 import { TaskRow } from '../components/TaskRow';
 import { useData } from '../store';
 import { viennaDate } from '../lib/dates';
@@ -25,6 +25,10 @@ export default function Tasks() {
   const [status, setStatus] = useState<StatusFilter>('open');
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all');
   const [edit, setEdit] = useState<Task | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const openCount = data.tasks.filter((t) => !t.done).length;
 
   const filtered = useMemo(() => {
     const list = data.tasks.filter((t) => {
@@ -47,35 +51,58 @@ export default function Tasks() {
     if (!title.trim()) return;
     await data.createTask({ title: title.trim(), scope, priority });
     setTitle('');
+    setAdding(false);
   }
+
+  const activeFilters = `${status === 'open' ? 'Offen' : status === 'done' ? 'Erledigt' : 'Alle'} · ${scopeFilter === 'all' ? 'alle Bereiche' : scopeFilter === 'private' ? 'privat' : 'geteilt'}`;
 
   return (
     <Screen>
-      <SimpleHeader title="Aufgaben" subtitle={`${data.tasks.filter((t) => !t.done).length} offen`} icon={<ClipboardCheck size={22} />} />
+      <SimpleHeader
+        title="Aufgaben"
+        subtitle={`${openCount} offen`}
+        action={<button className="header-add" type="button" onClick={() => setAdding(true)} title="Aufgabe hinzufügen"><Plus size={20} /></button>}
+      />
 
-      <form className="panel compose" onSubmit={submit}>
-        <input className="field" data-testid="task-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Neue Aufgabe…" />
-        <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
-        <Segmented value={priority} onChange={setPriority} options={PRIO_OPTS} />
-        <button className="primary-button" type="submit"><Plus size={18} /> Hinzufügen</button>
-      </form>
-
-      <div className="filter-bar">
-        <Segmented value={status} onChange={setStatus} options={[{ value: 'open', label: 'Offen' }, { value: 'done', label: 'Erledigt' }, { value: 'all', label: 'Alle' }]} />
-        <Segmented value={scopeFilter} onChange={setScopeFilter} options={[{ value: 'all', label: 'Alle' }, { value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
+      <div className="compact-toolbar">
+        <button className="toolbar-action" type="button" onClick={() => setAdding(true)}>
+          <Plus size={17} />
+          <span>Neue Aufgabe</span>
+        </button>
+        <button className={filtersOpen ? 'toolbar-action toolbar-action--active' : 'toolbar-action'} type="button" onClick={() => setFiltersOpen((v) => !v)}>
+          <Filter size={17} />
+          <span>{activeFilters}</span>
+        </button>
       </div>
+
+      <Collapsible open={filtersOpen}>
+        <div className="filter-panel">
+          <div className="filter-panel__title"><SlidersHorizontal size={16} /> Filter</div>
+          <Segmented value={status} onChange={setStatus} options={[{ value: 'open', label: 'Offen' }, { value: 'done', label: 'Erledigt' }, { value: 'all', label: 'Alle' }]} />
+          <Segmented value={scopeFilter} onChange={setScopeFilter} options={[{ value: 'all', label: 'Alle' }, { value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
+        </div>
+      </Collapsible>
 
       <section className="panel">
         <div className="rows">
           <AnimatePresence initial={false}>
             {filtered.length
               ? filtered.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} onDelete={data.deleteTask} onEdit={setEdit} />)
-              : <EmptyState icon={<ClipboardCheck size={26} />} title="Nichts hier" hint="Lege oben eine neue Aufgabe an." />}
+              : <EmptyState icon={<ClipboardCheck size={26} />} title="Nichts hier" hint="Lege eine neue Aufgabe an." />}
           </AnimatePresence>
         </div>
       </section>
 
       <EditSheet task={edit} onClose={() => setEdit(null)} />
+
+      <Sheet open={adding} title="Aufgabe hinzufügen" onClose={() => setAdding(false)}>
+        <form className="form-stack" onSubmit={submit}>
+          <input className="field" data-testid="task-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Neue Aufgabe" autoFocus />
+          <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
+          <Segmented value={priority} onChange={setPriority} options={PRIO_OPTS} />
+          <button className="primary-button" type="submit"><Plus size={18} /> Hinzufügen</button>
+        </form>
+      </Sheet>
     </Screen>
   );
 }

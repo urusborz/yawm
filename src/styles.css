@@ -516,3 +516,79 @@ button.stat-tile:active { transform: scale(0.97); }
 .shop-compose { display: flex; gap: 8px; margin-bottom: 8px; }
 .shop-compose .field { flex: 1; min-width: 0; }
 .field--qty { flex: 0 0 84px; }
+
+/* ============================================================ focused v3 polish */
+.compact-toolbar { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr); gap: 8px; }
+.toolbar-action {
+  display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; min-height: 42px;
+  padding: 0 12px; border-radius: 13px; background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink-2); font-size: 13px; font-weight: 650;
+}
+.toolbar-action span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolbar-action svg { flex: 0 0 auto; }
+.toolbar-action--active { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.filter-panel {
+  display: flex; flex-direction: column; gap: 9px; padding: 13px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.filter-panel__title { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.focus-action {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; min-height: 48px;
+  padding: 0 14px; border-radius: 15px; background: var(--accent-soft); color: var(--ink); text-align: left;
+}
+.focus-action svg { color: var(--accent); }
+.focus-action span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 650; }
+.focus-action strong { color: var(--accent); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+
+.today-card {
+  display: flex; flex-direction: column; gap: 16px; padding: 18px; border-radius: 22px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%),
+    var(--surface);
+  border: 1px solid var(--line);
+}
+.today-card__top { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.today-card__top > div { min-width: 0; }
+.today-card h2 {
+  margin-top: 6px; font-size: 23px; line-height: 1.08; font-weight: 720; letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.today-card p { margin-top: 6px; color: var(--ink-2); font-size: 13px; }
+.today-card__ring { color: var(--ink); font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.today-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.today-metrics button {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; row-gap: 2px;
+  min-width: 0; padding: 10px; border-radius: 14px; background: var(--surface-2); text-align: left;
+}
+.today-metrics svg { color: var(--ink-2); }
+.today-metrics strong { font-size: 18px; font-weight: 720; font-variant-numeric: tabular-nums; }
+.today-metrics span { grid-column: 1 / -1; color: var(--ink-2); font-size: 10.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.more-hero {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 17px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line);
+}
+.more-hero h2 { margin-top: 5px; max-width: 280px; font-size: 18px; line-height: 1.18; font-weight: 700; letter-spacing: -0.02em; }
+.more-hero button {
+  display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 13px;
+  color: var(--accent); background: var(--accent-soft);
+}
+.more-section { padding-bottom: 8px; }
+.more-list { display: flex; flex-direction: column; }
+.more-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  width: 100%; min-height: 58px; padding: 8px 0; text-align: left; border-top: 1px solid var(--line-2);
+}
+.more-row:first-child { border-top: 0; }
+.more-row__icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; }
+.more-row__text { min-width: 0; }
+.more-row__text strong { display: block; font-size: 14.5px; font-weight: 650; }
+.more-row__text small { display: block; margin-top: 2px; color: var(--ink-2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.more-row > svg { color: var(--ink-3); }
+
+@media (max-width: 380px) {
+  .compact-toolbar { grid-template-columns: 1fr; }
+  .today-card h2 { font-size: 21px; }
+  .today-metrics strong { font-size: 16px; }
+}
