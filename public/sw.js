@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yawm-v4-tabbar-flush';
+const CACHE_NAME = 'yawm-v5-safe-area';
 const APP_SHELL = ['/', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {
