@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Moon } from 'lucide-react';
 import { DataProvider, useAuthGate } from './store';
 import { supabase } from './lib/supabase';
-import { BottomNav, DesktopRail, type View } from './components/Shell';
+import { BottomNav, type View } from './components/Shell';
 import { QuickAdd, type QuickAddType } from './components/QuickAdd';
 import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
@@ -50,6 +49,14 @@ export default function App() {
   const { state, reboot } = useAuthGate();
   const [theme, setTheme] = usePersistentState<Theme>('yawm-theme', 'slate');
   const [mode, setMode] = usePersistentState<'dark' | 'light'>('yawm-mode', 'dark');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.dataset.mode = mode;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', mode === 'dark' ? '#09090b' : '#f6f6f7');
+  }, [theme, mode]);
 
   if (state.phase === 'loading') {
     return <div className="boot-screen" data-theme="slate" data-mode="dark"><div className="brand-mark brand-mark--lg pulse">Y</div></div>;
@@ -98,37 +105,27 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
 
   return (
     <div className="app" data-theme={theme} data-mode={mode}>
-      <div className="app-shell">
-        <DesktopRail view={view} setView={setView} onAdd={() => openAdd('task')} />
+      <div className="viewport">
+        <div className="content">
+          <AnimatePresence mode="wait">
+            {view === 'me' && <DashboardMe key="me" now={now} setView={setView} />}
+            {view === 'family' && <DashboardFamily key="family" setView={setView} onAdd={openAdd} />}
+            {view === 'tasks' && <Tasks key="tasks" />}
+            {view === 'calendar' && <Calendar key="calendar" onAdd={openAdd} />}
+            {view === 'notes' && <Notes key="notes" />}
+            {view === 'bills' && <Bills key="bills" />}
+            {view === 'prayer' && <Prayer key="prayer" now={now} setView={setView} />}
+            {view === 'habits' && <Habits key="habits" />}
+            {view === 'quran' && <Quran key="quran" />}
+            {view === 'clean' && <Clean key="clean" />}
+            {view === 'checkin' && <Checkin key="checkin" />}
+            {view === 'more' && <More key="more" setView={setView} />}
+            {view === 'settings' && <Settings key="settings" theme={theme} setTheme={setTheme} mode={mode} setMode={setMode} onSignOut={signOut} />}
+          </AnimatePresence>
+        </div>
 
-        <main className="phone-frame">
-          <div className="status-bar">
-            <span>{new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Vienna' }).format(now)}</span>
-            <div><Moon size={14} /><span>Yawm</span></div>
-          </div>
-          <div className="notch" />
-
-          <div className="content">
-            <AnimatePresence mode="wait">
-              {view === 'me' && <DashboardMe key="me" now={now} setView={setView} />}
-              {view === 'family' && <DashboardFamily key="family" setView={setView} onAdd={openAdd} />}
-              {view === 'tasks' && <Tasks key="tasks" />}
-              {view === 'calendar' && <Calendar key="calendar" onAdd={openAdd} />}
-              {view === 'notes' && <Notes key="notes" />}
-              {view === 'bills' && <Bills key="bills" />}
-              {view === 'prayer' && <Prayer key="prayer" now={now} setView={setView} />}
-              {view === 'habits' && <Habits key="habits" />}
-              {view === 'quran' && <Quran key="quran" />}
-              {view === 'clean' && <Clean key="clean" />}
-              {view === 'checkin' && <Checkin key="checkin" />}
-              {view === 'more' && <More key="more" setView={setView} />}
-              {view === 'settings' && <Settings key="settings" theme={theme} setTheme={setTheme} mode={mode} setMode={setMode} onSignOut={signOut} />}
-            </AnimatePresence>
-          </div>
-
-          <BottomNav view={view} setView={setView} onAdd={() => openAdd('task')} />
-          <QuickAdd open={quickAddOpen} initialType={quickAddType} onClose={() => setQuickAddOpen(false)} />
-        </main>
+        <BottomNav view={view} setView={setView} onAdd={() => openAdd('task')} />
+        <QuickAdd open={quickAddOpen} initialType={quickAddType} onClose={() => setQuickAddOpen(false)} />
       </div>
     </div>
   );
