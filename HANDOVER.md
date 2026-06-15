@@ -1,5 +1,18 @@
 # Yawm — Handover-Dokumentation
 
+## 0.1 Update v3 (15.06.2026) — UI-Fluss, Sheets, Themes
+
+Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschachtelung:
+
+- Familien-Dashboard: Geteilte Aufgaben und Familien-Termine öffnen nun eigene Bottom-Sheets statt den globalen Misch-QuickAdd zu verwenden.
+- Familien-Dashboard: Leerzustände für Termine, geteilte Aufgaben und Einkaufsliste sind stärker ausgearbeitet.
+- Einkaufsliste: Eingabezeile wurde auf ein stabiles Grid umgestellt; der Plus-Button ist sauber ausgerichtet.
+- Daily Check-in: neue Hero-Karte, bessere Tagesmetriken, sauber gestylte Range-Slider und leerer Verlauf-Zustand.
+- Design: Themes auf drei klare Varianten reduziert (`Klar`, `Warm`, `Nacht`), mit Live-Vorschau direkt in den Einstellungen.
+- Theme-Migration: lokal gespeicherte alte Theme-Werte werden beim App-Start auf `slate` zurückgeführt.
+
+Validierung: `npm run build` erfolgreich. Bundle-Warnung wegen Chunk-Größe besteht weiterhin und ist aktuell nicht blockernd.
+
 > **Stand:** 15.06.2026 (v2-Ausbau) · Familien-PWA: persönliche Tagesplanung (privat) **+** gemeinsames Familien-Dashboard (geteilt).
 > Genutzt von **2 Personen** (du + deine Frau) in **einem Haushalt**.
 

@@ -20,7 +20,7 @@ import Checkin from './pages/Checkin';
 import More from './pages/More';
 import Settings from './pages/Settings';
 
-const THEMES = ['slate', 'emerald', 'rose', 'midnight'] as const;
+const THEMES = ['slate', 'rose', 'midnight'] as const;
 type Theme = (typeof THEMES)[number];
 
 function usePersistentState<T>(key: string, fallback: T) {
@@ -49,6 +49,10 @@ export default function App() {
   const { state, reboot } = useAuthGate();
   const [theme, setTheme] = usePersistentState<Theme>('yawm-theme', 'slate');
   const [mode, setMode] = usePersistentState<'dark' | 'light'>('yawm-mode', 'dark');
+
+  useEffect(() => {
+    if (!(THEMES as readonly string[]).includes(theme)) setTheme('slate');
+  }, [theme, setTheme]);
 
   useEffect(() => {
     const root = document.documentElement;

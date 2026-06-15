@@ -1,18 +1,31 @@
 import { FormEvent, useState } from 'react';
-import { CalendarClock, Check, CircleDollarSign, Copy, Plus, ShoppingCart, Trash2, UserPlus } from 'lucide-react';
-import { Screen } from '../components/ui';
+import { CalendarClock, Check, CircleDollarSign, ClipboardCheck, Copy, Plus, ShoppingCart, Trash2, UserPlus } from 'lucide-react';
+import { EmptyState, Screen, Segmented, Sheet } from '../components/ui';
 import { TaskRow } from '../components/TaskRow';
 import { useData } from '../store';
 import type { View } from '../components/Shell';
 import type { QuickAddType } from '../components/QuickAdd';
 import { addDays, daysUntil, formatShortDate, formatTime, viennaDate } from '../lib/dates';
 import { money } from '../lib/format';
+import type { Priority } from '../types';
+
+function localToISO(date: string, time: string) {
+  return new Date(`${date}T${time}:00`).toISOString();
+}
 
 export default function DashboardFamily({ setView, onAdd }: { setView: (v: View) => void; onAdd: (t: QuickAddType) => void }) {
   const data = useData();
   const [shopTitle, setShopTitle] = useState('');
   const [shopQty, setShopQty] = useState('');
   const [copied, setCopied] = useState(false);
+  const [eventSheet, setEventSheet] = useState(false);
+  const [taskSheet, setTaskSheet] = useState(false);
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState(viennaDate());
+  const [eventTime, setEventTime] = useState('18:00');
+  const [eventLocation, setEventLocation] = useState('');
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskPriority, setTaskPriority] = useState<Priority>('normal');
 
   const today = viennaDate();
   const weekEnd = addDays(today, 7);
@@ -25,7 +38,6 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
   const doneShopping = data.shopping.filter((s) => s.done);
   const soloMember = data.household.members.length < 2;
 
-  // Wochenübersicht
   const weekEvents = data.events.filter((e) => e.scope === 'shared' && viennaDate(new Date(e.startsAt)) >= today && viennaDate(new Date(e.startsAt)) <= weekEnd).length;
   const weekBills = openBills.filter((b) => b.dueDate <= weekEnd).reduce((s, b) => s + b.amount, 0);
   const openSharedTasks = sharedTasks.filter((t) => !t.done).length;
@@ -34,12 +46,41 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
     e.preventDefault();
     if (!shopTitle.trim()) return;
     await data.createShoppingItem({ title: shopTitle.trim(), quantity: shopQty.trim() || undefined });
-    setShopTitle(''); setShopQty('');
+    setShopTitle('');
+    setShopQty('');
   }
+
+  async function addFamilyEvent(e: FormEvent) {
+    e.preventDefault();
+    if (!eventTitle.trim()) return;
+    await data.createEvent({ title: eventTitle.trim(), startsAt: localToISO(eventDate, eventTime), location: eventLocation.trim() || undefined, scope: 'shared' });
+    setEventTitle('');
+    setEventLocation('');
+    setEventSheet(false);
+  }
+
+  async function addSharedTask(e: FormEvent) {
+    e.preventDefault();
+    if (!taskTitle.trim()) return;
+    await data.createTask({ title: taskTitle.trim(), scope: 'shared', priority: taskPriority });
+    setTaskTitle('');
+    setTaskPriority('normal');
+    setTaskSheet(false);
+  }
+
   async function copyCode() {
-    try { await navigator.clipboard.writeText(data.household.joinCode); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
+    try {
+      await navigator.clipboard.writeText(data.household.joinCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
   }
-  function clearDone() { doneShopping.forEach((s) => data.deleteShoppingItem(s.id)); }
+
+  function clearDone() {
+    doneShopping.forEach((s) => data.deleteShoppingItem(s.id));
+  }
 
   return (
     <Screen>
@@ -50,10 +91,16 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
         </div>
       </header>
 
-      <section className="weekbar">
-        <div><b>{weekEvents}</b><span>Termine/Woche</span></div>
-        <div><b>{money(weekBills)}</b><span>fällig/Woche</span></div>
-        <div><b>{openSharedTasks}</b><span>offene Tasks</span></div>
+      <section className="family-overview">
+        <button type="button" onClick={() => setView('calendar')}>
+          <CalendarClock size={16} /><b>{weekEvents}</b><span>Termine</span>
+        </button>
+        <button type="button" onClick={() => setView('bills')}>
+          <CircleDollarSign size={16} /><b>{money(weekBills)}</b><span>fällig</span>
+        </button>
+        <button type="button" onClick={() => setTaskSheet(true)}>
+          <ClipboardCheck size={16} /><b>{openSharedTasks}</b><span>Tasks</span>
+        </button>
       </section>
 
       {soloMember ? (
@@ -87,21 +134,27 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
       </section>
 
       <section className="panel">
-        <div className="panel__header"><h2><CalendarClock size={17} /> Familien-Termine</h2><button type="button" onClick={() => onAdd('event')}><Plus size={15} /></button></div>
+        <div className="panel__header">
+          <h2><CalendarClock size={17} /> Familien-Termine</h2>
+          <button type="button" onClick={() => setEventSheet(true)}><Plus size={15} /></button>
+        </div>
         <div className="rows">
           {upcomingEvents.length ? upcomingEvents.map((e) => (
             <button className="event-row" key={e.id} type="button" onClick={() => setView('calendar')}>
               <div className="date-badge"><strong>{new Date(e.startsAt).getDate()}</strong><span>{new Intl.DateTimeFormat('de-AT', { month: 'short', timeZone: 'Europe/Vienna' }).format(new Date(e.startsAt))}</span></div>
               <div><strong>{e.title}</strong><span>{formatTime(e.startsAt)}{e.location ? ` · ${e.location}` : ''}</span></div>
             </button>
-          )) : <p className="muted">Keine anstehenden Termine.</p>}
+          )) : <EmptyState icon={<CalendarClock size={24} />} title="Noch keine Termine" hint="Plane den nächsten gemeinsamen Termin." />}
         </div>
       </section>
 
       <section className="panel">
-        <div className="panel__header"><h2>Geteilte Aufgaben</h2><button type="button" onClick={() => onAdd('task')}><Plus size={15} /></button></div>
+        <div className="panel__header">
+          <h2><ClipboardCheck size={17} /> Geteilte Aufgaben</h2>
+          <button type="button" onClick={() => setTaskSheet(true)}><Plus size={15} /></button>
+        </div>
         <div className="rows">
-          {sharedTasks.length ? sharedTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <p className="muted">Noch keine geteilten Aufgaben.</p>}
+          {sharedTasks.length ? sharedTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <EmptyState icon={<ClipboardCheck size={24} />} title="Nichts Gemeinsames offen" hint="Lege eine Aufgabe an, die beide sehen sollen." />}
         </div>
       </section>
 
@@ -113,10 +166,10 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
         <form className="shop-compose" onSubmit={addShop}>
           <input className="field" value={shopTitle} onChange={(e) => setShopTitle(e.target.value)} placeholder="Artikel" />
           <input className="field field--qty" value={shopQty} onChange={(e) => setShopQty(e.target.value)} placeholder="Menge" />
-          <button className="icon-button--solid" type="submit"><Plus size={18} /></button>
+          <button className="icon-button--solid shop-add-button" type="submit" title="Zur Einkaufsliste hinzufügen"><Plus size={20} /></button>
         </form>
         <div className="rows">
-          {data.shopping.map((s) => (
+          {data.shopping.length ? data.shopping.map((s) => (
             <div className="task-row" key={s.id}>
               <button className="task-row__main" type="button" onClick={() => data.toggleShopping(s.id)}>
                 <span className={s.done ? 'task-check task-check--done' : 'task-check'}>{s.done ? <Check size={14} /> : null}</span>
@@ -125,9 +178,31 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
               </button>
               <button className="delete-button" type="button" onClick={() => data.deleteShoppingItem(s.id)}><Trash2 size={15} /></button>
             </div>
-          ))}
+          )) : <EmptyState icon={<ShoppingCart size={24} />} title="Liste ist leer" hint="Trage direkt den ersten Artikel ein." />}
         </div>
       </section>
+
+      <Sheet open={eventSheet} title="Familien-Termin" onClose={() => setEventSheet(false)}>
+        <form className="form-stack" onSubmit={addFamilyEvent}>
+          <input className="field" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder="Titel" autoFocus />
+          <div className="form-grid">
+            <input className="field" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            <input className="field" type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
+          </div>
+          <input className="field" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Ort (optional)" />
+          <p className="form-hint">Dieser Termin erscheint im gemeinsamen Familienbereich.</p>
+          <button className="primary-button" type="submit"><Plus size={18} /> Termin speichern</button>
+        </form>
+      </Sheet>
+
+      <Sheet open={taskSheet} title="Geteilte Aufgabe" onClose={() => setTaskSheet(false)}>
+        <form className="form-stack" onSubmit={addSharedTask}>
+          <input className="field" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Aufgabe" autoFocus />
+          <Segmented value={taskPriority} onChange={setTaskPriority} options={[{ value: 'low', label: 'Niedrig' }, { value: 'normal', label: 'Normal' }, { value: 'high', label: 'Hoch' }]} />
+          <p className="form-hint">Geteilte Aufgaben sind für alle Haushaltsmitglieder sichtbar.</p>
+          <button className="primary-button" type="submit"><Plus size={18} /> Aufgabe speichern</button>
+        </form>
+      </Sheet>
     </Screen>
   );
 }

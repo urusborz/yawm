@@ -6,16 +6,15 @@ import { supabase } from '../lib/supabase';
 import { subscribeToPush } from '../lib/push';
 import type { NotificationPreferences } from '../types';
 
-const THEMES: { key: 'slate' | 'emerald' | 'rose' | 'midnight'; label: string }[] = [
-  { key: 'slate', label: 'Grün' },
-  { key: 'emerald', label: 'Smaragd' },
-  { key: 'rose', label: 'Rosé' },
-  { key: 'midnight', label: 'Blau' },
+const THEMES: { key: 'slate' | 'rose' | 'midnight'; label: string; tone: string }[] = [
+  { key: 'slate', label: 'Klar', tone: 'ruhig und grün' },
+  { key: 'rose', label: 'Warm', tone: 'weich und persönlich' },
+  { key: 'midnight', label: 'Nacht', tone: 'kontrastreich und blau' },
 ];
 
 export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: {
   theme: string;
-  setTheme: (t: 'slate' | 'emerald' | 'rose' | 'midnight') => void;
+  setTheme: (t: 'slate' | 'rose' | 'midnight') => void;
   mode: 'dark' | 'light';
   setMode: (m: 'dark' | 'light') => void;
   onSignOut: () => void;
@@ -27,6 +26,7 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
   const [pushMsg, setPushMsg] = useState('');
   const [importMsg, setImportMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  const selectedTheme = THEMES.find((t) => t.key === theme) || THEMES[0];
 
   const prefs = data.notificationPrefs;
   const setPref = (patch: Partial<NotificationPreferences>) => data.saveNotificationPrefs({ ...prefs, ...patch });
@@ -34,15 +34,27 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
   const householdDirty = householdName.trim() !== data.household.name;
 
   async function copyCode() {
-    try { await navigator.clipboard.writeText(data.household.joinCode); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
+    try {
+      await navigator.clipboard.writeText(data.household.joinCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
   }
+
   async function enablePush() {
     setPushMsg('');
-    try { await subscribeToPush(data.user.id); setPushMsg('Push aktiviert ✓'); }
-    catch (e) { setPushMsg(e instanceof Error ? e.message : 'Push fehlgeschlagen'); }
+    try {
+      await subscribeToPush(data.user.id);
+      setPushMsg('Push aktiviert');
+    } catch (e) {
+      setPushMsg(e instanceof Error ? e.message : 'Push fehlgeschlagen');
+    }
   }
+
   async function importXlsx(file: File) {
-    setImportMsg('Importiere…');
+    setImportMsg('Importiere...');
     try {
       const { data: s } = await supabase!.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-prayer-times`, {
@@ -52,16 +64,17 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Import fehlgeschlagen');
-      setImportMsg(`${json.imported} Tage importiert ✓`);
+      setImportMsg(`${json.imported} Tage importiert`);
       await data.refresh();
-    } catch (e) { setImportMsg(e instanceof Error ? e.message : 'Import fehlgeschlagen'); }
+    } catch (e) {
+      setImportMsg(e instanceof Error ? e.message : 'Import fehlgeschlagen');
+    }
   }
 
   return (
     <Screen>
       <SimpleHeader title="Einstellungen" subtitle={data.syncState} />
 
-      {/* Profil */}
       <section className="panel set-section">
         <div className="panel__header"><h2><UserRound size={17} /> Profil</h2></div>
         <div className="field-row">
@@ -70,7 +83,6 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
         </div>
       </section>
 
-      {/* Haushalt */}
       <section className="panel set-section">
         <div className="panel__header"><h2><UsersRound size={17} /> Haushalt</h2></div>
         <div className="field-row">
@@ -84,7 +96,7 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
           </div>
           <span className="join-code__copy">{copied ? <Check size={18} /> : <Copy size={18} />}</span>
         </button>
-        <p className="form-hint">Teile den Code mit deiner Frau – damit tritt sie demselben Haushalt bei.</p>
+        <p className="form-hint">Teile den Code mit deiner Frau, damit sie demselben Haushalt beitreten kann.</p>
         <div className="member-list">
           {data.household.members.map((m) => (
             <div className="member" key={m.userId}>
@@ -95,7 +107,6 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
         </div>
       </section>
 
-      {/* Benachrichtigungen */}
       <section className="panel set-section">
         <div className="panel__header"><h2><Bell size={17} /> Benachrichtigungen</h2></div>
         <button className="action-row" type="button" onClick={enablePush}>
@@ -114,7 +125,6 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
         </div>
       </section>
 
-      {/* Gebetszeiten */}
       <section className="panel set-section">
         <div className="panel__header"><h2><Sun size={17} /> Gebetszeiten</h2></div>
         <input ref={fileRef} type="file" accept=".xlsx,.xls" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importXlsx(f); }} />
@@ -124,9 +134,20 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
         </button>
       </section>
 
-      {/* Design */}
       <section className="panel set-section">
         <div className="panel__header"><h2><Palette size={17} /> Design</h2></div>
+        <div className="theme-preview">
+          <div>
+            <span className="eyebrow">Vorschau</span>
+            <strong>{selectedTheme.label}</strong>
+            <small>{selectedTheme.tone}</small>
+          </div>
+          <div className="theme-preview__card">
+            <span />
+            <b>Heute</b>
+            <i />
+          </div>
+        </div>
         <Segmented value={mode} onChange={setMode} options={[{ value: 'light', label: 'Hell' }, { value: 'dark', label: 'Dunkel' }]} />
         <div className="theme-row">
           {THEMES.map((t) => (

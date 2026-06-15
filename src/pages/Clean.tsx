@@ -109,7 +109,7 @@ export default function Clean() {
 
           <form className="panel compose" onSubmit={saveDaily}>
             <div className="panel__header"><h2>Heutiger Check-in</h2>{todayLog ? <span className="pill pill--success">erledigt</span> : null}</div>
-            <label className="range-row"><span>Verlangen (Craving)</span><strong>{craving}/10</strong><input type="range" min="1" max="10" value={craving} onChange={(e) => setCraving(e.target.value)} /></label>
+            <label className="range-row"><span>Verlangen (Craving)</span><strong>{craving}/10</strong><input style={{ ['--range-value' as string]: `${((Number(craving) - 1) / 9) * 100}%` }} type="range" min="1" max="10" value={craving} onChange={(e) => setCraving(e.target.value)} /></label>
             <input className="field" value={trigger} onChange={(e) => setTrigger(e.target.value)} placeholder="Auslöser heute? (optional)" />
             <textarea className="field field--textarea" value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder="Reflexion – was hat geholfen?" />
             <button className="primary-button" type="submit"><ShieldCheck size={18} /> Check-in speichern</button>
