@@ -1,14 +1,25 @@
 import { motion } from 'framer-motion';
-import { BookOpen, CalendarClock, ChevronRight, ClipboardCheck, Flame, Sparkles, Target } from 'lucide-react';
-import { Screen, Ring } from '../components/ui';
+import { BookOpen, CalendarClock, ChevronRight, ClipboardCheck, Flame, Moon, Plus, Sparkles, Target } from 'lucide-react';
+import { Screen, Ring, EmptyState } from '../components/ui';
 import { PrayerCard } from '../components/PrayerCard';
 import { TaskRow } from '../components/TaskRow';
 import { useData } from '../store';
 import type { View } from '../components/Shell';
+import type { QuickAddType } from '../components/QuickAdd';
 import { dayProgress, daysBetween, formatTime, formatToday, getGreeting, viennaDate } from '../lib/dates';
 import { initials } from '../lib/format';
+import { getNextPrayer } from '../lib/prayer-times';
 
-export default function DashboardMe({ now, setView }: { now: Date; setView: (v: View) => void }) {
+type TimelineItem = {
+  key: string;
+  title: string;
+  meta: string;
+  icon: JSX.Element;
+  tone: string;
+  onClick: () => void;
+};
+
+export default function DashboardMe({ now, setView, onAdd }: { now: Date; setView: (v: View) => void; onAdd: (t: QuickAddType) => void }) {
   const data = useData();
   const today = viennaDate();
 
@@ -24,6 +35,52 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
   const nextEvent = todaysEvents[0];
   const liveTime = new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Vienna' }).format(now);
   const [timeMain, timeSeconds] = liveTime.replace(/\./g, ':').split(/:(?=\d{2}$)/);
+  const nextPrayer = getNextPrayer(data.prayerToday.times.filter((t) => t.name !== 'Sunrise'), now);
+  const focusTitle = privateOpen[0]?.title || nextEvent?.title || (data.checkinToday ? 'Ruhig weitergehen' : 'Check-in starten');
+  const focusMeta = nextEvent ? `${formatTime(nextEvent.startsAt)} · ${nextEvent.location || 'Termin'}` : `${privateOpen.length} offene private Aufgaben`;
+
+  const timeline: TimelineItem[] = [
+    {
+      key: 'prayer',
+      title: `${nextPrayer.next.name} in ${nextPrayer.countdown}${nextPrayer.seconds}`,
+      meta: 'Nächstes Gebet',
+      icon: <Moon size={16} />,
+      tone: 'prayer',
+      onClick: () => setView('prayer'),
+    },
+    ...(nextEvent ? [{
+      key: 'event',
+      title: nextEvent.title,
+      meta: `${formatTime(nextEvent.startsAt)}${nextEvent.location ? ` · ${nextEvent.location}` : ''}`,
+      icon: <CalendarClock size={16} />,
+      tone: 'event',
+      onClick: () => setView('calendar'),
+    }] : []),
+    ...(privateOpen[0] ? [{
+      key: 'task',
+      title: privateOpen[0].title,
+      meta: privateOpen[0].priority === 'high' ? 'Hohe Priorität' : 'Nächste Aufgabe',
+      icon: <ClipboardCheck size={16} />,
+      tone: 'task',
+      onClick: () => setView('tasks'),
+    }] : []),
+    {
+      key: 'quran',
+      title: quranToday > 0 ? `${quranToday} Minuten gelesen` : 'Quran-Session eintragen',
+      meta: quranToday > 0 ? 'Heute dokumentiert' : 'Noch offen für heute',
+      icon: <BookOpen size={16} />,
+      tone: 'quran',
+      onClick: () => setView('quran'),
+    },
+    {
+      key: 'checkin',
+      title: data.checkinToday ? 'Check-in erledigt' : 'Daily Check-in offen',
+      meta: data.checkinToday ? 'Reflexion gespeichert' : '2 Minuten für dich',
+      icon: <Sparkles size={16} />,
+      tone: 'checkin',
+      onClick: () => setView('checkin'),
+    },
+  ];
 
   return (
     <Screen>
@@ -37,12 +94,12 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
 
       <div className="daybar"><motion.span initial={{ width: 0 }} animate={{ width: `${dayProgress(now)}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} /></div>
 
-      <section className="today-card">
+      <section className="today-card today-card--alive">
         <div className="today-card__top">
           <div>
             <span className="eyebrow">Heute</span>
-            <h2>{privateOpen[0]?.title || (nextEvent ? nextEvent.title : 'Ruhig starten')}</h2>
-            <p>{nextEvent ? `${formatTime(nextEvent.startsAt)} · ${nextEvent.location || 'Termin'}` : `${privateOpen.length} offene private Aufgaben`}</p>
+            <h2>{focusTitle}</h2>
+            <p>{focusMeta}</p>
           </div>
           <div className="today-time" aria-label={`Aktuelle Uhrzeit ${liveTime}`}>
             <span>{timeMain}</span>
@@ -68,10 +125,29 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
         </div>
       </section>
 
+      <section className="quick-actions" aria-label="Schnellaktionen">
+        <button type="button" onClick={() => onAdd('task')}><Plus size={16} /><span>Aufgabe</span></button>
+        <button type="button" onClick={() => setView('quran')}><BookOpen size={16} /><span>Quran</span></button>
+        <button type="button" onClick={() => setView('checkin')}><Sparkles size={16} /><span>Check-in</span></button>
+      </section>
+
+      <section className="panel timeline-panel">
+        <div className="panel__header"><h2>Heute auf einen Blick</h2><button type="button" onClick={() => setView('calendar')}>Plan</button></div>
+        <div className="day-timeline">
+          {timeline.map((item) => (
+            <button className={`timeline-item timeline-item--${item.tone}`} type="button" key={item.key} onClick={item.onClick}>
+              <span className="timeline-item__icon">{item.icon}</span>
+              <span className="timeline-item__body"><strong>{item.title}</strong><small>{item.meta}</small></span>
+              <ChevronRight size={16} />
+            </button>
+          ))}
+        </div>
+      </section>
+
       <PrayerCard prayerDay={data.prayerToday} now={now} isFallback={data.prayerIsFallback} onOpen={() => setView('prayer')} />
 
       {habitsToday.length ? (
-        <section className="panel">
+        <section className="panel panel--color panel--habits">
           <div className="panel__header">
             <h2>Habits</h2>
             <button type="button" onClick={() => setView('habits')}>alle</button>
@@ -87,7 +163,11 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
             ))}
           </div>
         </section>
-      ) : null}
+      ) : (
+        <section className="panel panel--color panel--habits">
+          <EmptyState icon={<Target size={24} />} title="Noch keine Habits" hint="Lege einen kleinen täglichen Rhythmus an." />
+        </section>
+      )}
 
       <section className="panel">
         <div className="panel__header">
@@ -95,11 +175,11 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
           <button type="button" onClick={() => setView('tasks')}>{privateOpen.length} offen</button>
         </div>
         <div className="rows">
-          {topTasks.length ? topTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <p className="muted">Keine privaten Aufgaben. Tippe auf +.</p>}
+          {topTasks.length ? topTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <EmptyState icon={<ClipboardCheck size={24} />} title="Keine privaten Aufgaben" hint="Tippe auf + und plane den nächsten kleinen Schritt." />}
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel panel--color panel--events">
         <div className="panel__header"><h2><CalendarClock size={17} /> Heute</h2><button type="button" onClick={() => setView('calendar')}>Kalender</button></div>
         <div className="rows">
           {todaysEvents.length ? todaysEvents.map((e) => (
@@ -108,7 +188,7 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
               <div><strong>{e.title}</strong>{e.location ? <span>{e.location}</span> : null}</div>
               {e.scope === 'shared' ? <span className="owner-chip">{data.initialsOf(e.ownerId)}</span> : null}
             </div>
-          )) : <p className="muted">Keine Termine heute.</p>}
+          )) : <EmptyState icon={<CalendarClock size={24} />} title="Kein Termin heute" hint="Der Tag hat Luft. Nutze sie bewusst." />}
         </div>
       </section>
 

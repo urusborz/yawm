@@ -13,6 +13,13 @@ const moodLabel = (m?: number) => {
   return 'Leicht';
 };
 
+const MOOD_CHOICES = [
+  { value: 3, label: 'Schwer' },
+  { value: 5, label: 'Ruhig' },
+  { value: 7, label: 'Stabil' },
+  { value: 9, label: 'Leicht' },
+];
+
 export default function Checkin() {
   const data = useData();
   const existing = data.checkinToday;
@@ -63,6 +70,15 @@ export default function Checkin() {
         <div><Flame size={16} /><b>{streak}</b><span>Streak</span></div>
         <div><Target size={16} /><b>{focus}</b><span>Fokus</span></div>
         <div><Sparkles size={16} /><b>{energy}</b><span>Energie</span></div>
+      </section>
+
+      <section className="mood-palette" aria-label="Stimmung schnell wählen">
+        {MOOD_CHOICES.map((choice) => (
+          <button className={Math.abs(mood - choice.value) <= 1 ? 'mood-chip mood-chip--active' : 'mood-chip'} type="button" key={choice.value} onClick={() => setMood(choice.value)}>
+            <span>{choice.value}/10</span>
+            <strong>{choice.label}</strong>
+          </button>
+        ))}
       </section>
 
       {trend.length > 1 ? (

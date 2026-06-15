@@ -4,6 +4,10 @@
 
 Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschachtelung:
 
+- v4 Entwurf: Ich-Dashboard ist nun als Tageszentrale aufgebaut: farbiger Hero, Live-Uhr, Quick Actions und Timeline für Gebet, Termin, Aufgabe, Quran und Check-in.
+- v4 Entwurf: Mehr-Tab enthält einen Status-Hub mit offenen Aufgaben, Rechnungen und privaten Signalen.
+- v4 Entwurf: Check-in wurde ritualhafter mit schneller Stimmungswahl vor den Detail-Slidern.
+- v4 Entwurf: Designsystem hat lebendigere, aber einheitliche Farbflächen für Hero, Timeline, Quick Actions, Familien-Übersicht, Panels und Mood-Chips.
 - v3.1: Heute-Kachel im Ich-Dashboard zeigt statt Prozent-Ring nun eine Live-Uhr mit Sekunden, um iOS-SVG-Fokusrahmen zu vermeiden.
 - v3.1: Einstellungen im Mehr-Tab nutzt dieselbe Listenzeile wie alle anderen Mehr-Einträge.
 - Familien-Dashboard: Geteilte Aufgaben und Familien-Termine öffnen nun eigene Bottom-Sheets statt den globalen Misch-QuickAdd zu verwenden.

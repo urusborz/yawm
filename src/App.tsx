@@ -112,7 +112,7 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
       <div className="viewport">
         <div className="content">
           <AnimatePresence mode="wait">
-            {view === 'me' && <DashboardMe key="me" now={now} setView={setView} />}
+            {view === 'me' && <DashboardMe key="me" now={now} setView={setView} onAdd={openAdd} />}
             {view === 'family' && <DashboardFamily key="family" setView={setView} onAdd={openAdd} />}
             {view === 'tasks' && <Tasks key="tasks" />}
             {view === 'calendar' && <Calendar key="calendar" onAdd={openAdd} />}

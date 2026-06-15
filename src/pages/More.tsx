@@ -26,12 +26,15 @@ const GROUPS: { id: Tile['group']; title: string }[] = [
 
 export default function More({ setView }: { setView: (v: View) => void }) {
   const data = useData();
+  const openTasks = data.tasks.filter((t) => !t.done).length;
+  const openBills = data.bills.filter((b) => b.status === 'open').length;
+  const privateSignals = [data.habits.length, data.quran.length, data.checkinToday ? 1 : 0].filter(Boolean).length;
 
   return (
     <Screen>
       <SimpleHeader title="Mehr" subtitle={data.household.name} icon={<ClipboardCheck size={24} />} />
 
-      <section className="more-hero">
+      <section className="more-hero more-hero--alive">
         <div>
           <span className="eyebrow">Yawm</span>
           <h2>{data.household.members.length} Mitglieder · {TILES.length} Bereiche</h2>
@@ -39,6 +42,12 @@ export default function More({ setView }: { setView: (v: View) => void }) {
         <button type="button" onClick={() => setView('settings')} title="Einstellungen">
           <SettingsIcon size={19} />
         </button>
+      </section>
+
+      <section className="more-status">
+        <button type="button" onClick={() => setView('tasks')}><strong>{openTasks}</strong><span>offene Aufgaben</span></button>
+        <button type="button" onClick={() => setView('bills')}><strong>{openBills}</strong><span>Rechnungen</span></button>
+        <button type="button" onClick={() => setView('checkin')}><strong>{privateSignals}</strong><span>private Signale</span></button>
       </section>
 
       {GROUPS.map((group) => (
