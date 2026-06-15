@@ -1,10 +1,10 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Activity, BookOpen, Droplet, Dumbbell, Flame, Heart, Minus, Moon, Plus, Sun, Trash2 } from 'lucide-react';
-import { Screen, SimpleHeader, Ring, EmptyState, Pill } from '../components/ui';
+import { Activity, BookOpen, Droplet, Dumbbell, Flame, Heart, Minus, Moon, Pencil, Plus, Save, Sun, Trash2 } from 'lucide-react';
+import { Screen, SimpleHeader, Ring, EmptyState, Sheet } from '../components/ui';
 import { useData } from '../store';
-import { formatWeekday, lastNDates } from '../lib/dates';
 import type { ReactNode } from 'react';
+import type { HabitWithProgress } from '../types';
 
 const ICONS: Record<string, ReactNode> = {
   Flame: <Flame size={18} />, BookOpen: <BookOpen size={18} />, Droplet: <Droplet size={18} />,
@@ -12,7 +12,7 @@ const ICONS: Record<string, ReactNode> = {
   Sun: <Sun size={18} />, Activity: <Activity size={18} />,
 };
 const ICON_KEYS = Object.keys(ICONS);
-const COLORS = ['#6c8ef5', '#34c77b', '#f59e0b', '#db2777', '#0ea5e9', '#a855f7'];
+const COLORS = ['#3ecf8e', '#60a5fa', '#f59e0b', '#fb7185', '#a855f7', '#2dd4bf'];
 
 export default function Habits() {
   const data = useData();
@@ -22,7 +22,7 @@ export default function Habits() {
   const [target, setTarget] = useState('1');
   const [icon, setIcon] = useState('Flame');
   const [color, setColor] = useState(COLORS[0]);
-  const weekLabels = lastNDates(7).map((d) => formatWeekday(d)[0]);
+  const [edit, setEdit] = useState<HabitWithProgress | null>(null);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -43,12 +43,8 @@ export default function Habits() {
               <input className="field" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Einheit" />
               <input className="field" inputMode="numeric" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Tagesziel" />
             </div>
-            <div className="picker-row">
-              {ICON_KEYS.map((k) => <button key={k} type="button" className={icon === k ? 'picker active' : 'picker'} onClick={() => setIcon(k)}>{ICONS[k]}</button>)}
-            </div>
-            <div className="picker-row">
-              {COLORS.map((c) => <button key={c} type="button" className={color === c ? 'swatch active' : 'swatch'} style={{ background: c }} onClick={() => setColor(c)} />)}
-            </div>
+            <div className="picker-row">{ICON_KEYS.map((k) => <button key={k} type="button" className={icon === k ? 'picker active' : 'picker'} onClick={() => setIcon(k)}>{ICONS[k]}</button>)}</div>
+            <div className="picker-row">{COLORS.map((c) => <button key={c} type="button" className={color === c ? 'swatch active' : 'swatch'} style={{ background: c }} onClick={() => setColor(c)} />)}</div>
             <button className="primary-button" type="submit"><Plus size={18} /> Habit erstellen</button>
           </motion.form>
         ) : null}
@@ -62,37 +58,78 @@ export default function Habits() {
         <AnimatePresence initial={false}>
           {data.habits.map((h) => {
             const pct = h.targetValue ? Math.min(1, h.todayValue / h.targetValue) : 0;
-            const maxWeek = Math.max(h.targetValue, ...h.weekValues, 1);
             return (
               <motion.div className="panel habit-card" key={h.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}>
                 <div className="habit-card__top">
-                  <Ring progress={pct} size={62} stroke={6} color={h.color} track="var(--line)">
-                    <span style={{ color: h.color }}>{ICONS[h.icon] ?? ICONS.Flame}</span>
-                  </Ring>
+                  <Ring progress={pct} size={60} stroke={6} color={h.color} track="var(--surface-2)"><span style={{ color: h.color }}>{ICONS[h.icon] ?? ICONS.Flame}</span></Ring>
                   <div className="habit-card__info">
                     <strong>{h.name}</strong>
                     <span>{h.todayValue} / {h.targetValue} {h.unit}</span>
-                    <div className="habit-streak"><Flame size={13} /> {h.streak} Tage Streak</div>
+                    <div className="habit-meta">
+                      <span className="habit-streak"><Flame size={13} /> {h.streak} Tage</span>
+                      <span className="habit-rate">{Math.round(h.successRate * 100)}% · 35 T</span>
+                    </div>
                   </div>
                   <div className="stepper">
                     <button type="button" onClick={() => data.logHabit(h.id, Math.max(0, h.todayValue - 1))} aria-label="weniger"><Minus size={16} /></button>
                     <button type="button" className="stepper__plus" style={{ background: h.color }} onClick={() => data.logHabit(h.id, h.todayValue + 1)} aria-label="mehr"><Plus size={16} /></button>
                   </div>
                 </div>
-                <div className="habit-week">
-                  {h.weekValues.map((v, i) => (
-                    <div className="habit-week__col" key={i}>
-                      <div className="habit-week__bar" style={{ height: `${Math.max(8, (v / maxWeek) * 100)}%`, background: v >= h.targetValue ? h.color : 'var(--line)' }} />
-                      <span>{weekLabels[i]}</span>
-                    </div>
-                  ))}
+
+                <div className="heatmap">
+                  {h.monthValues.map((v, i) => {
+                    const ratio = h.targetValue ? v / h.targetValue : 0;
+                    const filled = v > 0;
+                    return <span key={i} className="heatmap__cell" style={{ background: filled ? h.color : 'var(--surface-2)', opacity: filled ? Math.max(0.3, Math.min(1, ratio)) : 1 }} />;
+                  })}
                 </div>
-                <button className="habit-card__delete" type="button" onClick={() => data.deleteHabit(h.id)}><Trash2 size={14} /> Löschen</button>
+
+                <div className="habit-card__foot">
+                  <button className="habit-card__delete" type="button" onClick={() => setEdit(h)}><Pencil size={13} /> Bearbeiten</button>
+                  <button className="habit-card__delete" type="button" onClick={() => data.deleteHabit(h.id)}><Trash2 size={13} /> Löschen</button>
+                </div>
               </motion.div>
             );
           })}
         </AnimatePresence>
       </div>
+
+      <EditSheet habit={edit} onClose={() => setEdit(null)} />
     </Screen>
+  );
+}
+
+function EditSheet({ habit, onClose }: { habit: HabitWithProgress | null; onClose: () => void }) {
+  const data = useData();
+  const [name, setName] = useState('');
+  const [unit, setUnit] = useState('');
+  const [target, setTarget] = useState('1');
+  const [icon, setIcon] = useState('Flame');
+  const [color, setColor] = useState(COLORS[0]);
+
+  useEffect(() => {
+    if (!habit) return;
+    setName(habit.name); setUnit(habit.unit); setTarget(String(habit.targetValue)); setIcon(habit.icon); setColor(habit.color);
+  }, [habit]);
+
+  async function save() {
+    if (!habit) return;
+    await data.updateHabit(habit.id, { name: name.trim() || habit.name, unit: unit.trim() || 'mal', targetValue: Number(target) || 1, icon, color });
+    onClose();
+  }
+
+  return (
+    <Sheet open={Boolean(habit)} title="Habit bearbeiten" onClose={onClose}>
+      <div className="form-stack">
+        <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+        <div className="form-grid">
+          <input className="field" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Einheit" />
+          <input className="field" inputMode="numeric" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Tagesziel" />
+        </div>
+        <div className="picker-row">{ICON_KEYS.map((k) => <button key={k} type="button" className={icon === k ? 'picker active' : 'picker'} onClick={() => setIcon(k)}>{ICONS[k]}</button>)}</div>
+        <div className="picker-row">{COLORS.map((c) => <button key={c} type="button" className={color === c ? 'swatch active' : 'swatch'} style={{ background: c }} onClick={() => setColor(c)} />)}</div>
+        <button className="primary-button" type="button" onClick={save}><Save size={18} /> Speichern</button>
+      </div>
+    </Sheet>
   );
 }

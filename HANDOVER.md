@@ -1,8 +1,28 @@
 # Yawm — Handover-Dokumentation
 
-> **Stand:** 15.06.2026 · Letzter Commit zum Zeitpunkt dieses Dokuments: `21e079b`
-> Familien-PWA: persönliche Tagesplanung (privat) **+** gemeinsames Familien-Dashboard (geteilt).
+> **Stand:** 15.06.2026 (v2-Ausbau) · Familien-PWA: persönliche Tagesplanung (privat) **+** gemeinsames Familien-Dashboard (geteilt).
 > Genutzt von **2 Personen** (du + deine Frau) in **einem Haushalt**.
+
+## 0. Update v2 (15.06.2026 abends) — UI-Politur + Feature-Ausbau
+
+**UI:** Einstellungen komplett neu (saubere Sektionen, Action-Rows, Design mit Hell/Dunkel-Segment + Theme-Picker); Aufgaben-Schalter entzerrt (eigene Zeilen); globaler Abstands-/Komponenten-Feinschliff.
+
+**10 vertiefte Features (alle auf bestehendem Schema, KEIN neues SQL nötig):**
+1. Aufgaben: Bearbeiten-Sheet (Titel/Priorität/Fälligkeit mit Datum+Zeit), Sortierung (offen→Priorität→Fälligkeit), überfällig-Markierung.
+2. Kalender: Listen-/**Monatsansicht** (Grid mit Event-Punkten), vergangene Termine, Termin-Bearbeiten (inkl. Endzeit).
+3. Notizen: Inline-Bearbeiten, **Anpinnen** (via `pin`-Tag), Tag-Filter-Chips.
+4. Rechnungen: Bearbeiten, **wiederkehrende legen beim Bezahlen automatisch die Folge-Rechnung an**, Kategorie-Übersicht (Balken), „wer hat wie viel gezahlt".
+5. Habits: **Monats-Heatmap (35 T)**, Erfolgsquote, Bearbeiten.
+6. Quran: **Tagesziel mit Fortschrittsring** (localStorage), Gesamtstatistik, Surah-Schnellauswahl.
+7. Clean-Tracker: **Meilensteine** (7/30/90/180/365), **Ersparnis-Rechner** (€/Tag, localStorage), Craving-Verlauf (14 T).
+8. Daily Check-in: **Stimmungs-Trend-Chart**, Streak, Wochen-Durchschnitte (Recap).
+9. Familien-Dashboard: **Wochenübersicht** (Termine/fällige Rechnungen/offene Tasks) + Einladen-Karte mit Code.
+10. Einkaufsliste: Mengen-Feld + „Erledigte aufräumen".
+
+**Neue DB-Funktionen** (`lib/db.ts`, alle bestehendes Schema): `updateBill`, `updateEvent`, `updateHabitType`; Habit-Logs laden 35 Tage; `HabitWithProgress` um `monthValues`/`successRate` erweitert.
+**Persistente Mini-Settings ohne DB:** Quran-Tagesziel (`yawm-quran-goal`), Clean-Kosten/Tag (`yawm-clean-perday`) — nur lokal pro Gerät.
+
+---
 
 Dieses Dokument fasst **alle bisherigen Schritte, Entscheidungen und den aktuellen Stand** zusammen, damit jederzeit nahtlos weitergearbeitet werden kann.
 

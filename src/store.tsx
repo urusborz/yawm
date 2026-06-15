@@ -3,7 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import * as db from './lib/db';
 import { errMsg, initials } from './lib/format';
-import { daysBetween, viennaDate } from './lib/dates';
+import { addMonths, daysBetween, viennaDate } from './lib/dates';
 import type {
   Bill,
   DailyCheckin,
@@ -79,6 +79,7 @@ type DataContextValue = {
   deleteTask: (id: string) => Promise<void>;
 
   createEvent: (input: { title: string; description?: string; startsAt: string; endsAt?: string | null; location?: string; scope: Scope }) => Promise<void>;
+  updateEvent: (id: string, patch: { title?: string; startsAt?: string; endsAt?: string | null; location?: string | null }) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
 
   createNote: (input: { title: string; content: string; tags?: string[]; scope: Scope }) => Promise<void>;
@@ -86,6 +87,7 @@ type DataContextValue = {
   deleteNote: (id: string) => Promise<void>;
 
   createBill: (input: { title: string; amount: number; dueDate: string; category: string; note?: string; repeatRule?: string }) => Promise<void>;
+  updateBill: (id: string, patch: { title?: string; amount?: number; dueDate?: string; category?: string; note?: string | null; repeatRule?: string | null }) => Promise<void>;
   toggleBill: (id: string) => Promise<void>;
   deleteBill: (id: string) => Promise<void>;
 
@@ -94,6 +96,7 @@ type DataContextValue = {
   deleteShoppingItem: (id: string) => Promise<void>;
 
   createHabit: (input: { name: string; unit: string; targetValue: number; icon: string; color: string }) => Promise<void>;
+  updateHabit: (id: string, patch: { name?: string; unit?: string; targetValue?: number; icon?: string; color?: string }) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
   logHabit: (habitTypeId: string, value: number) => Promise<void>;
 
@@ -266,6 +269,13 @@ export function DataProvider({
     } catch (e) { fail(e, 'Termin nicht gespeichert'); }
   }, [household.id, user.id, fail]);
 
+  const updateEvent = useCallback<DataContextValue['updateEvent']>(async (id, patch) => {
+    try {
+      const saved = await db.updateEvent(id, patch);
+      setWs((p) => ({ ...p, events: p.events.map((ev) => (ev.id === id ? saved : ev)).sort((a, b) => a.startsAt.localeCompare(b.startsAt)) }));
+    } catch (e) { fail(e, 'Termin nicht aktualisiert'); }
+  }, [fail]);
+
   const deleteEvent = useCallback<DataContextValue['deleteEvent']>(async (id) => {
     const prev = ws.events;
     setWs((p) => ({ ...p, events: p.events.filter((ev) => ev.id !== id) }));
@@ -301,6 +311,14 @@ export function DataProvider({
     } catch (e) { fail(e, 'Rechnung nicht gespeichert'); }
   }, [household.id, user.id, enrichBill, fail]);
 
+  const updateBill = useCallback<DataContextValue['updateBill']>(async (id, patch) => {
+    setWs((p) => ({ ...p, bills: p.bills.map((b) => (b.id === id ? { ...b, ...patch, note: patch.note === null ? undefined : (patch.note ?? b.note), repeatRule: patch.repeatRule === null ? undefined : (patch.repeatRule ?? b.repeatRule) } as Bill : b)).sort((a, b) => a.dueDate.localeCompare(b.dueDate)) }));
+    try {
+      const saved = await db.updateBill(id, patch);
+      setWs((p) => ({ ...p, bills: p.bills.map((b) => (b.id === id ? enrichBill(saved) : b)) }));
+    } catch (e) { fail(e, 'Rechnung nicht aktualisiert'); }
+  }, [enrichBill, fail]);
+
   const toggleBill = useCallback<DataContextValue['toggleBill']>(async (id) => {
     const bill = ws.bills.find((b) => b.id === id);
     if (!bill) return;
@@ -309,8 +327,17 @@ export function DataProvider({
     try {
       const saved = await db.setBillStatus(id, status, user.id);
       setWs((p) => ({ ...p, bills: p.bills.map((b) => (b.id === id ? enrichBill(saved) : b)) }));
+      // Wiederkehrende Rechnung: beim Bezahlen automatisch die naechste Faelligkeit anlegen
+      if (status === 'paid' && bill.repeatRule === 'monthly') {
+        const nextDue = addMonths(bill.dueDate, 1);
+        const exists = ws.bills.some((b) => b.title === bill.title && b.dueDate === nextDue);
+        if (!exists) {
+          const next = await db.createBill({ title: bill.title, amount: bill.amount, dueDate: nextDue, category: bill.category, note: bill.note, repeatRule: 'monthly', householdId: household.id, userId: user.id });
+          setWs((p) => ({ ...p, bills: [enrichBill(next), ...p.bills].sort((a, b) => a.dueDate.localeCompare(b.dueDate)) }));
+        }
+      }
     } catch (e) { fail(e, 'Rechnung nicht gespeichert'); }
-  }, [ws.bills, user.id, enrichBill, initialsOf, fail]);
+  }, [ws.bills, user.id, household.id, enrichBill, initialsOf, fail]);
 
   const deleteBill = useCallback<DataContextValue['deleteBill']>(async (id) => {
     const prev = ws.bills;
@@ -344,9 +371,14 @@ export function DataProvider({
   const createHabit = useCallback<DataContextValue['createHabit']>(async (input) => {
     try {
       const saved = await db.createHabitType({ ...input, userId: user.id });
-      setWs((p) => ({ ...p, habits: [...p.habits, { ...saved, todayValue: 0, streak: 0, weekValues: [0, 0, 0, 0, 0, 0, 0] }] }));
+      setWs((p) => ({ ...p, habits: [...p.habits, { ...saved, todayValue: 0, streak: 0, weekValues: Array(7).fill(0), monthValues: Array(35).fill(0), successRate: 0 }] }));
     } catch (e) { fail(e, 'Habit nicht gespeichert'); }
   }, [user.id, fail]);
+
+  const updateHabit = useCallback<DataContextValue['updateHabit']>(async (id, patch) => {
+    setWs((p) => ({ ...p, habits: p.habits.map((h) => (h.id === id ? { ...h, ...patch } : h)) }));
+    try { await db.updateHabitType(id, patch); } catch (e) { fail(e, 'Habit nicht aktualisiert'); }
+  }, [fail]);
 
   const deleteHabit = useCallback<DataContextValue['deleteHabit']>(async (id) => {
     const prev = ws.habits;
@@ -360,16 +392,14 @@ export function DataProvider({
       ...p,
       habits: p.habits.map((h) => {
         if (h.id !== habitTypeId) return h;
-        const weekValues = [...h.weekValues];
-        weekValues[weekValues.length - 1] = value;
-        return { ...h, todayValue: value };
+        const weekValues = [...h.weekValues]; weekValues[weekValues.length - 1] = value;
+        const monthValues = [...h.monthValues]; monthValues[monthValues.length - 1] = value;
+        const hitDays = monthValues.filter((v) => v >= h.targetValue).length;
+        return { ...h, todayValue: value, weekValues, monthValues, successRate: hitDays / monthValues.length };
       }),
     }));
     try {
       await db.setHabitLog({ habitTypeId, userId: user.id, date: today, value });
-      const logs = await db.loadHabitLogs(user.id, viennaDate());
-      // streak recompute is cheap on next full refresh; keep optimistic value here
-      void logs;
     } catch (e) { fail(e, 'Habit-Log nicht gespeichert'); }
   }, [user.id, fail]);
 
@@ -471,11 +501,11 @@ export function DataProvider({
     initialsOf,
     refresh,
     createTask, updateTask, toggleTask, deleteTask,
-    createEvent, deleteEvent,
+    createEvent, updateEvent, deleteEvent,
     createNote, updateNote, deleteNote,
-    createBill, toggleBill, deleteBill,
+    createBill, updateBill, toggleBill, deleteBill,
     createShoppingItem, toggleShopping, deleteShoppingItem,
-    createHabit, deleteHabit, logHabit,
+    createHabit, updateHabit, deleteHabit, logHabit,
     addQuranSession, deleteQuranSession,
     saveSobrietySettings, saveSobrietyLog, registerRelapse,
     saveCheckin,
@@ -484,10 +514,10 @@ export function DataProvider({
     user, household, profileNameState, syncState, ws,
     nameOf, initialsOf, refresh,
     createTask, updateTask, toggleTask, deleteTask,
-    createEvent, deleteEvent, createNote, updateNote, deleteNote,
-    createBill, toggleBill, deleteBill,
+    createEvent, updateEvent, deleteEvent, createNote, updateNote, deleteNote,
+    createBill, updateBill, toggleBill, deleteBill,
     createShoppingItem, toggleShopping, deleteShoppingItem,
-    createHabit, deleteHabit, logHabit,
+    createHabit, updateHabit, deleteHabit, logHabit,
     addQuranSession, deleteQuranSession,
     saveSobrietySettings, saveSobrietyLog, registerRelapse,
     saveCheckin, saveNotificationPrefs, renameHousehold, setProfileName,

@@ -1,12 +1,20 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Flame, Plus, Trash2 } from 'lucide-react';
-import { Screen, SimpleHeader, EmptyState } from '../components/ui';
+import { BookOpen, Flame, Minus, Plus, Trash2 } from 'lucide-react';
+import { Screen, SimpleHeader, EmptyState, Ring } from '../components/ui';
 import { useData } from '../store';
 import { formatShortDate, formatWeekday, lastNDates, streakFromDates, viennaDate } from '../lib/dates';
 
+const SURAHS = ['Al-Fatiha', 'Al-Baqara', 'Aal-e-Imran', 'An-Nisa', 'Al-Maida', 'Al-Kahf', 'Yasin', 'Al-Mulk', 'Ar-Rahman', 'Al-Waqia'];
+
+function useGoal() {
+  const [goal, setGoal] = useState<number>(() => Number(localStorage.getItem('yawm-quran-goal')) || 20);
+  return [goal, (v: number) => { const n = Math.max(5, v); setGoal(n); localStorage.setItem('yawm-quran-goal', String(n)); }] as const;
+}
+
 export default function Quran() {
   const data = useData();
+  const [goal, setGoal] = useGoal();
   const [minutes, setMinutes] = useState('15');
   const [surah, setSurah] = useState('');
   const [ayahFrom, setAyahFrom] = useState('');
@@ -19,31 +27,40 @@ export default function Quran() {
   const streak = streakFromDates(dateSet, today);
   const week = lastNDates(7);
   const weekMinutes = week.map((d) => data.quran.filter((q) => q.date === d).reduce((s, q) => s + q.minutes, 0));
-  const maxWeek = Math.max(...weekMinutes, 30);
-  const totalWeek = weekMinutes.reduce((a, b) => a + b, 0);
+  const maxWeek = Math.max(...weekMinutes, goal);
+  const totalMinutes = data.quran.reduce((s, q) => s + q.minutes, 0);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     const m = Number(minutes);
     if (!m || m <= 0) return;
-    await data.addQuranSession({
-      minutes: m,
-      surah: surah.trim() || undefined,
-      ayahFrom: ayahFrom ? Number(ayahFrom) : undefined,
-      ayahTo: ayahTo ? Number(ayahTo) : undefined,
-      note: note.trim() || undefined,
-    });
+    await data.addQuranSession({ minutes: m, surah: surah.trim() || undefined, ayahFrom: ayahFrom ? Number(ayahFrom) : undefined, ayahTo: ayahTo ? Number(ayahTo) : undefined, note: note.trim() || undefined });
     setSurah(''); setAyahFrom(''); setAyahTo(''); setNote('');
   }
 
   return (
     <Screen>
-      <SimpleHeader title="Quran" subtitle="Privat" icon={<BookOpen size={24} />} />
+      <SimpleHeader title="Quran" subtitle="Privat" icon={<BookOpen size={22} />} />
+
+      <section className="goal-hero">
+        <Ring progress={goal ? todayMinutes / goal : 0} size={96} stroke={9} color="var(--accent)" track="var(--surface-2)">
+          <div className="goal-hero__center"><strong>{todayMinutes}</strong><span>/ {goal} min</span></div>
+        </Ring>
+        <div className="goal-hero__info">
+          <span className="eyebrow">Heutiges Ziel</span>
+          <div className="goal-hero__adjust">
+            <button type="button" onClick={() => setGoal(goal - 5)} aria-label="weniger"><Minus size={15} /></button>
+            <b>{goal} min</b>
+            <button type="button" onClick={() => setGoal(goal + 5)} aria-label="mehr"><Plus size={15} /></button>
+          </div>
+          <div className="goal-hero__streak"><Flame size={14} /> {streak} Tage Streak</div>
+        </div>
+      </section>
 
       <section className="stats-grid">
-        <div className="stat-tile"><div className="stat-tile__icon"><BookOpen size={20} /></div><strong>{todayMinutes}<small> min</small></strong><span>heute</span></div>
-        <div className="stat-tile"><div className="stat-tile__icon"><Flame size={20} /></div><strong>{streak}</strong><span>Tage Streak</span></div>
-        <div className="stat-tile"><div className="stat-tile__icon"><BookOpen size={20} /></div><strong>{totalWeek}<small> min</small></strong><span>diese Woche</span></div>
+        <div className="stat-tile"><div className="stat-tile__icon"><BookOpen size={18} /></div><strong>{totalMinutes}<small> min</small></strong><span>gesamt</span></div>
+        <div className="stat-tile"><div className="stat-tile__icon"><BookOpen size={18} /></div><strong>{data.quran.length}</strong><span>Sitzungen</span></div>
+        <div className="stat-tile"><div className="stat-tile__icon"><Flame size={18} /></div><strong>{streak}</strong><span>Streak</span></div>
       </section>
 
       <section className="panel">
@@ -51,7 +68,7 @@ export default function Quran() {
         <div className="habit-week">
           {weekMinutes.map((v, i) => (
             <div className="habit-week__col" key={i}>
-              <div className="habit-week__bar" style={{ height: `${Math.max(8, (v / maxWeek) * 100)}%`, background: v > 0 ? 'var(--accent)' : 'var(--line)' }} />
+              <div className="habit-week__bar" style={{ height: `${Math.max(6, (v / maxWeek) * 100)}%`, background: v >= goal ? 'var(--accent)' : v > 0 ? 'color-mix(in srgb, var(--accent) 45%, transparent)' : 'var(--surface-2)' }} />
               <span>{formatWeekday(week[i])[0]}</span>
             </div>
           ))}
@@ -60,9 +77,12 @@ export default function Quran() {
 
       <form className="panel compose" onSubmit={submit}>
         <div className="panel__header"><h2>Session eintragen</h2></div>
+        <div className="chip-row">
+          {SURAHS.map((s) => <button key={s} type="button" className={surah === s ? 'chip chip--active' : 'chip'} onClick={() => setSurah(s)}>{s}</button>)}
+        </div>
         <div className="form-grid">
           <input className="field" inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="Minuten" />
-          <input className="field" value={surah} onChange={(e) => setSurah(e.target.value)} placeholder="Surah (optional)" />
+          <input className="field" value={surah} onChange={(e) => setSurah(e.target.value)} placeholder="Surah" />
           <input className="field" inputMode="numeric" value={ayahFrom} onChange={(e) => setAyahFrom(e.target.value)} placeholder="Ayah von" />
           <input className="field" inputMode="numeric" value={ayahTo} onChange={(e) => setAyahTo(e.target.value)} placeholder="Ayah bis" />
         </div>

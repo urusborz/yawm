@@ -107,6 +107,12 @@ export function addDays(date: string, amount: number) {
   return viennaDate(d);
 }
 
+export function addMonths(date: string, amount: number) {
+  const d = new Date(`${date}T12:00:00`);
+  d.setMonth(d.getMonth() + amount);
+  return viennaDate(d);
+}
+
 /** Returns the last n calendar dates ending today, oldest first. */
 export function lastNDates(n: number, end: string = viennaDate()) {
   const out: string[] = [];

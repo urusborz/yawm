@@ -1,11 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Lock, Sparkles } from 'lucide-react';
+import { CheckCircle2, Flame, Lock, Sparkles } from 'lucide-react';
 import { Screen, SimpleHeader } from '../components/ui';
 import { useData } from '../store';
-import { formatShortDate } from '../lib/dates';
+import { formatShortDate, streakFromDates, viennaDate } from '../lib/dates';
 
 const MOOD_EMOJI = ['😞', '😕', '😐', '🙂', '😄'];
+const emojiFor = (m?: number) => MOOD_EMOJI[Math.min(4, Math.max(0, Math.floor(((m ?? 5) - 1) / 2)))];
 
 export default function Checkin() {
   const data = useData();
@@ -19,6 +20,16 @@ export default function Checkin() {
   const [reflection, setReflection] = useState(existing?.reflection ?? '');
   const [saved, setSaved] = useState(false);
 
+  const streak = useMemo(() => streakFromDates(new Set(data.checkinHistory.map((c) => c.date)), viennaDate()), [data.checkinHistory]);
+  const trend = useMemo(() => [...data.checkinHistory].sort((a, b) => a.date.localeCompare(b.date)).slice(-14), [data.checkinHistory]);
+  const avg = useMemo(() => {
+    const f = (key: 'mood' | 'energy' | 'focus' | 'stress') => {
+      const vals = data.checkinHistory.map((c) => c[key]).filter((v): v is number => typeof v === 'number');
+      return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
+    };
+    return { mood: f('mood'), energy: f('energy'), focus: f('focus'), stress: f('stress') };
+  }, [data.checkinHistory]);
+
   async function submit(e: FormEvent) {
     e.preventDefault();
     await data.saveCheckin({ mood, energy, focus, stress, gratitude: gratitude.trim(), mainGoal: mainGoal.trim(), reflection: reflection.trim() });
@@ -31,12 +42,32 @@ export default function Checkin() {
       <SimpleHeader title="Daily Check-in" subtitle="Privat · nur für dich" icon={<Lock size={20} />} />
 
       <motion.div className="checkin-mood" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <span className="checkin-mood__emoji">{MOOD_EMOJI[Math.min(4, Math.floor((mood - 1) / 2))]}</span>
-        <div>
-          <span className="eyebrow">Stimmung heute</span>
-          <strong>{mood}/10</strong>
-        </div>
+        <span className="checkin-mood__emoji">{emojiFor(mood)}</span>
+        <div><span className="eyebrow">Stimmung heute</span><strong>{mood}/10</strong></div>
+        <div className="checkin-mood__streak"><Flame size={15} /> {streak}</div>
       </motion.div>
+
+      {trend.length > 1 ? (
+        <section className="panel">
+          <div className="panel__header"><h2>Stimmungs-Verlauf</h2></div>
+          <div className="habit-week">
+            {trend.map((c) => (
+              <div className="habit-week__col" key={c.id}>
+                <div className="habit-week__bar" style={{ height: `${((c.mood ?? 0) / 10) * 100}%`, background: 'var(--accent)' }} />
+                <span>{Number(c.date.slice(8))}</span>
+              </div>
+            ))}
+          </div>
+          {avg.mood !== null ? (
+            <div className="recap">
+              <div><b>{avg.mood ?? '–'}</b><span>Stimmung</span></div>
+              <div><b>{avg.energy ?? '–'}</b><span>Energie</span></div>
+              <div><b>{avg.focus ?? '–'}</b><span>Fokus</span></div>
+              <div><b>{avg.stress ?? '–'}</b><span>Stress</span></div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       <form className="panel compose" onSubmit={submit}>
         <Slider label="Stimmung" value={mood} setValue={setMood} />
@@ -58,7 +89,7 @@ export default function Checkin() {
           <div className="rows">
             {data.checkinHistory.slice(0, 10).map((c) => (
               <div className="history-row" key={c.id}>
-                <div className="history-row__badge">{MOOD_EMOJI[Math.min(4, Math.floor(((c.mood ?? 5) - 1) / 2))]}</div>
+                <div className="history-row__badge">{emojiFor(c.mood)}</div>
                 <div>
                   <strong>{formatShortDate(c.date)}{c.mood ? ` · Stimmung ${c.mood}/10` : ''}</strong>
                   {c.mainGoal || c.gratitude ? <span>{c.mainGoal || c.gratitude}</span> : null}

@@ -240,7 +240,7 @@ export async function renameHousehold(householdId: string, name: string) {
 export async function loadWorkspace(householdId: string, userId: string) {
   const c = client();
   const today = viennaDate();
-  const weekAgo = addDays(today, -6);
+  const monthAgo = addDays(today, -34);
   const window = addDays(today, -180);
 
   const safe = async <T>(query: any, fallback: T): Promise<T> => {
@@ -276,7 +276,7 @@ export async function loadWorkspace(householdId: string, userId: string) {
     safe<any[]>(c.from('notes').select('*').order('created_at', { ascending: false }), []),
     safe<any[]>(c.from('shopping_items').select('*').eq('household_id', householdId).order('created_at', { ascending: false }), []),
     safe<any[]>(c.from('habit_types').select('*').eq('user_id', userId).order('created_at', { ascending: true }), []),
-    safe<any[]>(c.from('habit_logs').select('*').eq('user_id', userId).gte('date', weekAgo), []),
+    safe<any[]>(c.from('habit_logs').select('*').eq('user_id', userId).gte('date', monthAgo), []),
     safe<any[]>(c.from('quran_sessions').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(60), []),
     safe<any>(c.from('daily_checkins').select('*').eq('user_id', userId).eq('date', today).maybeSingle(), null),
     safe<any[]>(c.from('daily_checkins').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(14), []),
@@ -315,16 +315,21 @@ function prayerRowToDay(row: any): PrayerDay {
 
 function buildHabits(types: HabitType[], logRows: any[], today: string): HabitWithProgress[] {
   const week = lastNDates(7, today);
+  const month = lastNDates(35, today);
   return types.map((type) => {
     const logs = logRows.filter((l) => l.habit_type_id === type.id);
     const byDate = new Map<string, number>();
     logs.forEach((l) => byDate.set(l.date, Number(l.value) || 0));
     const doneDates = new Set(logs.filter((l) => Number(l.value) >= type.targetValue).map((l) => l.date));
+    const monthValues = month.map((d) => byDate.get(d) ?? 0);
+    const hitDays = monthValues.filter((v) => v >= type.targetValue).length;
     return {
       ...type,
       todayValue: byDate.get(today) ?? 0,
       streak: streakFromDates(doneDates, today),
       weekValues: week.map((d) => byDate.get(d) ?? 0),
+      monthValues,
+      successRate: hitDays / month.length,
     };
   });
 }
@@ -437,6 +442,18 @@ export async function createEvent(input: {
   return rowToEvent(data);
 }
 
+export async function updateEvent(id: string, patch: Partial<{ title: string; description: string | null; startsAt: string; endsAt: string | null; location: string | null }>): Promise<FamilyEvent> {
+  const dbPatch: any = {};
+  if (patch.title !== undefined) dbPatch.title = patch.title;
+  if (patch.description !== undefined) dbPatch.description = patch.description;
+  if (patch.startsAt !== undefined) dbPatch.start_at = patch.startsAt;
+  if (patch.endsAt !== undefined) dbPatch.end_at = patch.endsAt;
+  if (patch.location !== undefined) dbPatch.location = patch.location;
+  const { data, error } = await client().from('events').update(dbPatch).eq('id', id).select('*').single();
+  if (error) throw error;
+  return rowToEvent(data);
+}
+
 export async function deleteEvent(id: string) {
   const { error } = await client().from('events').delete().eq('id', id);
   if (error) throw error;
@@ -525,6 +542,19 @@ export async function setBillStatus(id: string, status: 'open' | 'paid', userId:
   return rowToBill(data);
 }
 
+export async function updateBill(id: string, patch: Partial<{ title: string; amount: number; dueDate: string; category: string; note: string | null; repeatRule: string | null }>): Promise<Bill> {
+  const dbPatch: any = {};
+  if (patch.title !== undefined) dbPatch.title = patch.title;
+  if (patch.amount !== undefined) dbPatch.amount = patch.amount;
+  if (patch.dueDate !== undefined) dbPatch.due_date = patch.dueDate;
+  if (patch.category !== undefined) dbPatch.category = patch.category;
+  if (patch.note !== undefined) dbPatch.note = patch.note;
+  if (patch.repeatRule !== undefined) dbPatch.repeat_rule = patch.repeatRule;
+  const { data, error } = await client().from('bills').update(dbPatch).eq('id', id).select('*').single();
+  if (error) throw error;
+  return rowToBill(data);
+}
+
 export async function deleteBill(id: string) {
   const { error } = await client().from('bills').delete().eq('id', id);
   if (error) throw error;
@@ -563,6 +593,18 @@ export async function createHabitType(input: { name: string; unit: string; targe
     .insert({ user_id: input.userId, name: input.name, unit: input.unit, target_value: input.targetValue, icon: input.icon, color: input.color })
     .select('*')
     .single();
+  if (error) throw error;
+  return rowToHabitType(data);
+}
+
+export async function updateHabitType(id: string, patch: Partial<{ name: string; unit: string; targetValue: number; icon: string; color: string }>): Promise<HabitType> {
+  const dbPatch: any = {};
+  if (patch.name !== undefined) dbPatch.name = patch.name;
+  if (patch.unit !== undefined) dbPatch.unit = patch.unit;
+  if (patch.targetValue !== undefined) dbPatch.target_value = patch.targetValue;
+  if (patch.icon !== undefined) dbPatch.icon = patch.icon;
+  if (patch.color !== undefined) dbPatch.color = patch.color;
+  const { data, error } = await client().from('habit_types').update(dbPatch).eq('id', id).select('*').single();
   if (error) throw error;
   return rowToHabitType(data);
 }

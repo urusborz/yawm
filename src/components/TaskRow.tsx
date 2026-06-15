@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { Check, Trash2 } from 'lucide-react';
-import { formatTime } from '../lib/dates';
+import { Check, Pencil, Trash2 } from 'lucide-react';
+import { formatShortDate, formatTime, viennaDate } from '../lib/dates';
 import type { Task } from '../types';
 
 const PRIORITY_COLOR: Record<Task['priority'], string> = {
@@ -9,7 +9,15 @@ const PRIORITY_COLOR: Record<Task['priority'], string> = {
   high: 'var(--danger)',
 };
 
-export function TaskRow({ task, onToggle, onDelete }: { task: Task; onToggle: (id: string) => void; onDelete?: (id: string) => void }) {
+function dueLabel(dueAt: string) {
+  const day = viennaDate(new Date(dueAt));
+  const today = viennaDate();
+  if (day === today) return formatTime(dueAt);
+  return formatShortDate(day);
+}
+
+export function TaskRow({ task, onToggle, onDelete, onEdit }: { task: Task; onToggle: (id: string) => void; onDelete?: (id: string) => void; onEdit?: (task: Task) => void }) {
+  const overdue = !task.done && task.dueAt && new Date(task.dueAt).getTime() < Date.now();
   return (
     <motion.div className="task-row" layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -16 }}>
       <button className="task-row__main" type="button" onClick={() => onToggle(task.id)}>
@@ -22,10 +30,13 @@ export function TaskRow({ task, onToggle, onDelete }: { task: Task; onToggle: (i
         </span>
         <span className="task-row__meta">
           {task.priority !== 'normal' ? <span className="priority-dot" style={{ background: PRIORITY_COLOR[task.priority] }} /> : null}
-          {task.dueAt ? <span className="muted-chip">{formatTime(task.dueAt)}</span> : null}
+          {task.dueAt ? <span className={overdue ? 'muted-chip muted-chip--due' : 'muted-chip'}>{dueLabel(task.dueAt)}</span> : null}
           {task.scope === 'shared' ? <span className="owner-chip">{task.ownerInitials}</span> : null}
         </span>
       </button>
+      {onEdit ? (
+        <button className="row-icon" type="button" onClick={() => onEdit(task)} title="Bearbeiten"><Pencil size={15} /></button>
+      ) : null}
       {onDelete ? (
         <button className="delete-button" type="button" onClick={() => onDelete(task.id)} title="Löschen"><Trash2 size={16} /></button>
       ) : null}

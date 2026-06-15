@@ -107,6 +107,8 @@ export type HabitWithProgress = HabitType & {
   todayValue: number;
   streak: number;
   weekValues: number[]; // last 7 days, oldest first
+  monthValues: number[]; // last 35 days, oldest first
+  successRate: number; // 0..1 over the last 35 days
 };
 
 export type SobrietySettings = {
