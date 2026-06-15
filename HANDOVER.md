@@ -9,6 +9,7 @@ Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschacht
 - v4 Entwurf: Check-in wurde ritualhafter mit schneller Stimmungswahl vor den Detail-Slidern.
 - v4 Entwurf: Designsystem hat lebendigere, aber einheitliche Farbflächen für Hero, Timeline, Quick Actions, Familien-Übersicht, Panels und Mood-Chips.
 - v4.1 PWA-Fix: Bottom-Tabbar ist nun absolut am Viewport-Bottom verankert, Content erhält eigenen Unterrand-Puffer.
+- v4.2 PWA-Fix: Mobile Bottom-Tabbar ist nun `position: fixed` am echten Display-/Viewport-Bottom; Desktop nutzt weiter absolute Position im App-Rahmen.
 - v4.1 PWA-Fix: Supabase Auth nutzt explizit `localStorage` mit stabilem Storage-Key, damit Login in der Home-Screen-App persistiert.
 - v4.1 PWA-Fix: Manifest hat `id`, `scope`, PWA-Start-URL und Display-Override; Service-Worker-Cache wurde gebumpt.
 - v4.1 UI-Fix: dekorativer Kreis unten rechts in der großen Heute-Kachel entfernt.
