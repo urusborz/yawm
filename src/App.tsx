@@ -45,10 +45,48 @@ function useNow() {
   return now;
 }
 
+function useStandaloneViewportDock() {
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const update = () => {
+      const isStandalone =
+        window.matchMedia?.('(display-mode: standalone)').matches ||
+        window.matchMedia?.('(display-mode: fullscreen)').matches ||
+        (window.navigator as Navigator & { standalone?: boolean }).standalone === true ||
+        new URLSearchParams(window.location.search).get('source') === 'pwa';
+
+      const visualHeight = window.visualViewport?.height ?? 0;
+      const viewportHeight = Math.round(Math.max(window.innerHeight, visualHeight));
+      const screenHeight = Math.round(window.screen?.height || viewportHeight);
+      const appHeight = isStandalone ? Math.max(viewportHeight, screenHeight) : viewportHeight;
+      const dockGap = isStandalone ? Math.max(0, appHeight - viewportHeight) : 0;
+
+      root.dataset.pwaDisplay = isStandalone ? 'standalone' : 'browser';
+      root.style.setProperty('--app-height', `${appHeight}px`);
+      root.style.setProperty('--dock-gap', `${Math.min(dockGap, 180)}px`);
+    };
+
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    window.visualViewport?.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
+
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
+    };
+  }, []);
+}
+
 export default function App() {
   const { state, reboot } = useAuthGate();
   const [theme, setTheme] = usePersistentState<Theme>('yawm-theme', 'slate');
   const [mode, setMode] = usePersistentState<'dark' | 'light'>('yawm-mode', 'dark');
+  useStandaloneViewportDock();
 
   useEffect(() => {
     if (!(THEMES as readonly string[]).includes(theme)) setTheme('slate');

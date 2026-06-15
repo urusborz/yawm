@@ -1,5 +1,11 @@
 # Yawm — Handover-Dokumentation
 
+## 0.2 Update v4.5 (15.06.2026) - iOS-PWA-Dock
+
+- PWA-Fix: Die Bottom-Tabbar ist nicht mehr von `env(safe-area-inset-bottom)` oder dem iOS-Layout-Viewport abhängig. `App.tsx` misst im Standalone-/PWA-Modus `screen.height`, `window.innerHeight` und `visualViewport.height`, setzt daraus `--app-height` und dockt die Tabbar absolut am App-Root.
+- Cache-Bust: Service-Worker-Cache auf `yawm-v6-pwa-screen-dock` gebumpt, damit die Home-Screen-App die neue Shell nach dem Deploy zieht.
+- Erwartetes Verhalten: In der iOS-Home-Screen-PWA soll das Menü an den sichtbaren unteren Displayrand wandern. Falls iOS eine alte installierte Shell weiter festhält, App komplett schließen und erneut öffnen; Neuinstallation nur als letzter Cache-Ausweg.
+
 ## 0.1 Update v3 (15.06.2026) — UI-Fluss, Sheets, Themes
 
 Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschachtelung:

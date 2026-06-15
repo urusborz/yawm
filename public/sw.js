@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yawm-v5-safe-area';
+const CACHE_NAME = 'yawm-v6-pwa-screen-dock';
 const APP_SHELL = ['/', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {
