@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yawm-v6-pwa-screen-dock';
+const CACHE_NAME = 'yawm-v7-keyboard-sheet';
 const APP_SHELL = ['/', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {

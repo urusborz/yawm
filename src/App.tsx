@@ -48,6 +48,7 @@ function useNow() {
 function useStandaloneViewportDock() {
   useEffect(() => {
     const root = document.documentElement;
+    let stableViewportHeight = 0;
 
     const update = () => {
       const isStandalone =
@@ -56,26 +57,36 @@ function useStandaloneViewportDock() {
         (window.navigator as Navigator & { standalone?: boolean }).standalone === true ||
         new URLSearchParams(window.location.search).get('source') === 'pwa';
 
-      const visualHeight = window.visualViewport?.height ?? 0;
+      const visualViewport = window.visualViewport;
+      const visualHeight = Math.round(visualViewport?.height ?? window.innerHeight);
+      const visualOffsetTop = Math.round(visualViewport?.offsetTop ?? 0);
       const viewportHeight = Math.round(Math.max(window.innerHeight, visualHeight));
+      stableViewportHeight = Math.max(stableViewportHeight, viewportHeight);
       const screenHeight = Math.round(window.screen?.height || viewportHeight);
-      const appHeight = isStandalone ? Math.max(viewportHeight, screenHeight) : viewportHeight;
+      const appHeight = isStandalone ? Math.max(stableViewportHeight, screenHeight) : stableViewportHeight;
       const dockGap = isStandalone ? Math.max(0, appHeight - viewportHeight) : 0;
+      const keyboardOffset = Math.max(0, stableViewportHeight - visualHeight - visualOffsetTop);
 
       root.dataset.pwaDisplay = isStandalone ? 'standalone' : 'browser';
       root.style.setProperty('--app-height', `${appHeight}px`);
       root.style.setProperty('--dock-gap', `${Math.min(dockGap, 180)}px`);
+      root.style.setProperty('--keyboard-offset', `${keyboardOffset > 80 ? Math.min(keyboardOffset, 420) : 0}px`);
+    };
+
+    const resetAndUpdate = () => {
+      stableViewportHeight = 0;
+      window.setTimeout(update, 80);
     };
 
     update();
     window.addEventListener('resize', update);
-    window.addEventListener('orientationchange', update);
+    window.addEventListener('orientationchange', resetAndUpdate);
     window.visualViewport?.addEventListener('resize', update);
     window.visualViewport?.addEventListener('scroll', update);
 
     return () => {
       window.removeEventListener('resize', update);
-      window.removeEventListener('orientationchange', update);
+      window.removeEventListener('orientationchange', resetAndUpdate);
       window.visualViewport?.removeEventListener('resize', update);
       window.visualViewport?.removeEventListener('scroll', update);
     };

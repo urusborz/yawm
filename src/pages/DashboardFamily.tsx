@@ -184,7 +184,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
 
       <Sheet open={eventSheet} title="Familien-Termin" onClose={() => setEventSheet(false)}>
         <form className="form-stack" onSubmit={addFamilyEvent}>
-          <input className="field" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder="Titel" autoFocus />
+          <input className="field" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder="Titel" />
           <div className="form-grid">
             <input className="field" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
             <input className="field" type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
@@ -197,7 +197,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
 
       <Sheet open={taskSheet} title="Geteilte Aufgabe" onClose={() => setTaskSheet(false)}>
         <form className="form-stack" onSubmit={addSharedTask}>
-          <input className="field" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Aufgabe" autoFocus />
+          <input className="field" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Aufgabe" />
           <Segmented value={taskPriority} onChange={setTaskPriority} options={[{ value: 'low', label: 'Niedrig' }, { value: 'normal', label: 'Normal' }, { value: 'high', label: 'Hoch' }]} />
           <p className="form-hint">Geteilte Aufgaben sind für alle Haushaltsmitglieder sichtbar.</p>
           <button className="primary-button" type="submit"><Plus size={18} /> Aufgabe speichern</button>

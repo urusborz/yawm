@@ -115,7 +115,7 @@ export default function Quran() {
             {SURAHS.map((s) => <button key={s} type="button" className={surah === s ? 'chip chip--active' : 'chip'} onClick={() => setSurah(s)}>{s}</button>)}
           </div>
           <div className="form-grid">
-            <input className="field" inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="Minuten" autoFocus />
+            <input className="field" inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="Minuten" />
             <input className="field" value={surah} onChange={(e) => setSurah(e.target.value)} placeholder="Surah" />
             <input className="field" inputMode="numeric" value={ayahFrom} onChange={(e) => setAyahFrom(e.target.value)} placeholder="Ayah von" />
             <input className="field" inputMode="numeric" value={ayahTo} onChange={(e) => setAyahTo(e.target.value)} placeholder="Ayah bis" />

@@ -38,7 +38,7 @@ export default function Habits() {
       <AnimatePresence>
         {open ? (
           <motion.form className="panel compose" onSubmit={submit} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
-            <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (z. B. Wasser trinken)" autoFocus />
+            <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (z. B. Wasser trinken)" />
             <div className="form-grid">
               <input className="field" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Einheit" />
               <input className="field" inputMode="numeric" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Tagesziel" />

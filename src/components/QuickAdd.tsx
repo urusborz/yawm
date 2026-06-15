@@ -66,7 +66,7 @@ export function QuickAdd({ open, initialType, onClose }: { open: boolean; initia
           ))}
         </div>
 
-        <input className="field" data-testid="quick-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={type === 'note' ? 'Titel (optional)' : 'Titel'} autoFocus />
+        <input className="field" data-testid="quick-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={type === 'note' ? 'Titel (optional)' : 'Titel'} />
 
         {type === 'note' ? (
           <textarea className="field field--textarea" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Was möchtest du festhalten?" />

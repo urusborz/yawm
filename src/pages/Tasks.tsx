@@ -97,7 +97,7 @@ export default function Tasks() {
 
       <Sheet open={adding} title="Aufgabe hinzufügen" onClose={() => setAdding(false)}>
         <form className="form-stack" onSubmit={submit}>
-          <input className="field" data-testid="task-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Neue Aufgabe" autoFocus />
+          <input className="field" data-testid="task-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Neue Aufgabe" />
           <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
           <Segmented value={priority} onChange={setPriority} options={PRIO_OPTS} />
           <button className="primary-button" type="submit"><Plus size={18} /> Hinzufügen</button>
