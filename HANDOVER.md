@@ -4,6 +4,8 @@
 
 Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschachtelung:
 
+- v3.1: Heute-Kachel im Ich-Dashboard zeigt statt Prozent-Ring nun eine Live-Uhr mit Sekunden, um iOS-SVG-Fokusrahmen zu vermeiden.
+- v3.1: Einstellungen im Mehr-Tab nutzt dieselbe Listenzeile wie alle anderen Mehr-Einträge.
 - Familien-Dashboard: Geteilte Aufgaben und Familien-Termine öffnen nun eigene Bottom-Sheets statt den globalen Misch-QuickAdd zu verwenden.
 - Familien-Dashboard: Leerzustände für Termine, geteilte Aufgaben und Einkaufsliste sind stärker ausgearbeitet.
 - Einkaufsliste: Eingabezeile wurde auf ein stabiles Grid umgestellt; der Plus-Button ist sauber ausgerichtet.

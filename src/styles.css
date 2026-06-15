@@ -559,7 +559,13 @@ button.stat-tile:active { transform: scale(0.97); }
   overflow-wrap: anywhere;
 }
 .today-card p { margin-top: 6px; color: var(--ink-2); font-size: 13px; }
-.today-card__ring { color: var(--ink); font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.today-time {
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-end; min-width: 92px; min-height: 66px;
+  padding: 10px 12px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+.today-time span { font-size: 22px; line-height: 1; font-weight: 760; letter-spacing: -0.03em; color: var(--ink); }
+.today-time strong { margin-top: 5px; color: var(--accent); font-size: 15px; line-height: 1; font-weight: 760; }
 .today-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .today-metrics button {
   display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; row-gap: 2px;
@@ -594,6 +600,8 @@ button.stat-tile:active { transform: scale(0.97); }
 @media (max-width: 380px) {
   .compact-toolbar { grid-template-columns: 1fr; }
   .today-card h2 { font-size: 21px; }
+  .today-time { min-width: 84px; }
+  .today-time span { font-size: 20px; }
   .today-metrics strong { font-size: 16px; }
 }
 

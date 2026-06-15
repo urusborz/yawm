@@ -21,9 +21,9 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
     .filter((e) => viennaDate(new Date(e.startsAt)) === today)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const habitsToday = data.habits.slice(0, 3);
-  const completedPrivate = privateTasks.filter((t) => t.done).length;
-  const taskProgress = privateTasks.length ? completedPrivate / privateTasks.length : 0;
   const nextEvent = todaysEvents[0];
+  const liveTime = new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Vienna' }).format(now);
+  const [timeMain, timeSeconds] = liveTime.replace(/\./g, ':').split(/:(?=\d{2}$)/);
 
   return (
     <Screen>
@@ -44,9 +44,10 @@ export default function DashboardMe({ now, setView }: { now: Date; setView: (v: 
             <h2>{privateOpen[0]?.title || (nextEvent ? nextEvent.title : 'Ruhig starten')}</h2>
             <p>{nextEvent ? `${formatTime(nextEvent.startsAt)} · ${nextEvent.location || 'Termin'}` : `${privateOpen.length} offene private Aufgaben`}</p>
           </div>
-          <Ring progress={taskProgress} size={66} stroke={6} color="var(--accent)" track="var(--surface-2)">
-            <span className="today-card__ring">{Math.round(taskProgress * 100)}%</span>
-          </Ring>
+          <div className="today-time" aria-label={`Aktuelle Uhrzeit ${liveTime}`}>
+            <span>{timeMain}</span>
+            <strong>{timeSeconds}</strong>
+          </div>
         </div>
         <div className="today-metrics">
           <button type="button" onClick={() => setView('tasks')}>

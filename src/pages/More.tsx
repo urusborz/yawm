@@ -59,10 +59,18 @@ export default function More({ setView }: { setView: (v: View) => void }) {
         </section>
       ))}
 
-      <button className="settings-row" type="button" onClick={() => setView('settings')}>
-        <SettingsIcon size={20} />
-        <div><strong>Einstellungen</strong><span>Profil, Haushalt, Benachrichtigungen, Design</span></div>
-      </button>
+      <section className="panel more-section">
+        <div className="more-list">
+          <button className="more-row" type="button" onClick={() => setView('settings')}>
+            <span className="more-row__icon" style={{ background: 'color-mix(in srgb, var(--ink-2) 16%, transparent)', color: 'var(--ink-2)' }}><SettingsIcon size={20} /></span>
+            <span className="more-row__text">
+              <strong>Einstellungen</strong>
+              <small>Profil, Haushalt, Benachrichtigungen, Design</small>
+            </span>
+            <ChevronRight size={17} />
+          </button>
+        </div>
+      </section>
     </Screen>
   );
 }
