@@ -128,9 +128,9 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
           </AnimatePresence>
         </div>
 
-        <BottomNav view={view} setView={setView} onAdd={() => openAdd('task')} />
         <QuickAdd open={quickAddOpen} initialType={quickAddType} onClose={() => setQuickAddOpen(false)} />
       </div>
+      <BottomNav view={view} setView={setView} onAdd={() => openAdd('task')} />
     </div>
   );
 }
