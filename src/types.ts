@@ -1,49 +1,159 @@
 export type Scope = 'private' | 'shared';
+export type Priority = 'low' | 'normal' | 'high';
+export type TaskStatus = 'open' | 'done' | 'postponed';
+
+export type Profile = {
+  id: string;
+  displayName: string;
+  timezone: string;
+};
+
+export type HouseholdMember = {
+  userId: string;
+  role: 'owner' | 'member';
+  displayName: string;
+};
+
+export type Household = {
+  id: string;
+  name: string;
+  joinCode: string;
+  members: HouseholdMember[];
+};
 
 export type Task = {
   id: string;
   title: string;
-  dueAt?: string;
+  description?: string;
+  dueAt?: string; // ISO timestamp
   done: boolean;
+  status: TaskStatus;
   scope: Scope;
+  priority: Priority;
+  ownerId: string;
   ownerInitials: string;
-  priority: 'low' | 'normal' | 'high';
 };
 
 export type Bill = {
   id: string;
   title: string;
   amount: number;
-  dueDate: string;
+  currency: string;
+  dueDate: string; // YYYY-MM-DD
   status: 'open' | 'paid';
   category: string;
+  note?: string;
+  repeatRule?: string;
+  paidById?: string;
+  paidByInitials?: string;
 };
 
 export type FamilyEvent = {
   id: string;
   title: string;
-  startsAt: string;
+  description?: string;
+  startsAt: string; // ISO
+  endsAt?: string;
   location?: string;
   scope: Scope;
-};
-
-export type PrayerName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
-
-export type PrayerTime = {
-  name: PrayerName;
-  time: string;
+  ownerId: string;
 };
 
 export type Note = {
   id: string;
   title: string;
   content: string;
+  tags: string[];
   createdAt: string;
   scope: Scope;
+  ownerId: string;
 };
 
-export type HabitSummary = {
-  cleanDays: number;
-  quranMinutesToday: number;
-  checkinDone: boolean;
+export type ShoppingItem = {
+  id: string;
+  title: string;
+  quantity?: string;
+  done: boolean;
+};
+
+export type PrayerName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
+
+export type PrayerTime = {
+  name: PrayerName;
+  time: string; // HH:MM
+};
+
+export type PrayerDay = {
+  date: string;
+  times: PrayerTime[];
+};
+
+export type HabitType = {
+  id: string;
+  name: string;
+  unit: string;
+  targetValue: number;
+  icon: string;
+  color: string;
+};
+
+export type HabitLog = {
+  habitTypeId: string;
+  date: string;
+  value: number;
+};
+
+export type HabitWithProgress = HabitType & {
+  todayValue: number;
+  streak: number;
+  weekValues: number[]; // last 7 days, oldest first
+};
+
+export type SobrietySettings = {
+  substance: string;
+  cleanStartDate?: string;
+  goalNote?: string;
+  longestStreakDays: number;
+};
+
+export type SobrietyLog = {
+  date: string;
+  clean: boolean;
+  cravingLevel?: number;
+  triggerNote?: string;
+  reflection?: string;
+};
+
+export type QuranSession = {
+  id: string;
+  date: string;
+  minutes: number;
+  surah?: string;
+  ayahFrom?: number;
+  ayahTo?: number;
+  note?: string;
+};
+
+export type DailyCheckin = {
+  id: string;
+  date: string;
+  mood?: number;
+  energy?: number;
+  focus?: number;
+  stress?: number;
+  gratitude?: string;
+  mainGoal?: string;
+  reflection?: string;
+};
+
+export type NotificationPreferences = {
+  prayerFajr: boolean;
+  prayerDhuhr: boolean;
+  prayerAsr: boolean;
+  prayerMaghrib: boolean;
+  prayerIsha: boolean;
+  minutesBeforePrayer: number;
+  dailyCheckin: boolean;
+  billReminders: boolean;
+  eventReminders: boolean;
 };
