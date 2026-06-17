@@ -24,7 +24,7 @@ import Prepare from './pages/Prepare';
 import More from './pages/More';
 import Settings from './pages/Settings';
 
-const THEMES = ['slate', 'rose', 'midnight'] as const;
+const THEMES = ['slate', 'rose', 'midnight', 'sunset', 'ocean', 'amethyst'] as const;
 type Theme = (typeof THEMES)[number];
 
 function usePersistentState<T>(key: string, fallback: T) {

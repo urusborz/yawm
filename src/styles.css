@@ -38,9 +38,21 @@
 [data-theme="midnight"] {
   --accent: #60a5fa; --accent-2: #a78bfa; --accent-soft: rgba(96,165,250,0.15); --on-accent: #04122b;
 }
+[data-theme="sunset"] {
+  --accent: #fb923c; --accent-2: #facc15; --accent-soft: rgba(251,146,60,0.14); --on-accent: #1a0a02;
+}
+[data-theme="ocean"] {
+  --accent: #22d3ee; --accent-2: #60a5fa; --accent-soft: rgba(34,211,238,0.14); --on-accent: #021a1f;
+}
+[data-theme="amethyst"] {
+  --accent: #a78bfa; --accent-2: #c084fc; --accent-soft: rgba(167,139,250,0.14); --on-accent: #0c0620;
+}
 [data-mode="light"][data-theme="slate"] { --accent: #109a66; --accent-2: #2563eb; --accent-soft: rgba(16,154,102,0.12); --on-accent: #ffffff; }
 [data-mode="light"][data-theme="midnight"] { --accent: #2563eb; --accent-2: #7c3aed; --on-accent: #ffffff; }
 [data-mode="light"][data-theme="rose"] { --accent: #e11d63; --accent-2: #ea580c; --on-accent: #ffffff; }
+[data-mode="light"][data-theme="sunset"] { --accent: #ea580c; --accent-2: #ca8a04; --on-accent: #ffffff; }
+[data-mode="light"][data-theme="ocean"] { --accent: #0891b2; --accent-2: #2563eb; --on-accent: #ffffff; }
+[data-mode="light"][data-theme="amethyst"] { --accent: #7c3aed; --accent-2: #a21caf; --on-accent: #ffffff; }
 
 * { box-sizing: border-box; }
 html { background: var(--bg); height: var(--app-height); }
@@ -377,6 +389,9 @@ button.stat-tile:active { transform: scale(0.97); }
 .theme-dot[data-dot="emerald"] { background: #34d399; }
 .theme-dot[data-dot="rose"] { background: #fb7185; }
 .theme-dot[data-dot="midnight"] { background: #60a5fa; }
+.theme-dot[data-dot="sunset"] { background: #fb923c; }
+.theme-dot[data-dot="ocean"] { background: #22d3ee; }
+.theme-dot[data-dot="amethyst"] { background: #a78bfa; }
 .theme-dot.active { border-color: var(--ink); }
 
 .info-banner { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 14px; text-align: left; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); font-size: 13px; line-height: 1.4; }
@@ -723,6 +738,9 @@ button.stat-tile:active { transform: scale(0.97); }
 .theme-dot[data-dot="slate"] { background: linear-gradient(135deg, #3ecf8e, #60a5fa); }
 .theme-dot[data-dot="rose"] { background: linear-gradient(135deg, #fb7185, #f59e0b); }
 .theme-dot[data-dot="midnight"] { background: linear-gradient(135deg, #60a5fa, #a78bfa); }
+.theme-dot[data-dot="sunset"] { background: linear-gradient(135deg, #fb923c, #facc15); }
+.theme-dot[data-dot="ocean"] { background: linear-gradient(135deg, #22d3ee, #60a5fa); }
+.theme-dot[data-dot="amethyst"] { background: linear-gradient(135deg, #a78bfa, #c084fc); }
 
 @media (max-width: 380px) {
   .shop-compose { grid-template-columns: minmax(0, 1fr) 72px 46px; }

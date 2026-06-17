@@ -6,15 +6,18 @@ import { supabase } from '../lib/supabase';
 import { subscribeToPush } from '../lib/push';
 import type { NotificationPreferences } from '../types';
 
-const THEMES: { key: 'slate' | 'rose' | 'midnight'; label: string; tone: string }[] = [
+const THEMES: { key: 'slate' | 'rose' | 'midnight' | 'sunset' | 'ocean' | 'amethyst'; label: string; tone: string }[] = [
   { key: 'slate', label: 'Klar', tone: 'ruhig und grün' },
   { key: 'rose', label: 'Warm', tone: 'weich und persönlich' },
   { key: 'midnight', label: 'Nacht', tone: 'kontrastreich und blau' },
+  { key: 'sunset', label: 'Sunset', tone: 'warm und golden' },
+  { key: 'ocean', label: 'Ocean', tone: 'frisch und klar' },
+  { key: 'amethyst', label: 'Amethyst', tone: 'kreativ und tief' },
 ];
 
 export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: {
   theme: string;
-  setTheme: (t: 'slate' | 'rose' | 'midnight') => void;
+  setTheme: (t: 'slate' | 'rose' | 'midnight' | 'sunset' | 'ocean' | 'amethyst') => void;
   mode: 'dark' | 'light';
   setMode: (m: 'dark' | 'light') => void;
   onSignOut: () => void;
