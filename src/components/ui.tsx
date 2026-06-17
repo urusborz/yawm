@@ -76,7 +76,7 @@ export function Ring({ progress, size = 92, stroke = 7, color = '#fff', track = 
   const offset = c * (1 - Math.max(0, Math.min(1, progress)));
   return (
     <div className="ring" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
+      <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
@@ -143,12 +143,13 @@ export function Segmented<T extends string>({ value, onChange, options }: { valu
   );
 }
 
-export function EmptyState({ icon, title, hint }: { icon: ReactNode; title: string; hint?: string }) {
+export function EmptyState({ icon, title, hint, actionLabel, onAction }: { icon: ReactNode; title: string; hint?: string; actionLabel?: string; onAction?: () => void }) {
   return (
     <motion.div className="empty-state" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
       <div className="empty-state__icon">{icon}</div>
       <strong>{title}</strong>
       {hint ? <span>{hint}</span> : null}
+      {actionLabel && onAction ? <button className="empty-state__action" type="button" onClick={onAction}>{actionLabel}</button> : null}
     </motion.div>
   );
 }

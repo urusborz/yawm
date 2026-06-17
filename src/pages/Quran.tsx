@@ -31,6 +31,9 @@ export default function Quran() {
   const maxWeek = Math.max(...weekMinutes, goal);
   const totalMinutes = data.quran.reduce((s, q) => s + q.minutes, 0);
   const goalProgress = goal ? Math.min(1, todayMinutes / goal) : 0;
+  const remaining = Math.max(0, goal - todayMinutes);
+  const bestDay = Math.max(...weekMinutes, todayMinutes);
+  const weekTotal = weekMinutes.reduce((sum, value) => sum + value, 0);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -52,12 +55,15 @@ export default function Quran() {
         action={<button className="header-add" type="button" onClick={() => setAdding(true)} title="Session eintragen"><Plus size={20} /></button>}
       />
 
-      <section className="goal-hero goal-hero--calm">
-        <Ring progress={goalProgress} size={96} stroke={9} color="var(--accent)" track="var(--surface-2)">
-          <div className="goal-hero__center"><strong>{todayMinutes}</strong><span>/ {goal} min</span></div>
-        </Ring>
+      <section className="quran-hero">
+        <div className="quran-hero__ring">
+          <Ring progress={goalProgress} size={96} stroke={9} color="var(--accent)" track="var(--surface-2)">
+            <div className="goal-hero__center"><strong>{todayMinutes}</strong><span>/ {goal} min</span></div>
+          </Ring>
+        </div>
         <div className="goal-hero__info">
           <span className="eyebrow">Heutiges Ziel</span>
+          <h2>{remaining ? `${remaining} Minuten offen` : 'Ziel erreicht'}</h2>
           <div className="goal-hero__adjust">
             <button type="button" onClick={() => setGoal(goal - 5)} aria-label="weniger"><Minus size={15} /></button>
             <b>{goal} min</b>
@@ -70,8 +76,14 @@ export default function Quran() {
       <button className="focus-action" type="button" onClick={() => setAdding(true)}>
         <BookOpen size={18} />
         <span>Session eintragen</span>
-        <strong>{Math.max(0, goal - todayMinutes)} min offen</strong>
+        <strong>{remaining} min offen</strong>
       </button>
+
+      <section className="quran-plan">
+        <div><span>Diese Woche</span><strong>{weekTotal} min</strong></div>
+        <div><span>Bester Tag</span><strong>{bestDay} min</strong></div>
+        <div><span>Rhythmus</span><strong>{streak ? `${streak} Tage` : 'Start'}</strong></div>
+      </section>
 
       <section className="stats-grid">
         <div className="stat-tile"><div className="stat-tile__icon"><BookOpen size={18} /></div><strong>{totalMinutes}<small> min</small></strong><span>gesamt</span></div>
@@ -81,7 +93,7 @@ export default function Quran() {
 
       <section className="panel">
         <div className="panel__header"><h2>Woche</h2></div>
-        <div className="habit-week">
+        <div className="habit-week habit-week--quran">
           {weekMinutes.map((v, i) => (
             <div className="habit-week__col" key={week[i]}>
               <div className="habit-week__bar" style={{ height: `${Math.max(6, (v / maxWeek) * 100)}%`, background: v >= goal ? 'var(--accent)' : v > 0 ? 'color-mix(in srgb, var(--accent) 45%, transparent)' : 'var(--surface-2)' }} />
@@ -104,7 +116,7 @@ export default function Quran() {
                 </div>
                 <button className="delete-button" type="button" onClick={() => data.deleteQuranSession(q.id)}><Trash2 size={15} /></button>
               </motion.div>
-            )) : <EmptyState icon={<BookOpen size={26} />} title="Noch nichts gelesen" hint="Trage deine erste Session ein." />}
+            )) : <EmptyState icon={<BookOpen size={26} />} title="Noch nichts gelesen" hint="Trage deine erste Session ein." actionLabel="Session starten" onAction={() => setAdding(true)} />}
           </AnimatePresence>
         </div>
       </section>

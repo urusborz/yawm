@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, CalendarClock, ChevronRight, ClipboardCheck, Flame, Moon, Plus, Sparkles, Target } from 'lucide-react';
+import { BookOpen, CalendarClock, ChevronRight, CircleDollarSign, ClipboardCheck, Flame, Moon, Plus, Sparkles, Target, UsersRound } from 'lucide-react';
 import { Screen, Ring, EmptyState } from '../components/ui';
 import { PrayerCard } from '../components/PrayerCard';
 import { TaskRow } from '../components/TaskRow';
@@ -25,6 +25,8 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
 
   const privateTasks = data.tasks.filter((t) => t.scope === 'private');
   const privateOpen = privateTasks.filter((t) => !t.done);
+  const sharedOpen = data.tasks.filter((t) => t.scope === 'shared' && !t.done).length;
+  const openBills = data.bills.filter((b) => b.status === 'open').length;
   const topTasks = [...privateTasks].sort((a, b) => Number(a.done) - Number(b.done)).slice(0, 4);
   const quranToday = data.quran.filter((q) => q.date === today).reduce((s, q) => s + q.minutes, 0);
   const cleanDays = data.sobrietySettings?.cleanStartDate ? Math.max(0, daysBetween(data.sobrietySettings.cleanStartDate, today)) : null;
@@ -131,6 +133,24 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
         <button type="button" onClick={() => setView('checkin')}><Sparkles size={16} /><span>Check-in</span></button>
       </section>
 
+      <section className="daily-compass" aria-label="Tagesstatus">
+        <button className="daily-compass__item daily-compass__item--task" type="button" onClick={() => setView('tasks')}>
+          <ClipboardCheck size={16} />
+          <span>Nächster Schritt</span>
+          <strong>{privateOpen[0]?.title || 'Alles frei'}</strong>
+        </button>
+        <button className="daily-compass__item daily-compass__item--family" type="button" onClick={() => setView('family')}>
+          <UsersRound size={16} />
+          <span>Familie</span>
+          <strong>{sharedOpen ? `${sharedOpen} geteilt offen` : 'Ruhig'}</strong>
+        </button>
+        <button className="daily-compass__item daily-compass__item--bill" type="button" onClick={() => setView('bills')}>
+          <CircleDollarSign size={16} />
+          <span>Haushalt</span>
+          <strong>{openBills ? `${openBills} Rechnungen` : 'Bezahlt'}</strong>
+        </button>
+      </section>
+
       <section className="panel timeline-panel">
         <div className="panel__header"><h2>Heute auf einen Blick</h2><button type="button" onClick={() => setView('calendar')}>Plan</button></div>
         <div className="day-timeline">
@@ -165,7 +185,7 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
         </section>
       ) : (
         <section className="panel panel--color panel--habits">
-          <EmptyState icon={<Target size={24} />} title="Noch keine Habits" hint="Lege einen kleinen täglichen Rhythmus an." />
+          <EmptyState icon={<Target size={24} />} title="Noch keine Habits" hint="Lege einen kleinen täglichen Rhythmus an." actionLabel="Habit anlegen" onAction={() => setView('habits')} />
         </section>
       )}
 
@@ -175,7 +195,7 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
           <button type="button" onClick={() => setView('tasks')}>{privateOpen.length} offen</button>
         </div>
         <div className="rows">
-          {topTasks.length ? topTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <EmptyState icon={<ClipboardCheck size={24} />} title="Keine privaten Aufgaben" hint="Tippe auf + und plane den nächsten kleinen Schritt." />}
+          {topTasks.length ? topTasks.map((t) => <TaskRow key={t.id} task={t} onToggle={data.toggleTask} />) : <EmptyState icon={<ClipboardCheck size={24} />} title="Keine privaten Aufgaben" hint="Tippe auf + und plane den nächsten kleinen Schritt." actionLabel="Aufgabe anlegen" onAction={() => onAdd('task')} />}
         </div>
       </section>
 
@@ -188,7 +208,7 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
               <div><strong>{e.title}</strong>{e.location ? <span>{e.location}</span> : null}</div>
               {e.scope === 'shared' ? <span className="owner-chip">{data.initialsOf(e.ownerId)}</span> : null}
             </div>
-          )) : <EmptyState icon={<CalendarClock size={24} />} title="Kein Termin heute" hint="Der Tag hat Luft. Nutze sie bewusst." />}
+          )) : <EmptyState icon={<CalendarClock size={24} />} title="Kein Termin heute" hint="Der Tag hat Luft. Nutze sie bewusst." actionLabel="Termin planen" onAction={() => onAdd('event')} />}
         </div>
       </section>
 

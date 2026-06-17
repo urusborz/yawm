@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Bell, Check, Copy, Download, LogOut, Palette, ShieldCheck, Sun, UserRound, UsersRound } from 'lucide-react';
+import { Bell, Check, Copy, Download, LogOut, Palette, Smartphone, ShieldCheck, Sun, UserRound, UsersRound, Wifi } from 'lucide-react';
 import { Screen, SimpleHeader, Segmented } from '../components/ui';
 import { useData } from '../store';
 import { supabase } from '../lib/supabase';
@@ -74,6 +74,21 @@ export default function Settings({ theme, setTheme, mode, setMode, onSignOut }: 
   return (
     <Screen>
       <SimpleHeader title="Einstellungen" subtitle={data.syncState} />
+
+      <section className="settings-control">
+        <div className="settings-control__hero">
+          <Palette size={20} />
+          <div>
+            <span>Aktives Design</span>
+            <strong>{selectedTheme.label} · {mode === 'dark' ? 'Dunkel' : 'Hell'}</strong>
+          </div>
+        </div>
+        <div className="settings-control__grid">
+          <div><Wifi size={16} /><span>Sync</span><strong>{data.syncState}</strong></div>
+          <div><UsersRound size={16} /><span>Haushalt</span><strong>{data.household.members.length} Personen</strong></div>
+          <div><Smartphone size={16} /><span>PWA</span><strong>Home-ready</strong></div>
+        </div>
+      </section>
 
       <section className="panel set-section">
         <div className="panel__header"><h2><UserRound size={17} /> Profil</h2></div>

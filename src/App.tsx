@@ -146,9 +146,11 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
   const [view, setView] = usePersistentState<View>('yawm-view', 'me');
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [quickAddType, setQuickAddType] = useState<QuickAddType>('task');
+  const [quickAddChooser, setQuickAddChooser] = useState(false);
 
-  function openAdd(type: QuickAddType = 'task') {
+  function openAdd(type: QuickAddType = 'task', chooser = false) {
     setQuickAddType(type);
+    setQuickAddChooser(chooser);
     setQuickAddOpen(true);
   }
 
@@ -177,9 +179,9 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
           </AnimatePresence>
         </div>
 
-        <QuickAdd open={quickAddOpen} initialType={quickAddType} onClose={() => setQuickAddOpen(false)} />
+        <QuickAdd open={quickAddOpen} initialType={quickAddType} startInChooser={quickAddChooser} onClose={() => setQuickAddOpen(false)} />
       </div>
-      <BottomNav view={view} setView={setView} onAdd={() => openAdd('task')} />
+      <BottomNav view={view} setView={setView} onAdd={() => openAdd('task', true)} />
     </div>
   );
 }
