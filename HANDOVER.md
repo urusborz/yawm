@@ -15,7 +15,7 @@ Neue Features + Umbauten (Migration `20260617000000_feature_reinvent.sql` **muss
 - **Mehr-Tab** aufgeräumt: Check-in + „private Signale" raus; Routinen/Erinnerungen/Fokus/Tag-vorbereiten rein.
 - Benachrichtigungs-**Versand** (Gebete 5×, Routinen, Reminder-Fälligkeit) ist **noch nicht** verdrahtet – das ist der separate Web-Push-Schritt (VAPID + Edge Functions + pg_cron), siehe Abschnitt 12. Service-Worker-Cache auf `yawm-v9-features` gebumpt.
 
-
+## 0.2 Update v4.5 (15.06.2026) - iOS-PWA-Dock
 
 - PWA-Fix: Die Bottom-Tabbar ist nicht mehr von `env(safe-area-inset-bottom)` oder dem iOS-Layout-Viewport abhängig. `App.tsx` misst im Standalone-/PWA-Modus `screen.height`, `window.innerHeight` und `visualViewport.height`, setzt daraus `--app-height` und dockt die Tabbar absolut am App-Root.
 - Cache-Bust: Service-Worker-Cache auf `yawm-v6-pwa-screen-dock` gebumpt, damit die Home-Screen-App die neue Shell nach dem Deploy zieht.
@@ -49,7 +49,7 @@ Diese Runde modernisiert die mobile Bedienung und reduziert sichtbare Verschacht
 
 Validierung: `npm run build` erfolgreich. Bundle-Warnung wegen Chunk-Größe besteht weiterhin und ist aktuell nicht blockernd.
 
-> **Stand:** 15.06.2026 (v2-Ausbau) · Familien-PWA: persönliche Tagesplanung (privat) **+** gemeinsames Familien-Dashboard (geteilt).
+> **Stand:** 17.06.2026 (v6 Feature-Reinvent) · Familien-PWA: persönliche Tagesplanung (privat) **+** gemeinsames Familien-Dashboard (geteilt) **+** Routinen, Erinnerungen, Fokus, Tagesvorbereitung.
 > Genutzt von **2 Personen** (du + deine Frau) in **einem Haushalt**.
 
 ## 0. Update v2 (15.06.2026 abends) — UI-Politur + Feature-Ausbau
@@ -316,6 +316,21 @@ loading → unconfigured            (keine Supabase-ENV)
 | `b9b2208` | **Voller App-Ausbau:** Multi-User-Auth, Haushalt, 14 Supabase-Features |
 | `1f7d3c9` | **Fix:** Haushalt erstellen scheiterte an RLS-Read-back + `errMsg()` |
 | `21e079b` | **UI-Redesign:** minimalistisch/flach + PWA-Safe-Areas |
+| `52ed6d5` | Docs: vollständiges HANDOVER.md |
+| `f960daa` | UI-Politur + 10 vertiefte Features |
+| `aaeb584` | Modernize mobile UI flow |
+| `ca29bf7` | Refine family flows and theme UI |
+| `c2e7af2` | Polish dashboard time and more settings |
+| `31ddde4` | Enrich dashboard UX and visual system |
+| `4c84602` | Fix PWA chrome and auth persistence |
+| `b2d8bd2` | Pin mobile tabbar to viewport bottom |
+| `ea3158a` | Anchor tabbar outside viewport |
+| `750bd50` | Remove tabbar safe-area gap |
+| `67f754a` | Fix bottom tabbar safe-area in iOS standalone PWA |
+| `d1dbde3` | Align PWA splash/theme color with app background |
+| `cb0d7df` | Fix iOS PWA bottom dock |
+| `7deba50` | Fix bottom sheet keyboard overlap |
+| `0e35906` | **Feature-Reinvent:** Routinen, Erinnerungen, Fokus, Tagesvorbereitung + Scopes |
 
 Branch: `main` (Auto-Deploy auf Vercel). Pushen erfolgt direkt auf `main`.
 
@@ -323,10 +338,9 @@ Branch: `main` (Auto-Deploy auf Vercel). Pushen erfolgt direkt auf `main`.
 
 ## 14. Empfohlene nächste Schritte
 
-1. **Supabase „Confirm email" abschalten** (sofort nutzbar) → einloggen → Haushalt erstellen → Code an die Frau geben → sie tritt bei.
-2. **PWA neu installieren** (Icon entfernen + neu hinzufügen) für den randlosen iOS-Look.
-3. **Web-Push fertigstellen** (Phase 4, siehe Abschnitt 12) — das ist die größte offene Funktion.
-4. Optional: UI-Feinschliff nach echtem Gebrauch (Abstände/Farben/Schrift), Google-Kalender-Sync (Phase 6 laut `plan.md`).
+1. **Migration `20260617000000_feature_reinvent.sql` prüfen** — falls noch nicht im Supabase SQL-Editor ausgeführt → nachholen, sonst bleiben Routinen/Erinnerungen/Fokus/Vorbereitung leer.
+2. **Web-Push fertigstellen** (Phase 4, siehe Abschnitt 12) — das ist die größte offene Funktion. Notwendig für Gebets-Erinnerungen (5× täglich), Routinen-Erinnerungen und Reminder-Fälligkeiten.
+3. Optional: Clean-Tracker um dedizierte „Warum"/„Ziel"-Felder erweitern (aktuell nur ein `goalNote`-Feld).
 
 ---
 
