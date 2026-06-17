@@ -1,6 +1,21 @@
 # Yawm — Handover-Dokumentation
 
-## 0.2 Update v4.5 (15.06.2026) - iOS-PWA-Dock
+## 0.3 Update v6 (17.06.2026) — Feature-Reinvent
+
+Neue Features + Umbauten (Migration `20260617000000_feature_reinvent.sql` **muss im Supabase SQL-Editor laufen**, sonst bleiben die neuen Bereiche leer – dank `safe()` kein Crash):
+
+- **Routinen** (`pages/Routines.tsx`, Tabellen `routines`/`routine_logs`, privat): wiederkehrende Tages-Erinnerungen (Protein, Vitamine …) mit Zielanzahl, Wochentagen, Erinnerungszeiten, +/- Zähler, Wochen-Chart, Streak.
+- **Erinnerungen** (`pages/Reminders.tsx`, Tabelle `reminders`, privat): Notizen optional mit Ablauf/Fälligkeit, nach Priorität (Hoch/Mittel/Niedrig) gruppiert; auch im globalen `+`.
+- **Fokus** (`pages/Focus.tsx`, Tabelle `focus_projects`, privat): beim Start Gedanke + Ziel festhalten, „vor X Tagen gestartet", Status (aktiv/Pause/fertig/verworfen) — gegen Motivationsverlust.
+- **Tag vorbereiten** (`pages/Prepare.tsx`, Tabelle `day_preparations`, privat) **ersetzt den Daily Check-in**: Absicht + geplante Punkte + Notiz für morgen. Check-in ist aus Mehr-Tab + Dashboard entfernt (Tabelle `daily_checkins` bleibt erhalten).
+- **Rechnungen privat ODER Haushalt** (`bills.household_id` jetzt nullable): Scope-Wahl beim Anlegen, Haushalt-Option nur mit Familie.
+- **Einkaufsliste mit Kategorien** (`shopping_items.category`): Lebensmittel/Kleidung/Haushalt/Drogerie/Sonstiges, gruppierte Anzeige.
+- **Familien-Termine „Betrifft"** (`events.for_label`, z. B. Kind).
+- **Geteilte Aufgaben nur mit Familie** (UI-Gating) + **RLS-Fix**: geteilte tasks/events/notes/bills/shopping dürfen jetzt von **jedem** Haushaltsmitglied geändert/gelöscht werden (vorher nur Ersteller).
+- **Mehr-Tab** aufgeräumt: Check-in + „private Signale" raus; Routinen/Erinnerungen/Fokus/Tag-vorbereiten rein.
+- Benachrichtigungs-**Versand** (Gebete 5×, Routinen, Reminder-Fälligkeit) ist **noch nicht** verdrahtet – das ist der separate Web-Push-Schritt (VAPID + Edge Functions + pg_cron), siehe Abschnitt 12. Service-Worker-Cache auf `yawm-v9-features` gebumpt.
+
+
 
 - PWA-Fix: Die Bottom-Tabbar ist nicht mehr von `env(safe-area-inset-bottom)` oder dem iOS-Layout-Viewport abhängig. `App.tsx` misst im Standalone-/PWA-Modus `screen.height`, `window.innerHeight` und `visualViewport.height`, setzt daraus `--app-height` und dockt die Tabbar absolut am App-Root.
 - Cache-Bust: Service-Worker-Cache auf `yawm-v6-pwa-screen-dock` gebumpt, damit die Home-Screen-App die neue Shell nach dem Deploy zieht.

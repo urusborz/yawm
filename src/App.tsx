@@ -17,6 +17,10 @@ import Habits from './pages/Habits';
 import Quran from './pages/Quran';
 import Clean from './pages/Clean';
 import Checkin from './pages/Checkin';
+import Routines from './pages/Routines';
+import Reminders from './pages/Reminders';
+import Focus from './pages/Focus';
+import Prepare from './pages/Prepare';
 import More from './pages/More';
 import Settings from './pages/Settings';
 
@@ -174,6 +178,10 @@ function Shell({ theme, setTheme, mode, setMode }: { theme: Theme; setTheme: (t:
             {view === 'quran' && <Quran key="quran" />}
             {view === 'clean' && <Clean key="clean" />}
             {view === 'checkin' && <Checkin key="checkin" />}
+            {view === 'routines' && <Routines key="routines" />}
+            {view === 'reminders' && <Reminders key="reminders" />}
+            {view === 'focus' && <Focus key="focus" />}
+            {view === 'prepare' && <Prepare key="prepare" />}
             {view === 'more' && <More key="more" setView={setView} />}
             {view === 'settings' && <Settings key="settings" theme={theme} setTheme={setTheme} mode={mode} setMode={setMode} onSignOut={signOut} />}
           </AnimatePresence>

@@ -7,7 +7,7 @@ import type { View } from '../components/Shell';
 import type { QuickAddType } from '../components/QuickAdd';
 import { addDays, daysUntil, formatShortDate, formatTime, viennaDate } from '../lib/dates';
 import { money } from '../lib/format';
-import type { Priority } from '../types';
+import { SHOPPING_CATEGORIES, type Priority } from '../types';
 
 function localToISO(date: string, time: string) {
   return new Date(`${date}T${time}:00`).toISOString();
@@ -17,6 +17,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
   const data = useData();
   const [shopTitle, setShopTitle] = useState('');
   const [shopQty, setShopQty] = useState('');
+  const [shopCat, setShopCat] = useState<string>('Lebensmittel');
   const [copied, setCopied] = useState(false);
   const [eventSheet, setEventSheet] = useState(false);
   const [taskSheet, setTaskSheet] = useState(false);
@@ -24,6 +25,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
   const [eventDate, setEventDate] = useState(viennaDate());
   const [eventTime, setEventTime] = useState('18:00');
   const [eventLocation, setEventLocation] = useState('');
+  const [eventFor, setEventFor] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskPriority, setTaskPriority] = useState<Priority>('normal');
 
@@ -45,7 +47,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
   async function addShop(e: FormEvent) {
     e.preventDefault();
     if (!shopTitle.trim()) return;
-    await data.createShoppingItem({ title: shopTitle.trim(), quantity: shopQty.trim() || undefined });
+    await data.createShoppingItem({ title: shopTitle.trim(), quantity: shopQty.trim() || undefined, category: shopCat });
     setShopTitle('');
     setShopQty('');
   }
@@ -53,9 +55,10 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
   async function addFamilyEvent(e: FormEvent) {
     e.preventDefault();
     if (!eventTitle.trim()) return;
-    await data.createEvent({ title: eventTitle.trim(), startsAt: localToISO(eventDate, eventTime), location: eventLocation.trim() || undefined, scope: 'shared' });
+    await data.createEvent({ title: eventTitle.trim(), startsAt: localToISO(eventDate, eventTime), location: eventLocation.trim() || undefined, forLabel: eventFor.trim() || undefined, scope: 'shared' });
     setEventTitle('');
     setEventLocation('');
+    setEventFor('');
     setEventSheet(false);
   }
 
@@ -163,23 +166,35 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
           <h2><ShoppingCart size={17} /> Einkaufsliste</h2>
           {doneShopping.length ? <button type="button" onClick={clearDone}>{doneShopping.length} aufräumen</button> : <span>{openShopping.length} offen</span>}
         </div>
+        <div className="chip-row shop-cat-row">
+          {SHOPPING_CATEGORIES.map((c) => (
+            <button key={c} type="button" className={shopCat === c ? 'chip chip--active' : 'chip'} onClick={() => setShopCat(c)}>{c}</button>
+          ))}
+        </div>
         <form className="shop-compose" onSubmit={addShop}>
           <input className="field" value={shopTitle} onChange={(e) => setShopTitle(e.target.value)} placeholder="Artikel" />
           <input className="field field--qty" value={shopQty} onChange={(e) => setShopQty(e.target.value)} placeholder="Menge" />
           <button className="icon-button--solid shop-add-button" type="submit" title="Zur Einkaufsliste hinzufügen"><Plus size={20} /></button>
         </form>
-        <div className="rows">
-          {data.shopping.length ? data.shopping.map((s) => (
-            <div className="task-row" key={s.id}>
-              <button className="task-row__main" type="button" onClick={() => data.toggleShopping(s.id)}>
-                <span className={s.done ? 'task-check task-check--done' : 'task-check'}>{s.done ? <Check size={14} /> : null}</span>
-                <span className={s.done ? 'task-title task-title--done' : 'task-title'}>{s.title}</span>
-                {s.quantity ? <span className="muted-chip">{s.quantity}</span> : null}
-              </button>
-              <button className="delete-button" type="button" onClick={() => data.deleteShoppingItem(s.id)}><Trash2 size={15} /></button>
+        {data.shopping.length ? (
+          SHOPPING_CATEGORIES.filter((cat) => data.shopping.some((s) => s.category === cat)).map((cat) => (
+            <div className="shop-group" key={cat}>
+              <div className="shop-cat-label">{cat}</div>
+              <div className="rows">
+                {data.shopping.filter((s) => s.category === cat).map((s) => (
+                  <div className="task-row" key={s.id}>
+                    <button className="task-row__main" type="button" onClick={() => data.toggleShopping(s.id)}>
+                      <span className={s.done ? 'task-check task-check--done' : 'task-check'}>{s.done ? <Check size={14} /> : null}</span>
+                      <span className={s.done ? 'task-title task-title--done' : 'task-title'}>{s.title}</span>
+                      {s.quantity ? <span className="muted-chip">{s.quantity}</span> : null}
+                    </button>
+                    <button className="delete-button" type="button" onClick={() => data.deleteShoppingItem(s.id)}><Trash2 size={15} /></button>
+                  </div>
+                ))}
+              </div>
             </div>
-          )) : <EmptyState icon={<ShoppingCart size={24} />} title="Liste ist leer" hint="Trage direkt den ersten Artikel ein." />}
-        </div>
+          ))
+        ) : <EmptyState icon={<ShoppingCart size={24} />} title="Liste ist leer" hint="Trage direkt den ersten Artikel ein." />}
       </section>
 
       <Sheet open={eventSheet} title="Familien-Termin" onClose={() => setEventSheet(false)}>
@@ -190,6 +205,7 @@ export default function DashboardFamily({ setView, onAdd }: { setView: (v: View)
             <input className="field" type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
           </div>
           <input className="field" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Ort (optional)" />
+          <input className="field" value={eventFor} onChange={(e) => setEventFor(e.target.value)} placeholder="Betrifft (z. B. Kind, optional)" />
           <p className="form-hint">Dieser Termin erscheint im gemeinsamen Familienbereich.</p>
           <button className="primary-button" type="submit"><Plus size={18} /> Termin speichern</button>
         </form>

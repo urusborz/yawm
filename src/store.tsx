@@ -7,7 +7,10 @@ import { addMonths, daysBetween, viennaDate } from './lib/dates';
 import type {
   Bill,
   DailyCheckin,
+  DayPreparation,
   FamilyEvent,
+  FocusProject,
+  FocusStatus,
   HabitWithProgress,
   Household,
   NotificationPreferences,
@@ -15,6 +18,9 @@ import type {
   PrayerDay,
   Priority,
   QuranSession,
+  Reminder,
+  ReminderPriority,
+  RoutineWithProgress,
   Scope,
   ShoppingItem,
   SobrietyLog,
@@ -43,7 +49,7 @@ function enrichWorkspace(ws: Workspace, household: Household): Workspace {
   return {
     ...ws,
     tasks: ws.tasks.map((t) => ({ ...t, ownerInitials: ini(t.ownerId) })),
-    bills: ws.bills.map((b) => ({ ...b, paidByInitials: b.paidById ? ini(b.paidById) : undefined })),
+    bills: ws.bills.map((b) => ({ ...b, ownerInitials: b.ownerId ? ini(b.ownerId) : '', paidByInitials: b.paidById ? ini(b.paidById) : undefined })),
   };
 }
 
@@ -69,6 +75,11 @@ type DataContextValue = {
   prayerWeek: PrayerDay[];
   notificationPrefs: NotificationPreferences;
 
+  routines: RoutineWithProgress[];
+  reminders: Reminder[];
+  focusProjects: FocusProject[];
+  dayPreps: DayPreparation[];
+
   nameOf: (userId: string) => string;
   initialsOf: (userId: string) => string;
   refresh: () => Promise<void>;
@@ -78,20 +89,20 @@ type DataContextValue = {
   toggleTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 
-  createEvent: (input: { title: string; description?: string; startsAt: string; endsAt?: string | null; location?: string; scope: Scope }) => Promise<void>;
-  updateEvent: (id: string, patch: { title?: string; startsAt?: string; endsAt?: string | null; location?: string | null }) => Promise<void>;
+  createEvent: (input: { title: string; description?: string; startsAt: string; endsAt?: string | null; location?: string; forLabel?: string; scope: Scope }) => Promise<void>;
+  updateEvent: (id: string, patch: { title?: string; startsAt?: string; endsAt?: string | null; location?: string | null; forLabel?: string | null }) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
 
   createNote: (input: { title: string; content: string; tags?: string[]; scope: Scope }) => Promise<void>;
   updateNote: (id: string, patch: { title?: string; content?: string; tags?: string[] }) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
 
-  createBill: (input: { title: string; amount: number; dueDate: string; category: string; note?: string; repeatRule?: string }) => Promise<void>;
+  createBill: (input: { title: string; amount: number; dueDate: string; category: string; note?: string; repeatRule?: string; scope: Scope }) => Promise<void>;
   updateBill: (id: string, patch: { title?: string; amount?: number; dueDate?: string; category?: string; note?: string | null; repeatRule?: string | null }) => Promise<void>;
   toggleBill: (id: string) => Promise<void>;
   deleteBill: (id: string) => Promise<void>;
 
-  createShoppingItem: (input: { title: string; quantity?: string }) => Promise<void>;
+  createShoppingItem: (input: { title: string; quantity?: string; category?: string }) => Promise<void>;
   toggleShopping: (id: string) => Promise<void>;
   deleteShoppingItem: (id: string) => Promise<void>;
 
@@ -108,6 +119,22 @@ type DataContextValue = {
   registerRelapse: () => Promise<void>;
 
   saveCheckin: (input: { mood?: number; energy?: number; focus?: number; stress?: number; gratitude?: string; mainGoal?: string; reflection?: string }) => Promise<void>;
+
+  createRoutine: (input: { name: string; icon: string; targetPerDay: number; reminderTimes: string[]; daysOfWeek: number[] }) => Promise<void>;
+  updateRoutine: (id: string, patch: { name?: string; icon?: string; targetPerDay?: number; reminderTimes?: string[]; daysOfWeek?: number[]; active?: boolean }) => Promise<void>;
+  deleteRoutine: (id: string) => Promise<void>;
+  logRoutine: (routineId: string, delta: number) => Promise<void>;
+
+  createReminder: (input: { title: string; note?: string; dueAt?: string | null; priority: ReminderPriority }) => Promise<void>;
+  updateReminder: (id: string, patch: { title?: string; note?: string | null; dueAt?: string | null; priority?: ReminderPriority; done?: boolean }) => Promise<void>;
+  toggleReminder: (id: string) => Promise<void>;
+  deleteReminder: (id: string) => Promise<void>;
+
+  createFocusProject: (input: { title: string; initialThought?: string; goal?: string; remindEveryDays?: number | null }) => Promise<void>;
+  updateFocusProject: (id: string, patch: { title?: string; initialThought?: string | null; goal?: string | null; status?: FocusStatus; remindEveryDays?: number | null }) => Promise<void>;
+  deleteFocusProject: (id: string) => Promise<void>;
+
+  saveDayPreparation: (input: { targetDate: string; intentions?: string; plannedTasks: string[]; notes?: string }) => Promise<void>;
 
   saveNotificationPrefs: (prefs: NotificationPreferences) => Promise<void>;
   renameHousehold: (name: string) => Promise<void>;
@@ -208,7 +235,7 @@ export function DataProvider({
 
   const enrichTask = useCallback((t: Task): Task => ({ ...t, ownerInitials: initialsOf(t.ownerId) }), [initialsOf]);
   const enrichBill = useCallback(
-    (b: Bill): Bill => ({ ...b, paidByInitials: b.paidById ? initialsOf(b.paidById) : undefined }),
+    (b: Bill): Bill => ({ ...b, ownerInitials: b.ownerId ? initialsOf(b.ownerId) : '', paidByInitials: b.paidById ? initialsOf(b.paidById) : undefined }),
     [initialsOf]
   );
 
@@ -332,7 +359,7 @@ export function DataProvider({
         const nextDue = addMonths(bill.dueDate, 1);
         const exists = ws.bills.some((b) => b.title === bill.title && b.dueDate === nextDue);
         if (!exists) {
-          const next = await db.createBill({ title: bill.title, amount: bill.amount, dueDate: nextDue, category: bill.category, note: bill.note, repeatRule: 'monthly', householdId: household.id, userId: user.id });
+          const next = await db.createBill({ title: bill.title, amount: bill.amount, dueDate: nextDue, category: bill.category, note: bill.note, repeatRule: 'monthly', scope: bill.scope, householdId: household.id, userId: user.id });
           setWs((p) => ({ ...p, bills: [enrichBill(next), ...p.bills].sort((a, b) => a.dueDate.localeCompare(b.dueDate)) }));
         }
       }
@@ -459,6 +486,96 @@ export function DataProvider({
     } catch (e) { fail(e, 'Check-in nicht gespeichert'); }
   }, [user.id, fail]);
 
+  // --- Routines ---
+  const createRoutine = useCallback<DataContextValue['createRoutine']>(async (input) => {
+    try {
+      const saved = await db.createRoutine({ ...input, userId: user.id });
+      setWs((p) => ({ ...p, routines: [...p.routines, { ...saved, todayCount: 0, weekCounts: Array(7).fill(0), streak: 0 }] }));
+    } catch (e) { fail(e, 'Routine nicht gespeichert'); }
+  }, [user.id, fail]);
+
+  const updateRoutine = useCallback<DataContextValue['updateRoutine']>(async (id, patch) => {
+    setWs((p) => ({ ...p, routines: p.routines.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+    try { await db.updateRoutine(id, patch); } catch (e) { fail(e, 'Routine nicht aktualisiert'); }
+  }, [fail]);
+
+  const deleteRoutine = useCallback<DataContextValue['deleteRoutine']>(async (id) => {
+    const prev = ws.routines;
+    setWs((p) => ({ ...p, routines: p.routines.filter((r) => r.id !== id) }));
+    try { await db.deleteRoutine(id); } catch (e) { setWs((p) => ({ ...p, routines: prev })); fail(e, 'Routine nicht geloescht'); }
+  }, [ws.routines, fail]);
+
+  const logRoutine = useCallback<DataContextValue['logRoutine']>(async (routineId, delta) => {
+    const today = viennaDate();
+    const routine = ws.routines.find((r) => r.id === routineId);
+    if (!routine) return;
+    const nextCount = Math.max(0, routine.todayCount + delta);
+    setWs((p) => ({
+      ...p,
+      routines: p.routines.map((r) => {
+        if (r.id !== routineId) return r;
+        const weekCounts = [...r.weekCounts]; weekCounts[weekCounts.length - 1] = nextCount;
+        const streak = nextCount >= r.targetPerDay && r.streak === 0 ? 1 : r.streak;
+        return { ...r, todayCount: nextCount, weekCounts, streak };
+      }),
+    }));
+    try { await db.setRoutineCount({ userId: user.id, routineId, date: today, count: nextCount }); } catch (e) { fail(e, 'Routine-Log nicht gespeichert'); }
+  }, [ws.routines, user.id, fail]);
+
+  // --- Reminders ---
+  const createReminder = useCallback<DataContextValue['createReminder']>(async (input) => {
+    try {
+      const saved = await db.createReminder({ ...input, userId: user.id });
+      setWs((p) => ({ ...p, reminders: [saved, ...p.reminders] }));
+    } catch (e) { fail(e, 'Erinnerung nicht gespeichert'); }
+  }, [user.id, fail]);
+
+  const updateReminder = useCallback<DataContextValue['updateReminder']>(async (id, patch) => {
+    setWs((p) => ({ ...p, reminders: p.reminders.map((r) => (r.id === id ? { ...r, ...patch, note: patch.note === null ? undefined : (patch.note ?? r.note), dueAt: patch.dueAt === null ? undefined : (patch.dueAt ?? r.dueAt) } as Reminder : r)) }));
+    try { await db.updateReminder(id, patch); } catch (e) { fail(e, 'Erinnerung nicht aktualisiert'); }
+  }, [fail]);
+
+  const toggleReminder = useCallback<DataContextValue['toggleReminder']>(async (id) => {
+    const r = ws.reminders.find((x) => x.id === id);
+    if (!r) return;
+    const done = !r.done;
+    setWs((p) => ({ ...p, reminders: p.reminders.map((x) => (x.id === id ? { ...x, done } : x)) }));
+    try { await db.updateReminder(id, { done }); } catch (e) { fail(e, 'Erinnerung nicht gespeichert'); }
+  }, [ws.reminders, fail]);
+
+  const deleteReminder = useCallback<DataContextValue['deleteReminder']>(async (id) => {
+    const prev = ws.reminders;
+    setWs((p) => ({ ...p, reminders: p.reminders.filter((r) => r.id !== id) }));
+    try { await db.deleteReminder(id); } catch (e) { setWs((p) => ({ ...p, reminders: prev })); fail(e, 'Erinnerung nicht geloescht'); }
+  }, [ws.reminders, fail]);
+
+  // --- Focus projects ---
+  const createFocusProject = useCallback<DataContextValue['createFocusProject']>(async (input) => {
+    try {
+      const saved = await db.createFocusProject({ ...input, userId: user.id });
+      setWs((p) => ({ ...p, focusProjects: [saved, ...p.focusProjects] }));
+    } catch (e) { fail(e, 'Projekt nicht gespeichert'); }
+  }, [user.id, fail]);
+
+  const updateFocusProject = useCallback<DataContextValue['updateFocusProject']>(async (id, patch) => {
+    setWs((p) => ({ ...p, focusProjects: p.focusProjects.map((f) => (f.id === id ? { ...f, ...patch, initialThought: patch.initialThought === null ? undefined : (patch.initialThought ?? f.initialThought), goal: patch.goal === null ? undefined : (patch.goal ?? f.goal) } as FocusProject : f)) }));
+    try { await db.updateFocusProject(id, patch); } catch (e) { fail(e, 'Projekt nicht aktualisiert'); }
+  }, [fail]);
+
+  const deleteFocusProject = useCallback<DataContextValue['deleteFocusProject']>(async (id) => {
+    const prev = ws.focusProjects;
+    setWs((p) => ({ ...p, focusProjects: p.focusProjects.filter((f) => f.id !== id) }));
+    try { await db.deleteFocusProject(id); } catch (e) { setWs((p) => ({ ...p, focusProjects: prev })); fail(e, 'Projekt nicht geloescht'); }
+  }, [ws.focusProjects, fail]);
+
+  // --- Day preparation (replaces check-in) ---
+  const saveDayPreparation = useCallback<DataContextValue['saveDayPreparation']>(async (input) => {
+    try {
+      const saved = await db.saveDayPreparation({ ...input, userId: user.id });
+      setWs((p) => ({ ...p, dayPreps: [...p.dayPreps.filter((d) => d.targetDate !== saved.targetDate), saved].sort((a, b) => a.targetDate.localeCompare(b.targetDate)) }));
+    } catch (e) { fail(e, 'Vorbereitung nicht gespeichert'); }
+  }, [user.id, fail]);
+
   // --- Prefs / household ---
   const saveNotificationPrefs = useCallback<DataContextValue['saveNotificationPrefs']>(async (prefs) => {
     setWs((p) => ({ ...p, notificationPrefs: prefs }));
@@ -497,6 +614,10 @@ export function DataProvider({
     prayerToday: ws.prayerToday ?? FALLBACK_PRAYERS,
     prayerWeek: ws.prayerWeek,
     notificationPrefs: ws.notificationPrefs,
+    routines: ws.routines,
+    reminders: ws.reminders,
+    focusProjects: ws.focusProjects,
+    dayPreps: ws.dayPreps,
     nameOf,
     initialsOf,
     refresh,
@@ -509,6 +630,10 @@ export function DataProvider({
     addQuranSession, deleteQuranSession,
     saveSobrietySettings, saveSobrietyLog, registerRelapse,
     saveCheckin,
+    createRoutine, updateRoutine, deleteRoutine, logRoutine,
+    createReminder, updateReminder, toggleReminder, deleteReminder,
+    createFocusProject, updateFocusProject, deleteFocusProject,
+    saveDayPreparation,
     saveNotificationPrefs, renameHousehold, setProfileName,
   }), [
     user, household, profileNameState, syncState, ws,
@@ -520,7 +645,12 @@ export function DataProvider({
     createHabit, updateHabit, deleteHabit, logHabit,
     addQuranSession, deleteQuranSession,
     saveSobrietySettings, saveSobrietyLog, registerRelapse,
-    saveCheckin, saveNotificationPrefs, renameHousehold, setProfileName,
+    saveCheckin,
+    createRoutine, updateRoutine, deleteRoutine, logRoutine,
+    createReminder, updateReminder, toggleReminder, deleteReminder,
+    createFocusProject, updateFocusProject, deleteFocusProject,
+    saveDayPreparation,
+    saveNotificationPrefs, renameHousehold, setProfileName,
   ]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

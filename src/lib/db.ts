@@ -3,7 +3,10 @@ import { addDays, lastNDates, streakFromDates, viennaDate } from './dates';
 import type {
   Bill,
   DailyCheckin,
+  DayPreparation,
   FamilyEvent,
+  FocusProject,
+  FocusStatus,
   HabitLog,
   HabitType,
   HabitWithProgress,
@@ -15,6 +18,10 @@ import type {
   PrayerTime,
   Priority,
   QuranSession,
+  Reminder,
+  ReminderPriority,
+  Routine,
+  RoutineWithProgress,
   Scope,
   ShoppingItem,
   SobrietyLog,
@@ -65,6 +72,9 @@ function rowToBill(row: any): Bill {
     category: row.category || 'Haushalt',
     note: row.note ?? undefined,
     repeatRule: row.repeat_rule ?? undefined,
+    scope: row.household_id ? 'shared' : 'private',
+    ownerId: row.created_by ?? undefined,
+    ownerInitials: '',
     paidById: row.paid_by ?? undefined,
     paidByInitials: undefined,
   };
@@ -78,6 +88,7 @@ function rowToEvent(row: any): FamilyEvent {
     startsAt: row.start_at,
     endsAt: row.end_at ?? undefined,
     location: row.location ?? undefined,
+    forLabel: row.for_label ?? undefined,
     scope: row.household_id ? 'shared' : 'private',
     ownerId: row.user_id,
   };
@@ -96,7 +107,54 @@ function rowToNote(row: any): Note {
 }
 
 function rowToShopping(row: any): ShoppingItem {
-  return { id: row.id, title: row.title, quantity: row.quantity ?? undefined, done: row.done };
+  return { id: row.id, title: row.title, quantity: row.quantity ?? undefined, category: row.category || 'Sonstiges', done: row.done };
+}
+
+function rowToRoutine(row: any): Routine {
+  return {
+    id: row.id,
+    name: row.name,
+    icon: row.icon || 'Repeat',
+    targetPerDay: Number(row.target_per_day) || 1,
+    reminderTimes: (row.reminder_times ?? []).map((t: string) => String(t).slice(0, 5)),
+    daysOfWeek: row.days_of_week ?? [0, 1, 2, 3, 4, 5, 6],
+    active: row.active ?? true,
+  };
+}
+
+function rowToReminder(row: any): Reminder {
+  return {
+    id: row.id,
+    title: row.title,
+    note: row.note ?? undefined,
+    dueAt: row.due_at ?? undefined,
+    priority: (row.priority as ReminderPriority) || 'medium',
+    done: row.done ?? false,
+    createdAt: row.created_at,
+  };
+}
+
+function rowToFocus(row: any): FocusProject {
+  return {
+    id: row.id,
+    title: row.title,
+    startedAt: row.started_at,
+    initialThought: row.initial_thought ?? undefined,
+    goal: row.goal ?? undefined,
+    status: (row.status as FocusStatus) || 'active',
+    remindEveryDays: row.remind_every_days ?? undefined,
+    lastRemindedAt: row.last_reminded_at ?? undefined,
+  };
+}
+
+function rowToDayPrep(row: any): DayPreparation {
+  return {
+    id: row.id,
+    targetDate: row.target_date,
+    intentions: row.intentions ?? undefined,
+    plannedTasks: Array.isArray(row.planned_tasks) ? row.planned_tasks : [],
+    notes: row.notes ?? undefined,
+  };
 }
 
 function rowToHabitType(row: any): HabitType {
@@ -269,9 +327,15 @@ export async function loadWorkspace(householdId: string, userId: string) {
     prayerToday,
     prayerWeek,
     prefs,
+    routinesRows,
+    routineLogs,
+    remindersRows,
+    focusRows,
+    dayPrepRows,
   ] = await Promise.all([
     safe<any[]>(c.from('tasks').select('*').order('created_at', { ascending: false }), []),
-    safe<any[]>(c.from('bills').select('*').eq('household_id', householdId).order('due_date', { ascending: true }), []),
+    // Bills: RLS liefert Haushalts-Bills UND eigene private Bills (household_id null).
+    safe<any[]>(c.from('bills').select('*').order('due_date', { ascending: true }), []),
     safe<any[]>(c.from('events').select('*').order('start_at', { ascending: true }), []),
     safe<any[]>(c.from('notes').select('*').order('created_at', { ascending: false }), []),
     safe<any[]>(c.from('shopping_items').select('*').eq('household_id', householdId).order('created_at', { ascending: false }), []),
@@ -285,6 +349,11 @@ export async function loadWorkspace(householdId: string, userId: string) {
     safe<any>(c.from('prayer_times').select('*').eq('date', today).maybeSingle(), null),
     safe<any[]>(c.from('prayer_times').select('*').gte('date', today).lte('date', addDays(today, 6)).order('date', { ascending: true }), []),
     safe<any>(c.from('notification_preferences').select('*').eq('user_id', userId).maybeSingle(), null),
+    safe<any[]>(c.from('routines').select('*').eq('user_id', userId).order('created_at', { ascending: true }), []),
+    safe<any[]>(c.from('routine_logs').select('*').eq('user_id', userId).gte('date', monthAgo), []),
+    safe<any[]>(c.from('reminders').select('*').eq('user_id', userId).order('created_at', { ascending: false }), []),
+    safe<any[]>(c.from('focus_projects').select('*').eq('user_id', userId).order('created_at', { ascending: false }), []),
+    safe<any[]>(c.from('day_preparations').select('*').eq('user_id', userId).gte('target_date', today).order('target_date', { ascending: true }), []),
   ]);
 
   return {
@@ -302,6 +371,10 @@ export async function loadWorkspace(householdId: string, userId: string) {
     prayerToday: prayerToday ? prayerRowToDay(prayerToday) : null,
     prayerWeek: prayerWeek.map(prayerRowToDay),
     notificationPrefs: mapPrefs(prefs),
+    routines: buildRoutines(routinesRows.map(rowToRoutine), routineLogs, today),
+    reminders: remindersRows.map(rowToReminder),
+    focusProjects: focusRows.map(rowToFocus),
+    dayPreps: dayPrepRows.map(rowToDayPrep),
   };
 }
 
@@ -330,6 +403,22 @@ function buildHabits(types: HabitType[], logRows: any[], today: string): HabitWi
       weekValues: week.map((d) => byDate.get(d) ?? 0),
       monthValues,
       successRate: hitDays / month.length,
+    };
+  });
+}
+
+function buildRoutines(routines: Routine[], logRows: any[], today: string): RoutineWithProgress[] {
+  const week = lastNDates(7, today);
+  return routines.map((r) => {
+    const logs = logRows.filter((l) => l.routine_id === r.id);
+    const byDate = new Map<string, number>();
+    logs.forEach((l) => byDate.set(l.date, Number(l.count) || 0));
+    const doneDates = new Set([...byDate.entries()].filter(([, v]) => v >= r.targetPerDay).map(([d]) => d));
+    return {
+      ...r,
+      todayCount: byDate.get(today) ?? 0,
+      weekCounts: week.map((d) => byDate.get(d) ?? 0),
+      streak: streakFromDates(doneDates, today),
     };
   });
 }
@@ -419,6 +508,7 @@ export async function createEvent(input: {
   startsAt: string;
   endsAt?: string | null;
   location?: string;
+  forLabel?: string | null;
   scope: Scope;
   householdId: string;
   userId: string;
@@ -434,6 +524,7 @@ export async function createEvent(input: {
       start_at: input.startsAt,
       end_at: input.endsAt ?? null,
       location: input.location ?? null,
+      for_label: input.forLabel ?? null,
       source: 'manual',
     })
     .select('*')
@@ -442,13 +533,14 @@ export async function createEvent(input: {
   return rowToEvent(data);
 }
 
-export async function updateEvent(id: string, patch: Partial<{ title: string; description: string | null; startsAt: string; endsAt: string | null; location: string | null }>): Promise<FamilyEvent> {
+export async function updateEvent(id: string, patch: Partial<{ title: string; description: string | null; startsAt: string; endsAt: string | null; location: string | null; forLabel: string | null }>): Promise<FamilyEvent> {
   const dbPatch: any = {};
   if (patch.title !== undefined) dbPatch.title = patch.title;
   if (patch.description !== undefined) dbPatch.description = patch.description;
   if (patch.startsAt !== undefined) dbPatch.start_at = patch.startsAt;
   if (patch.endsAt !== undefined) dbPatch.end_at = patch.endsAt;
   if (patch.location !== undefined) dbPatch.location = patch.location;
+  if (patch.forLabel !== undefined) dbPatch.for_label = patch.forLabel;
   const { data, error } = await client().from('events').update(dbPatch).eq('id', id).select('*').single();
   if (error) throw error;
   return rowToEvent(data);
@@ -507,6 +599,7 @@ export async function createBill(input: {
   category: string;
   note?: string;
   repeatRule?: string;
+  scope: Scope;
   householdId: string;
   userId: string;
 }): Promise<Bill> {
@@ -514,7 +607,7 @@ export async function createBill(input: {
   const { data, error } = await c
     .from('bills')
     .insert({
-      household_id: input.householdId,
+      household_id: input.scope === 'shared' ? input.householdId : null,
       created_by: input.userId,
       title: input.title,
       amount: input.amount,
@@ -563,10 +656,10 @@ export async function deleteBill(id: string) {
 // ---------------------------------------------------------------------------
 // Shopping list (shared)
 // ---------------------------------------------------------------------------
-export async function createShoppingItem(input: { title: string; quantity?: string; householdId: string; userId: string }): Promise<ShoppingItem> {
+export async function createShoppingItem(input: { title: string; quantity?: string; category?: string; householdId: string; userId: string }): Promise<ShoppingItem> {
   const { data, error } = await client()
     .from('shopping_items')
-    .insert({ household_id: input.householdId, created_by: input.userId, title: input.title, quantity: input.quantity ?? null })
+    .insert({ household_id: input.householdId, created_by: input.userId, title: input.title, quantity: input.quantity ?? null, category: input.category || 'Sonstiges' })
     .select('*')
     .single();
   if (error) throw error;
@@ -755,4 +848,141 @@ export async function saveNotificationPrefs(userId: string, prefs: NotificationP
       { onConflict: 'user_id' }
     );
   if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Routines
+// ---------------------------------------------------------------------------
+export async function createRoutine(input: { userId: string; name: string; icon: string; targetPerDay: number; reminderTimes: string[]; daysOfWeek: number[] }): Promise<Routine> {
+  const { data, error } = await client()
+    .from('routines')
+    .insert({
+      user_id: input.userId,
+      name: input.name,
+      icon: input.icon,
+      target_per_day: input.targetPerDay,
+      reminder_times: input.reminderTimes,
+      days_of_week: input.daysOfWeek,
+    })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return rowToRoutine(data);
+}
+
+export async function updateRoutine(id: string, patch: Partial<{ name: string; icon: string; targetPerDay: number; reminderTimes: string[]; daysOfWeek: number[]; active: boolean }>): Promise<Routine> {
+  const dbPatch: any = {};
+  if (patch.name !== undefined) dbPatch.name = patch.name;
+  if (patch.icon !== undefined) dbPatch.icon = patch.icon;
+  if (patch.targetPerDay !== undefined) dbPatch.target_per_day = patch.targetPerDay;
+  if (patch.reminderTimes !== undefined) dbPatch.reminder_times = patch.reminderTimes;
+  if (patch.daysOfWeek !== undefined) dbPatch.days_of_week = patch.daysOfWeek;
+  if (patch.active !== undefined) dbPatch.active = patch.active;
+  const { data, error } = await client().from('routines').update(dbPatch).eq('id', id).select('*').single();
+  if (error) throw error;
+  return rowToRoutine(data);
+}
+
+export async function deleteRoutine(id: string) {
+  const { error } = await client().from('routines').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function setRoutineCount(input: { userId: string; routineId: string; date: string; count: number }) {
+  const { error } = await client()
+    .from('routine_logs')
+    .upsert(
+      { user_id: input.userId, routine_id: input.routineId, date: input.date, count: Math.max(0, input.count) },
+      { onConflict: 'routine_id,date' }
+    );
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Reminders
+// ---------------------------------------------------------------------------
+export async function createReminder(input: { userId: string; title: string; note?: string; dueAt?: string | null; priority: ReminderPriority }): Promise<Reminder> {
+  const { data, error } = await client()
+    .from('reminders')
+    .insert({ user_id: input.userId, title: input.title, note: input.note ?? null, due_at: input.dueAt ?? null, priority: input.priority })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return rowToReminder(data);
+}
+
+export async function updateReminder(id: string, patch: Partial<{ title: string; note: string | null; dueAt: string | null; priority: ReminderPriority; done: boolean }>): Promise<Reminder> {
+  const dbPatch: any = {};
+  if (patch.title !== undefined) dbPatch.title = patch.title;
+  if (patch.note !== undefined) dbPatch.note = patch.note;
+  if (patch.dueAt !== undefined) dbPatch.due_at = patch.dueAt;
+  if (patch.priority !== undefined) dbPatch.priority = patch.priority;
+  if (patch.done !== undefined) dbPatch.done = patch.done;
+  const { data, error } = await client().from('reminders').update(dbPatch).eq('id', id).select('*').single();
+  if (error) throw error;
+  return rowToReminder(data);
+}
+
+export async function deleteReminder(id: string) {
+  const { error } = await client().from('reminders').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Focus projects
+// ---------------------------------------------------------------------------
+export async function createFocusProject(input: { userId: string; title: string; initialThought?: string; goal?: string; remindEveryDays?: number | null }): Promise<FocusProject> {
+  const { data, error } = await client()
+    .from('focus_projects')
+    .insert({
+      user_id: input.userId,
+      title: input.title,
+      initial_thought: input.initialThought ?? null,
+      goal: input.goal ?? null,
+      remind_every_days: input.remindEveryDays ?? null,
+    })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return rowToFocus(data);
+}
+
+export async function updateFocusProject(id: string, patch: Partial<{ title: string; initialThought: string | null; goal: string | null; status: FocusStatus; remindEveryDays: number | null; lastRemindedAt: string | null }>): Promise<FocusProject> {
+  const dbPatch: any = {};
+  if (patch.title !== undefined) dbPatch.title = patch.title;
+  if (patch.initialThought !== undefined) dbPatch.initial_thought = patch.initialThought;
+  if (patch.goal !== undefined) dbPatch.goal = patch.goal;
+  if (patch.status !== undefined) dbPatch.status = patch.status;
+  if (patch.remindEveryDays !== undefined) dbPatch.remind_every_days = patch.remindEveryDays;
+  if (patch.lastRemindedAt !== undefined) dbPatch.last_reminded_at = patch.lastRemindedAt;
+  const { data, error } = await client().from('focus_projects').update(dbPatch).eq('id', id).select('*').single();
+  if (error) throw error;
+  return rowToFocus(data);
+}
+
+export async function deleteFocusProject(id: string) {
+  const { error } = await client().from('focus_projects').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Day preparation (replaces daily check-in)
+// ---------------------------------------------------------------------------
+export async function saveDayPreparation(input: { userId: string; targetDate: string; intentions?: string; plannedTasks: string[]; notes?: string }): Promise<DayPreparation> {
+  const { data, error } = await client()
+    .from('day_preparations')
+    .upsert(
+      {
+        user_id: input.userId,
+        target_date: input.targetDate,
+        intentions: input.intentions ?? null,
+        planned_tasks: input.plannedTasks,
+        notes: input.notes ?? null,
+      },
+      { onConflict: 'user_id,target_date' }
+    )
+    .select('*')
+    .single();
+  if (error) throw error;
+  return rowToDayPrep(data);
 }

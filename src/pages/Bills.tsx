@@ -5,18 +5,20 @@ import { Screen, SimpleHeader, Segmented, EmptyState, Sheet } from '../component
 import { useData } from '../store';
 import { daysUntil, formatShortDate, viennaDate } from '../lib/dates';
 import { money } from '../lib/format';
-import type { Bill } from '../types';
+import type { Bill, Scope } from '../types';
 
 type Filter = 'open' | 'paid' | 'all';
 
 export default function Bills() {
   const data = useData();
+  const isFamily = data.household.members.length > 1;
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState(viennaDate());
   const [category, setCategory] = useState('Haushalt');
   const [note, setNote] = useState('');
   const [recurring, setRecurring] = useState(false);
+  const [scope, setScope] = useState<Scope>(isFamily ? 'shared' : 'private');
   const [filter, setFilter] = useState<Filter>('open');
   const [edit, setEdit] = useState<Bill | null>(null);
 
@@ -42,13 +44,13 @@ export default function Bills() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    await data.createBill({ title: title.trim(), amount: Number(amount.replace(',', '.')) || 0, dueDate, category: category.trim() || 'Haushalt', note: note.trim() || undefined, repeatRule: recurring ? 'monthly' : undefined });
+    await data.createBill({ title: title.trim(), amount: Number(amount.replace(',', '.')) || 0, dueDate, category: category.trim() || 'Haushalt', note: note.trim() || undefined, repeatRule: recurring ? 'monthly' : undefined, scope: isFamily ? scope : 'private' });
     setTitle(''); setAmount(''); setNote(''); setRecurring(false);
   }
 
   return (
     <Screen>
-      <SimpleHeader title="Rechnungen" subtitle="Geteilt im Haushalt" icon={<CircleDollarSign size={22} />} />
+      <SimpleHeader title="Rechnungen" subtitle={isFamily ? 'Privat & Haushalt' : 'Privat'} icon={<CircleDollarSign size={22} />} />
 
       <section className="summary-cards">
         <div className="summary-card summary-card--accent"><span>Offen</span><strong>{money(openTotal)}</strong></div>
@@ -79,6 +81,9 @@ export default function Bills() {
         </div>
         <input className="field" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Notiz (optional)" />
         <label className="switch-row"><span>Monatlich wiederkehrend</span><input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} /></label>
+        {isFamily ? (
+          <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Haushalt' }]} />
+        ) : null}
         <button className="primary-button" type="submit"><Plus size={18} /> Anlegen</button>
       </form>
 
@@ -97,7 +102,7 @@ export default function Bills() {
                     <CircleDollarSign size={20} />
                     <div>
                       <strong>{b.title}</strong>
-                      <span className={overdue ? 'overdue' : ''}>{formatShortDate(b.dueDate)} · {b.category}{b.repeatRule ? ' · ↻' : ''}{overdue ? ' · überfällig' : ''}{b.status === 'paid' && b.paidByInitials ? ` · ${b.paidByInitials}` : ''}</span>
+                      <span className={overdue ? 'overdue' : ''}>{formatShortDate(b.dueDate)} · {b.category}{b.scope === 'private' ? ' · privat' : ''}{b.repeatRule ? ' · ↻' : ''}{overdue ? ' · überfällig' : ''}{b.status === 'paid' && b.paidByInitials ? ` · ${b.paidByInitials}` : ''}</span>
                     </div>
                     <b>{b.status === 'paid' ? 'bezahlt' : money(b.amount)}</b>
                   </button>

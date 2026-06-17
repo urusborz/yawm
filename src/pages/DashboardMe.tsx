@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { BookOpen, CalendarClock, ChevronRight, CircleDollarSign, ClipboardCheck, Flame, Moon, Plus, Sparkles, Target, UsersRound } from 'lucide-react';
+import { BookOpen, CalendarClock, ChevronRight, CircleDollarSign, ClipboardCheck, Flame, Moon, Plus, Sunrise, Target, UsersRound } from 'lucide-react';
 import { Screen, Ring, EmptyState } from '../components/ui';
 import { PrayerCard } from '../components/PrayerCard';
 import { TaskRow } from '../components/TaskRow';
 import { useData } from '../store';
 import type { View } from '../components/Shell';
 import type { QuickAddType } from '../components/QuickAdd';
-import { dayProgress, daysBetween, formatTime, formatToday, getGreeting, viennaDate } from '../lib/dates';
+import { addDays, dayProgress, daysBetween, formatTime, formatToday, getGreeting, viennaDate } from '../lib/dates';
 import { initials } from '../lib/format';
 import { getNextPrayer } from '../lib/prayer-times';
 
@@ -38,7 +38,9 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
   const liveTime = new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Vienna' }).format(now);
   const [timeMain, timeSeconds] = liveTime.replace(/\./g, ':').split(/:(?=\d{2}$)/);
   const nextPrayer = getNextPrayer(data.prayerToday.times.filter((t) => t.name !== 'Sunrise'), now);
-  const focusTitle = privateOpen[0]?.title || nextEvent?.title || (data.checkinToday ? 'Ruhig weitergehen' : 'Check-in starten');
+  const tomorrow = addDays(today, 1);
+  const tomorrowPrep = data.dayPreps.find((d) => d.targetDate === tomorrow);
+  const focusTitle = privateOpen[0]?.title || nextEvent?.title || 'Tag im Blick';
   const focusMeta = nextEvent ? `${formatTime(nextEvent.startsAt)} · ${nextEvent.location || 'Termin'}` : `${privateOpen.length} offene private Aufgaben`;
 
   const timeline: TimelineItem[] = [
@@ -75,12 +77,12 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
       onClick: () => setView('quran'),
     },
     {
-      key: 'checkin',
-      title: data.checkinToday ? 'Check-in erledigt' : 'Daily Check-in offen',
-      meta: data.checkinToday ? 'Reflexion gespeichert' : '2 Minuten für dich',
-      icon: <Sparkles size={16} />,
+      key: 'prepare',
+      title: tomorrowPrep ? 'Morgen ist vorbereitet' : 'Morgen vorbereiten',
+      meta: tomorrowPrep ? 'Plan steht' : 'Den nächsten Tag planen',
+      icon: <Sunrise size={16} />,
       tone: 'checkin',
-      onClick: () => setView('checkin'),
+      onClick: () => setView('prepare'),
     },
   ];
 
@@ -130,7 +132,7 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
       <section className="quick-actions" aria-label="Schnellaktionen">
         <button type="button" onClick={() => onAdd('task')}><Plus size={16} /><span>Aufgabe</span></button>
         <button type="button" onClick={() => setView('quran')}><BookOpen size={16} /><span>Quran</span></button>
-        <button type="button" onClick={() => setView('checkin')}><Sparkles size={16} /><span>Check-in</span></button>
+        <button type="button" onClick={() => setView('prepare')}><Sunrise size={16} /><span>Vorbereiten</span></button>
       </section>
 
       <section className="daily-compass" aria-label="Tagesstatus">
@@ -212,9 +214,9 @@ export default function DashboardMe({ now, setView, onAdd }: { now: Date; setVie
         </div>
       </section>
 
-      <button className={data.checkinToday ? 'checkin checkin--done' : 'checkin'} type="button" onClick={() => setView('checkin')}>
-        {data.checkinToday ? <Target size={20} /> : <Sparkles size={20} />}
-        <span>{data.checkinToday ? 'Check-in ansehen' : 'Daily Check-in starten'}</span>
+      <button className={tomorrowPrep ? 'checkin checkin--done' : 'checkin'} type="button" onClick={() => setView('prepare')}>
+        <Sunrise size={20} />
+        <span>{tomorrowPrep ? 'Morgen ist vorbereitet' : 'Tag vorbereiten'}</span>
         <ChevronRight size={18} />
       </button>
     </Screen>

@@ -44,6 +44,9 @@ export type Bill = {
   category: string;
   note?: string;
   repeatRule?: string;
+  scope: Scope; // 'private' = nur ich, 'shared' = Haushalt
+  ownerId?: string;
+  ownerInitials?: string;
   paidById?: string;
   paidByInitials?: string;
 };
@@ -55,6 +58,7 @@ export type FamilyEvent = {
   startsAt: string; // ISO
   endsAt?: string;
   location?: string;
+  forLabel?: string; // "Betrifft", z.B. Kind/Familie
   scope: Scope;
   ownerId: string;
 };
@@ -73,8 +77,11 @@ export type ShoppingItem = {
   id: string;
   title: string;
   quantity?: string;
+  category: string; // z.B. Lebensmittel, Kleidung, Haushalt, Drogerie, Sonstiges
   done: boolean;
 };
+
+export const SHOPPING_CATEGORIES = ['Lebensmittel', 'Kleidung', 'Haushalt', 'Drogerie', 'Sonstiges'] as const;
 
 export type PrayerName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
@@ -158,4 +165,57 @@ export type NotificationPreferences = {
   dailyCheckin: boolean;
   billReminders: boolean;
   eventReminders: boolean;
+};
+
+// --- Routinen (wiederkehrende Tages-Erinnerungen) --------------------------
+export type Routine = {
+  id: string;
+  name: string;
+  icon: string;
+  targetPerDay: number;
+  reminderTimes: string[]; // "HH:MM"
+  daysOfWeek: number[]; // 0=Sonntag .. 6=Samstag (JS getDay)
+  active: boolean;
+};
+
+export type RoutineWithProgress = Routine & {
+  todayCount: number;
+  weekCounts: number[]; // letzte 7 Tage, ältester zuerst
+  streak: number;
+};
+
+// --- Allgemeine Erinnerungen ----------------------------------------------
+export type ReminderPriority = 'low' | 'medium' | 'high';
+
+export type Reminder = {
+  id: string;
+  title: string;
+  note?: string;
+  dueAt?: string; // ISO, optional = Ablauf/Fälligkeit
+  priority: ReminderPriority;
+  done: boolean;
+  createdAt: string;
+};
+
+// --- Fokus-Projekte --------------------------------------------------------
+export type FocusStatus = 'active' | 'paused' | 'done' | 'abandoned';
+
+export type FocusProject = {
+  id: string;
+  title: string;
+  startedAt: string; // ISO
+  initialThought?: string; // was im Moment des Starts im Kopf war
+  goal?: string;
+  status: FocusStatus;
+  remindEveryDays?: number;
+  lastRemindedAt?: string;
+};
+
+// --- Tagesvorbereitung (ersetzt Daily Check-in) ----------------------------
+export type DayPreparation = {
+  id: string;
+  targetDate: string; // YYYY-MM-DD
+  intentions?: string;
+  plannedTasks: string[];
+  notes?: string;
 };

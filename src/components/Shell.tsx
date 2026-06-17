@@ -14,6 +14,10 @@ export type View =
   | 'quran'
   | 'clean'
   | 'checkin'
+  | 'routines'
+  | 'reminders'
+  | 'focus'
+  | 'prepare'
   | 'settings'
   | 'more';
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yawm-v8-ui-refinement';
+const CACHE_NAME = 'yawm-v9-features';
 const APP_SHELL = ['/', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {

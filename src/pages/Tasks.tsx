@@ -19,6 +19,7 @@ function localToISO(date: string, time: string) {
 
 export default function Tasks() {
   const data = useData();
+  const isFamily = data.household.members.length > 1;
   const [title, setTitle] = useState('');
   const [scope, setScope] = useState<Scope>('private');
   const [priority, setPriority] = useState<Priority>('normal');
@@ -98,7 +99,9 @@ export default function Tasks() {
       <Sheet open={adding} title="Aufgabe hinzufügen" onClose={() => setAdding(false)}>
         <form className="form-stack" onSubmit={submit}>
           <input className="field" data-testid="task-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Neue Aufgabe" />
-          <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
+          {isFamily ? (
+            <Segmented value={scope} onChange={setScope} options={[{ value: 'private', label: 'Privat' }, { value: 'shared', label: 'Geteilt' }]} />
+          ) : null}
           <Segmented value={priority} onChange={setPriority} options={PRIO_OPTS} />
           <button className="primary-button" type="submit"><Plus size={18} /> Hinzufügen</button>
         </form>

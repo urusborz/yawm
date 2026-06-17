@@ -116,6 +116,7 @@ function EventRow({ ev, onEdit, onDelete, initials }: { ev: FamilyEvent; onEdit:
         <strong>{ev.title}</strong>
         {ev.location ? <span><MapPin size={12} /> {ev.location}</span> : null}
       </button>
+      {ev.forLabel ? <span className="muted-chip">{ev.forLabel}</span> : null}
       {ev.scope === 'shared' ? <span className="owner-chip">{initials}</span> : null}
       <button className="delete-button" type="button" onClick={() => onDelete(ev.id)} title="Löschen"><Trash2 size={15} /></button>
     </div>
@@ -129,6 +130,7 @@ function EditSheet({ event, onClose }: { event: FamilyEvent | null; onClose: () 
   const [start, setStart] = useState('18:00');
   const [end, setEnd] = useState('');
   const [location, setLocation] = useState('');
+  const [forLabel, setForLabel] = useState('');
 
   useEffect(() => {
     if (!event) return;
@@ -137,6 +139,7 @@ function EditSheet({ event, onClose }: { event: FamilyEvent | null; onClose: () 
     setStart(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Vienna' }).format(new Date(event.startsAt)));
     setEnd(event.endsAt ? new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Vienna' }).format(new Date(event.endsAt)) : '');
     setLocation(event.location ?? '');
+    setForLabel(event.forLabel ?? '');
   }, [event]);
 
   async function save() {
@@ -146,6 +149,7 @@ function EditSheet({ event, onClose }: { event: FamilyEvent | null; onClose: () 
       startsAt: localToISO(date, start),
       endsAt: end ? localToISO(date, end) : null,
       location: location.trim() || null,
+      forLabel: forLabel.trim() || null,
     });
     onClose();
   }
@@ -160,6 +164,7 @@ function EditSheet({ event, onClose }: { event: FamilyEvent | null; onClose: () 
           <input className="field" type="time" value={end} onChange={(e) => setEnd(e.target.value)} placeholder="Ende" />
         </div>
         <input className="field" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Ort (optional)" />
+        <input className="field" value={forLabel} onChange={(e) => setForLabel(e.target.value)} placeholder="Betrifft (z. B. Kind, optional)" />
         <button className="primary-button" type="button" onClick={save}><Save size={18} /> Speichern</button>
       </div>
     </Sheet>
